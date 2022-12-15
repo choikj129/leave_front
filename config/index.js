@@ -11,11 +11,11 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      "/" : {
+      "/api" : {
         target : "http://localhost:3000",
         changeOrigin : true,
         pathRewrite : {
-          "^/" : ""
+          "^/api" : ""
         }
       }
     },
@@ -49,8 +49,8 @@ module.exports = {
     index: path.resolve(__dirname, '../../back/index.html'),
 
     // Paths
-    assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'static',
+    assetsRoot: path.resolve(__dirname, '../../back/public'),
+    assetsSubDirectory: '',
     assetsPublicPath: '/',
 
     /**
@@ -66,7 +66,7 @@ module.exports = {
     // Before setting to `true`, make sure to:
     // npm install --save-dev compression-webpack-plugin
     productionGzip: false,
-    productionGzipExtensions: ['js', 'css'],
+    productionGzipExtensions: ['js', 'css', 'img'],
 
     // Run the build command with an extra argument to
     // View the bundle analyzer report after build finishes:

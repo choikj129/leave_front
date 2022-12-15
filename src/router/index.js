@@ -1,15 +1,34 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
+  mode : "history",
   routes: [
     {
-      path: '/',
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/login/index')
+    },
+    {
+      path: '/hello',
       name: 'HelloWorld',
-      component: HelloWorld
+      component: () => import('@/views/HelloWorld')
     }
   ]
 })
+
+router.beforeEach(async (to, from, next) => {
+  console.log(window.location.pathname)
+  if (window.location.pathname == "/"){
+    window.location.href = "/login"
+    next();
+  } else if (["/login", "/logout"].includes(window.location.pathname)){
+    next();
+  } else{
+    next();
+  }
+})
+
+export default router;

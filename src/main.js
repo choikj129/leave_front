@@ -3,6 +3,12 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import axios from "axios"
+import axiosInterceptor from "@/apis/axiosInterceptor"
+
+axiosInterceptor.use(axios);
+
+import "@/assets/css/index.css";
 
 Vue.config.productionTip = false
 
