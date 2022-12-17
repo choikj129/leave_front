@@ -2,12 +2,17 @@
   <div class="login-form">
       <div class="form">
           <div class="h3">로그인</div>   
-          <div class="form-group">
-              <input type="text" class="form-control" placeholder="Username" v-model="id">
-          </div>
-          <div class="form-group">
-              <input type="password" class="form-control" placeholder="Password" v-model="pw">
-          </div>
+          <cp-input
+            placeholder="Username"
+            v-model="id"
+          >
+          </cp-input>
+          <cp-input
+            type="password"
+            placeholder="Password"
+            v-model="pw"
+          >
+          </cp-input>
           <div class="form-group">
               <button type="submit" class="btn btn-primary btn-block" @click="login">Log in</button>
           </div>
@@ -26,7 +31,7 @@
       }
     },
     methods : {
-      login() {
+      login() {   
         axios.post("/login", {
             id : this.id,
             pw : this.pw
@@ -59,10 +64,7 @@
   .login-form h2 {
       margin: 0 0 15px;
   }
-  .form-control, .btn {
-      min-height: 38px;
-      border-radius: 2px;
-  }
+  
   .btn {        
       font-size: 15px;
       font-weight: bold;
