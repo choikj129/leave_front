@@ -1,7 +1,6 @@
 <template>    
   <div class="login-form">
-      <div class="form">
-          <div class="h3">로그인</div>   
+      <div class="form">          
           <cp-input
             placeholder="Username"
             v-model="id"
@@ -13,9 +12,12 @@
             v-model="pw"
           >
           </cp-input>
-          <div class="form-group">
-              <button type="submit" class="btn btn-primary btn-block" @click="login">Log in</button>
-          </div>
+          <cp-button
+            text="로그인"
+            @login="login"
+            function-name="login"
+          >
+        </cp-button>
       </div>
   </div>
 </template>
@@ -31,7 +33,7 @@
       }
     },
     methods : {
-      login() {   
+      login() {           
         axios.post("/login", {
             id : this.id,
             pw : this.pw
@@ -63,11 +65,6 @@
   }
   .login-form h2 {
       margin: 0 0 15px;
-  }
-  
-  .btn {        
-      font-size: 15px;
-      font-weight: bold;
   }
 </style>
   

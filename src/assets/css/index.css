@@ -2,3 +2,7 @@
 .f4 {font-size: 4rem;}
 .f5 {font-size: 5rem;}
 .posR {position: relative;}
+.btn {font-size: 1.7rem!important; font-weight: bold;}
+.form-control, .btn {min-height: 38px; border-radius: 2px;}
+/* .v-list-item .v-list-item__subtitle,  */
+.v-list-item .v-list-item__title{font-size: 1.3rem;}

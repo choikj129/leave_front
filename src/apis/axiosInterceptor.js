@@ -20,11 +20,11 @@ const use = (axios) => {
   if (responseInterceptor == null) {
     responseInterceptor = axios.interceptors.response.use(
       function (response) {
-        console.log(response.data)
+        // console.log(response.data)
         return response.data;
       },
       function (error) {
-        console.error(error)
+        // console.error(error)
         return Promise.reject(error);
       }
     );

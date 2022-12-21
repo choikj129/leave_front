@@ -1,40 +1,33 @@
 <template>
-    <div id="input">
+    <div id="button">
         <div class="form-group">
-            <input 
-                :type="type"
-                class="form-control" 
-                :placeholder="placeholder" 
-                :value="text"
-                @input="$emit('input', $event.target.value)"
-            >
-        </div>      
+            <button class="btn btn-primary btn-block" @click="clickFunction">{{text}}</button>
+        </div>    
     </div>
 </template>
 
 <script>
     export default {
         props : {
-            type : {
-                type : String,
-                default : "text"
-            },
-            placeholder : {
-                type : String,
-                default : ""
-            },
             text : {
                 type : String,
                 default : ""
             },
+            functionName : {
+                type : String,
+                default : ""
+            },
         },
-        name: 'cp-input',
+        name: 'cp-button',
         data () {
             return {
                 // placeholder : "",                
             }
         },
         methods : {
+            clickFunction() {   
+                this.$emit(this.functionName)
+            }
         }
     }
 </script>
