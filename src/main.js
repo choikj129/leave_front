@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import axios from "axios"
+import vuetify from '@/plugins/vuetify' // path to vuetify export
 import axiosInterceptor from "@/apis/axiosInterceptor"
 import components from "@/components/index"
 import "@/assets/css/index.css";
@@ -19,6 +20,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  vuetify,
   components: { App },
   template: '<App/>'
-})
+}).$mount('#app')
