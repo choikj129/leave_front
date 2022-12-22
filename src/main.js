@@ -4,13 +4,12 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import axios from "axios"
-import vuetify from '@/plugins/vuetify' // path to vuetify export
+import vuetify from '@/plugins/vuetify' 
 import axiosInterceptor from "@/apis/axiosInterceptor"
 import components from "@/components/index"
 import "@/assets/css/index.css";
 
 Vue.mixin(components)
-
 axiosInterceptor.use(axios);
 
 

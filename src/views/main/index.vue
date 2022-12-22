@@ -35,8 +35,8 @@
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
-  
-      <v-main>
+      <calendar />
+      <!-- <v-main>
         <v-container
           class="py-8 px-6"
           fluid
@@ -78,24 +78,27 @@
             </v-col>
           </v-row>
         </v-container>
-      </v-main>
+      </v-main> -->
     </v-app>    
 </template>
 
 <script>
-
-export default {
-    data () {
-        return {
-            cards: ['Today'],
-            drawer: null,
-            links: [
-                ['mdi-calendar-check', '휴가'],
-                ['mdi-inbox-arrow-down', 'Inbox'],
-                // ['mdi-delete', 'Trash'],
-                // ['mdi-alert-octagon', 'Spam'],
-            ],
-        }
-    },
-}
+  import calendar from "./calendar"
+  export default {
+      components : {
+        calendar
+      },
+      data() {
+          return {
+              cards: ['Today'],
+              drawer: null,
+              links: [
+                  ['mdi-calendar-check', '휴가'],
+                  ['mdi-inbox-arrow-down', 'Inbox'],
+                  // ['mdi-delete', 'Trash'],
+                  // ['mdi-alert-octagon', 'Spam'],
+              ],
+          }
+      },
+  }
 </script>
