@@ -1,22 +1,22 @@
 <template>    
   <div class="login-form">
       <div class="form">          
-          <cp-input
-            placeholder="Username"
-            v-model="id"
-          >
-          </cp-input>
-          <cp-input
-            type="password"
-            placeholder="Password"
-            v-model="pw"
-          >
-          </cp-input>
-          <cp-button
-            text="로그인"
-            @login="login"
-            function-name="login"
-          >
+        <cp-input
+          placeholder="Username"
+          v-model="id"
+        >
+        </cp-input>
+        <cp-input
+          type="password"
+          placeholder="Password"
+          v-model="pw"
+        >
+        </cp-input>
+        <cp-button
+          text="로그인"
+          @login="login"
+          function-name="login"
+        >
         </cp-button>
       </div>
   </div>

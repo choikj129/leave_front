@@ -20,7 +20,9 @@
                         {{ calendarTitle }}
                     </v-toolbar-title>
                     <v-spacer></v-spacer>
-                    
+                    <v-btn depressed color="primary" @click="regist">
+                        신청
+                    </v-btn>                    
                 </v-toolbar>
             </v-sheet>
             <v-sheet height="600">
@@ -33,41 +35,47 @@
                     :type="'month'"                    
                     @click:date="selectEvent"
                     @click:event="showEvent"
-                    @change="updateRange"
                     locale="ko"
                     :show-month-on-first="false"
                     :day-format="getFormat"
                 >
                 </v-calendar>
                 <v-menu 
+                    max-width="350px"
                     v-model="selectedOpen"
                     :close-on-content-click="false"
                     :activator="selectedElement"
                     offset-x>
-                    <v-card color="grey lighten-4" min-width="350px" flat>
+                    <v-card color="grey lighten-4" min-width="350px"  flat>
                         <v-toolbar :color="selectedEvent.color" dark>
                             <v-menu bottom right>
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-btn  outlined color="#f5f5f5" v-bind="attrs" v-on="on">
-                                        <span>{{ typeToLabel[type] }}</span>
+                                        <span>{{ selectedEvent.type }}</span>
                                         <v-icon right>mdi-menu-down</v-icon>
                                     </v-btn>
                                 </template>
-                                <v-list>
-                                    <v-list-item @click="type = '휴가'">
+                                <v-list v-if="!selectedEvent.disabled">
+                                    <v-list-item @click="setType('휴가')">
                                         <v-list-item-title>휴가</v-list-item-title>
                                     </v-list-item>
-                                    <v-list-item @click="type = '오전반차'">
+                                    <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오전 반차')">
                                         <v-list-item-title>오전 반차</v-list-item-title>
                                     </v-list-item>
-                                    <v-list-item @click="type = '오후반차'">
+                                    <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오후 반차')">
                                         <v-list-item-title>오후 반차</v-list-item-title>
                                     </v-list-item>
-                                    <v-list-item @click="type = '특별휴가'">
-                                        <v-list-item-title>특별 휴가</v-list-item-title>
+                                    <v-list-item @click="setType('기타 휴가')">
+                                        <v-list-item-title>기타 휴가</v-list-item-title>
                                     </v-list-item>
                                 </v-list>
                             </v-menu>
+                            <v-text-field 
+                                placeholder="기타" 
+                                style="width:30%;margin-top: 14px;margin-left: 12px;"
+                                v-model="etcType"
+                                v-if="selectedEvent.type=='기타 휴가' && !selectedEvent.disabled"    
+                            ></v-text-field>
                             <v-spacer></v-spacer>
                             <v-btn icon @click="deleteEvent">
                                 <v-icon>mdi-delete</v-icon>
@@ -92,38 +100,77 @@
 export default {
     data: () => ({
         focus: "",
-        type: "휴가",
-        typeToLabel: {
-            휴가: "휴가",
-            오전반차: "오전 반차",
-            오후반차: "오후 반차",
-            특별휴가: "특별 휴가",
-        },
-        testColor : "black red black",
+        type : "휴가",
         selectedEvent: {},
         selectedElement: null,
+        isOpened : false,
         selectedOpen: false,
         selectDate : false,
+        selectMonth : new Date(),
         startDate : null,
+        changeEvents : {추가 : {}, 취소 : []},
+        OriginalEvents: {},
         events: [],
         colors: ["blue", "indigo", "deep-purple", "cyan", "green", "orange", "grey darken-1"],
-        names: ["Meeting", "Holiday", "PTO", "Travel", "Event", "Birthday", "Conference", "Party"],
         calendarTitle: "",
         week: ["일", "월", "화", "수", "목", "금", "토"],
-        timeFormat : "T00:00:00"
+        etcType : "기타",
+
     }),
     created() {
-        this.events.push({
-            name: "test",
-            start: new Date(`2022-12-23${this.timeFormat}`),
-            end: new Date(`2022-12-24${this.timeFormat}`),
-            color: this.colors[this.rnd(0, this.colors.length - 1)],
-            index : Math.random().toString(36).substring(2),
-        })
+        // {
+        //     name : name,                
+        //     start: diffDate ? this.startDate : endDate,
+        //     end: diffDate ? endDate : this.startDate,
+        //     startDate: diffDate ? startDate : event.date,
+        //     endDate: diffDate ? event.date : startDate,
+        //     color: this.colors[this.rnd(0, this.colors.length - 1)],
+        //     index : Math.random().toString(36).substring(2),
+        //     cnt : dateCnt,
+        //     type : "휴가",
+        //     etcType : "",
+        // }
+        let events = [
+            {
+                name : "2022-12-21 (수) 예비군 휴가",                
+                startDate : "2022-12-21",
+                endDate : "2022-12-21",
+                cnt : "1",
+            },
+            {
+                name : "2022-12-15 (목) 오전 반차",
+                startDate : "2022-12-15",
+                endDate : "2022-12-15",
+                cnt : "0.5",
+            },
+        ]
+        
+        for (let i=0; i<events.length; i++) {
+            let event = events[i]
+            event.disabled = true
+            event.start = new Date(event.startDate)
+            event.end = new Date(event.endDate)
+            event.color = this.colors[this.rnd(0, this.colors.length - 1)]
+            event.index = Math.random().toString(36).substring(2)
+            const re = /[\d-]+.\(.\)(.~.[\d-]+.\(.\))?.(.*)/
+            let type = "휴가"
+            let etcType = ""
+            if (re.test(event.name)) {
+                type = RegExp.$2
+                if (type.trim().endsWith("휴가") && type.trim().length > 2) {
+                    etcType = type.substring(0, type.lastIndexOf("휴가") - 1)
+                    type = "기타 휴가"
+                }
+            }
+            event.type = type
+            event.etcType = etcType
+            this.OriginalEvents[event.index] = event
+            
+            this.events.push(event)
+        }        
     },
     mounted() {
-        this.calendarTitle = this.$refs.calendar.title
-        this.$refs.calendar.checkChange()
+        this.setTitle()
     },
     methods: {
         getFormat(e) {
@@ -136,16 +183,45 @@ export default {
         getEventColor(event) {
             return event.color
         },
+        setTitle() {
+            this.calendarTitle = `${this.selectMonth.getFullYear()}년 ${this.selectMonth.getMonth()+1 < 10 ? "0" + (this.selectMonth.getMonth()+1) : this.selectMonth.getMonth()+1}월`
+        },
         setToday() {
+            this.selectMonth = new Date()
+            this.setTitle()
             this.focus = ""
         },
+        setType(type) {
+            // this.type = type
+            this.selectedEvent.type = type
+            this.selectedEvent.cnt = type.endsWith("반차") ? 0.5 : Math.round(this.selectedEvent.cnt)
+            this.setEvent(type)
+        },
+        setEvent(type) {
+            this.selectedEvent.name = this.selectedEvent.name.replace(/([\d-]+.\(.\)(.~.[\d-]+.\(.\))?).*/g, `$1 ${type}`)
+            for (let i=0; i<this.events.length; i++) {
+                if (this.events[i].index == this.selectedEvent.index) {
+                    this.events[i] = this.selectedEvent
+                    break
+                }
+            }
+
+            if (this.OriginalEvents[this.selectedEvent.index] == undefined) {
+                this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
+            }
+        },    
         prev() {
+            this.selectMonth.setMonth(this.selectMonth.getMonth()-1)
+            this.setTitle()
             this.$refs.calendar.prev()
         },
         next() {
+            this.selectMonth.setMonth(this.selectMonth.getMonth()+1)
+            this.setTitle()
             this.$refs.calendar.next()
         },
-        showEvent({nativeEvent, event}){
+        showEvent({nativeEvent, event}){            
+            this.etcType = event.etcType
             const open = () => {
                 this.selectedEvent = event
                 this.selectedElement = nativeEvent.target
@@ -159,49 +235,106 @@ export default {
             }
             nativeEvent.stopPropagation()
         },
-        selectEvent(event) {            
+        selectEvent(event) {
+            if (this.selectedOpen) {
+                this.selectDate = false
+                return
+            }
             if (!this.selectDate){
                 this.selectDate = true
-                this.startDate = new Date(`${event.date+this.timeFormat}`)
+                this.startDate = event.date
                 return
             }
             const nativeEvent = event.nativeEvent
-            const startDate = `${this.startDate.getFullYear()}-${this.startDate.getMonth()+1}-${this.startDate.getDate()}`
-            const endDate = new Date(`${event.date+this.timeFormat}`)
-            const diffDate = this.startDate < endDate
+            
+            if (this.startDate > event.date) {
+                [this.startDate, event.date] = [event.date, this.startDate]
+            }
+            const startDate = new Date(this.startDate)
+            const endDate = new Date(event.date)
+            
+            const dateCnt = this.getDateCnt(startDate, endDate)
+            const name = this.startDate == event.date
+                ? `${this.startDate} (${this.week[startDate.getDay()]}) 휴가` 
+                : `${this.startDate} (${this.week[startDate.getDay()]}) ~ ${event.date} (${this.week[endDate.getDay()]}) 휴가`
 
-            const name = startDate == event.date 
-                ? `${startDate} (${this.week[this.startDate.getDay()]}) 휴가` 
-                : `${startDate} (${this.week[this.startDate.getDay()]}) ~ ${event.date} (${this.week[endDate.getDay()]}) 휴가`
             this.selectedEvent = {
                 name : name,
-                start: diffDate ? this.startDate : endDate,
-                end: diffDate ? endDate : this.startDate,
+                start: startDate,
+                end: endDate,
+                startDate: this.startDate,
+                endDate: event.date,
                 color: this.colors[this.rnd(0, this.colors.length - 1)],
                 index : Math.random().toString(36).substring(2),
+                cnt : dateCnt,
+                type : "휴가",
+                etcType : "",
+                disabled : false,
             }
+            this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
             this.selectedElement = nativeEvent.target
             this.selectDate = false
             this.startDate = null
-                            
+
             this.events.push(this.selectedEvent)
 
             nativeEvent.stopPropagation()
         },
-        closeEvent() {                        
+        closeEvent() {
+            if (this.selectedEvent.type=='기타 휴가') {
+                if (this.etcType == "") {
+                    this.etcType = "기타"
+                }
+                this.selectedEvent.etcType = this.etcType
+                this.setEvent(this.etcType.endsWith("휴가") ? this.etcType : this.etcType + " 휴가")
+            }        
             this.selectedOpen = false
         },
         deleteEvent(){
-            this.events = this.events.filter(event => event.index != this.selectedEvent.index)            
-            this.closeEvent()
-            
+            if (confirm(`${this.selectedEvent.name}를 취소하시겠습니까?`)) {
+                this.events = this.events.filter(event => {
+                    if (event.index == this.selectedEvent.index) {
+                        if (this.OriginalEvents[this.selectedEvent.index] == undefined) {
+                            delete this.changeEvents.추가[this.selectedEvent.index]
+                        }else {
+                            this.changeEvents.취소.push(event)
+                        }
+                    }
+                    return event.index != this.selectedEvent.index
+                })
+                this.closeEvent()
+            }
         },
-        updateRange({ start, end }) {
-            // console.log("@@@@@@@@@@@@@@@@")
+        regist() {
+            let message = ""
+            Object.keys(this.changeEvents).forEach((key) =>{
+                if (key != "취소") {
+                    Object.values(this.changeEvents[key]).forEach((value) => {
+                        message += key == "변경" ? `${value.name} 변경\n` : `${value.name}\n`
+                    })
+                }else {
+                    // console.log()
+                    Object.values(this.changeEvents[key]).forEach((value) => {
+                        message += `${value.name} 취소\n`
+                    })
+                }
+            })
+            if(message != "" && confirm(message+"\n를 신청하시겠습니까?")){
+                // TO-DO
+            }            
         },
         rnd(a, b) {
             return Math.floor((b - a + 1) * Math.random()) + a
         },
+        getDateCnt(d1, d2) {
+            return Math.abs((d2.getTime() - d1.getTime())/ (1000 * 60 * 60 * 24)) + 1
+        },
     },
+    updated() {
+        if (this.isOpened && !this.selectedOpen) {
+            this.closeEvent()            
+        }
+        this.isOpened = this.selectedOpen
+    }
 }
 </script>

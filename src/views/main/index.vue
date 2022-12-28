@@ -17,8 +17,6 @@
         <div>john@odinue.net</div>
         </v-sheet>
   
-        <v-divider></v-divider>
-  
         <v-list>
           <v-list-item
             v-for="[icon, text] in links"
