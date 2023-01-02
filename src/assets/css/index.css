@@ -6,3 +6,6 @@
 .form-control, .btn {min-height: 38px; border-radius: 2px;}
 /* .v-list-item .v-list-item__subtitle,  */
 .v-list-item .v-list-item__title{font-size: 1.3rem;}
+.v-toolbar__content .v-toolbar__title { font-size: 2rem;}
+.v-btn.v-size--default { font-size: 1.2rem;}
+.v-calendar-weekly__head-weekday {border-bottom: 1px solid black; background-color: #f4f9ff; color:black!important;}

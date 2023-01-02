@@ -12,9 +12,9 @@ const router = new Router({
       component: () => import('@/views/login/index')
     },
     {
-      path: '/main',
+      path: '/leave',
       name: 'mainPage',
-      component: () => import('@/views/main/index')
+      component: () => import('@/views/leave/index')
     },
     {
       path: '/hello',
@@ -27,7 +27,7 @@ const router = new Router({
 router.beforeEach(async (to, from, next) => {
   console.log(window.location.pathname)
   if (window.location.pathname == "/"){
-    window.location.href = "/main"
+    window.location.href = "/leave"
     // window.location.href = "/login"
     next();
   } else if (["/login", "/logout"].includes(window.location.pathname)){

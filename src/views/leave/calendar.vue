@@ -32,9 +32,11 @@
                     color="secondary"
                     :events="events"
                     :event-color="getEventColor"
-                    :type="'month'"                    
+                    :type="'month'"
+                    @change="changeMonth"
+                    @click:next="next"
                     @click:date="selectEvent"
-                    @click:event="showEvent"
+                    @click:event="showEvent"                
                     locale="ko"
                     :show-month-on-first="false"
                     :day-format="getFormat"
@@ -97,6 +99,7 @@
 </template>
   
 <script>
+import api from "@/apis/api";
 export default {
     data: () => ({
         focus: "",
@@ -118,31 +121,18 @@ export default {
 
     }),
     created() {
-        // {
-        //     name : name,                
-        //     start: diffDate ? this.startDate : endDate,
-        //     end: diffDate ? endDate : this.startDate,
-        //     startDate: diffDate ? startDate : event.date,
-        //     endDate: diffDate ? event.date : startDate,
-        //     color: this.colors[this.rnd(0, this.colors.length - 1)],
-        //     index : Math.random().toString(36).substring(2),
-        //     cnt : dateCnt,
-        //     type : "휴가",
-        //     etcType : "",
-        // }
+        /*
+        value : events
+        [{
+            name : "2022-12-21 (수) 예비군 휴가",                
+            startDate : "2022-12-21",
+            endDate : "2022-12-21",
+            cnt : "1",
+        },]
+        */
+        
         let events = [
-            {
-                name : "2022-12-21 (수) 예비군 휴가",                
-                startDate : "2022-12-21",
-                endDate : "2022-12-21",
-                cnt : "1",
-            },
-            {
-                name : "2022-12-15 (목) 오전 반차",
-                startDate : "2022-12-15",
-                endDate : "2022-12-15",
-                cnt : "0.5",
-            },
+            
         ]
         
         for (let i=0; i<events.length; i++) {
@@ -165,7 +155,23 @@ export default {
             event.type = type
             event.etcType = etcType
             this.OriginalEvents[event.index] = event
-            
+
+            /*
+            value : event
+            {
+                name : name,                
+                start: diffDate ? this.startDate : endDate,
+                end: diffDate ? endDate : this.startDate,
+                startDate: diffDate ? startDate : event.date,
+                endDate: diffDate ? event.date : startDate,
+                color: this.colors[this.rnd(0, this.colors.length - 1)],
+                index : Math.random().toString(36).substring(2),
+                cnt : dateCnt,
+                type : "휴가",
+                etcType : "",
+                disabled : true,
+            }
+            */
             this.events.push(event)
         }        
     },
@@ -176,10 +182,6 @@ export default {
         getFormat(e) {
             return e.day
         },
-        viewDay({ date }) {
-            this.focus = date
-            this.type = "day"
-        },
         getEventColor(event) {
             return event.color
         },
@@ -187,12 +189,9 @@ export default {
             this.calendarTitle = `${this.selectMonth.getFullYear()}년 ${this.selectMonth.getMonth()+1 < 10 ? "0" + (this.selectMonth.getMonth()+1) : this.selectMonth.getMonth()+1}월`
         },
         setToday() {
-            this.selectMonth = new Date()
-            this.setTitle()
             this.focus = ""
         },
         setType(type) {
-            // this.type = type
             this.selectedEvent.type = type
             this.selectedEvent.cnt = type.endsWith("반차") ? 0.5 : Math.round(this.selectedEvent.cnt)
             this.setEvent(type)
@@ -210,16 +209,17 @@ export default {
                 this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
             }
         },    
-        prev() {
-            this.selectMonth.setMonth(this.selectMonth.getMonth()-1)
-            this.setTitle()
+        prev() {            
             this.$refs.calendar.prev()
         },
-        next() {
-            this.selectMonth.setMonth(this.selectMonth.getMonth()+1)
-            this.setTitle()
+        next() {            
             this.$refs.calendar.next()
         },
+        changeMonth(event) {
+            this.selectMonth.setFullYear(event.start.year)
+            this.selectMonth.setMonth(event.start.month - 1)
+            this.setTitle()
+        },  
         showEvent({nativeEvent, event}){            
             this.etcType = event.etcType
             const open = () => {
@@ -320,8 +320,12 @@ export default {
                 }
             })
             if(message != "" && confirm(message+"\n를 신청하시겠습니까?")){
-                // TO-DO
-            }            
+                api.post("/leave", {
+                    events : this.events
+                }).then(res => {
+                    console.log(res)
+                })
+            }
         },
         rnd(a, b) {
             return Math.floor((b - a + 1) * Math.random()) + a
