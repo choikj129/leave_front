@@ -23,7 +23,7 @@
 </template>
   
 <script>
-  import axios from "axios";
+  import api from "@/apis/api";
   export default {
     name: "login-form",
     data () {
@@ -34,13 +34,13 @@
     },
     methods : {
       login() {           
-        axios.post("/login", {
+        api.post("/login", {
             id : this.id,
             pw : this.pw
         })
           .then((res) => {            
             if (res.status) {
-              console.log(res.data)
+              console.log(res)
               // window.location.href="/hello"
             } else {
               alert(res.msg)
