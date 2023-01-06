@@ -2,33 +2,22 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     
-    <button @click="axios">axios</button>
+    <button @click="test">test</button>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 export default {
-  name: 'HelloWorld',
+  name: 'test',
   data () {
     return {
       msg: 'HELLO VUE'
     }
   },
   methods : {
-    axios() {
-      const url = "/"
-      axios.post(
-        url,
-        {},
-        {
-          headers: {
-            'content-type': 'application/json;charset=EUC-KR'
-        }
-      })
-        .then((response) => {
-            console.log(response)
-        })
+    test() {
+      console.log(this.$store.getters.getUser)
     }
   }
 }

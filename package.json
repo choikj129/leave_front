@@ -17,7 +17,8 @@
     "vue": "^2.5.2",
     "vue-cli": "^2.9.6",
     "vue-router": "^3.0.1",
-    "vuetify": "^2.6.13"
+    "vuetify": "^2.6.13",
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
@@ -68,11 +69,11 @@
   "main": ".postcssrc.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/choikj129/vacation_front.git"
+    "url": "git+https://github.com/choikj129/leave_front.git"
   },
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/choikj129/vacation_front/issues"
+    "url": "https://github.com/choikj129/leave_front/issues"
   },
-  "homepage": "https://github.com/choikj129/vacation_front#readme"
+  "homepage": "https://github.com/choikj129/leave_front#readme"
 }

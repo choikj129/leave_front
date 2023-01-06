@@ -13,28 +13,28 @@ const router = new Router({
     },
     {
       path: '/leave',
-      name: 'mainPage',
+      name: 'leave',
       component: () => import('@/views/leave/index')
     },
     {
-      path: '/hello',
-      name: 'HelloWorld',
-      component: () => import('@/views/HelloWorld')
+      path: '/test',
+      name: 'test',
+      component: () => import('@/views/test')
     }
   ]
 })
 
 router.beforeEach(async (to, from, next) => {
-  console.log(window.location.pathname)
-  if (window.location.pathname == "/"){
-    window.location.href = "/leave"
+  const path = to.path
+  if (path == "/"){
+    router.push({name : "leave"})
     // window.location.href = "/login"
-    next();
-  } else if (["/login", "/logout"].includes(window.location.pathname)){
-    next();
-  } else{
-    next();
+    // next()
+  } else if (["/login", "/logout"].includes(path)){
+    next()
+  } else {
+    next()
   }
 })
 
-export default router;
+export default router

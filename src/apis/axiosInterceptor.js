@@ -6,7 +6,7 @@ const use = (axios) => {
   if (requestInterceptor == null) {
     requestInterceptor = axios.interceptors.request.use(
       function (config) {
-        config.headers =  {"content-type" : "application/json;charset=UTF-8"}
+        config.headers =  {"Content-Type" : "application/json;charset=UTF-8"}
         config.url = "/api" + config.url
         return config;
       },
