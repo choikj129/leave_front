@@ -2,7 +2,7 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     
-    <button @click="test">test</button>
+    <button @click="test">test1</button>
   </div>
 </template>
 
