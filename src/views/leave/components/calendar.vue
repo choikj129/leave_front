@@ -121,63 +121,42 @@ export default {
 
     }),
     created() {
-        /*
-        value : events
-        [{
-            name : "2022-12-21 (수) 예비군 휴가",                
-            startDate : "2022-12-21",
-            endDate : "2022-12-21",
-            cnt : "1",
-        },]
-        */
-        let events = [
-            
-        ]
-        api.get("/leave?id="+this.$store.getters.getUser.id).then((res) => {
-            console.log(res)
-            // events = res.data
+        api.get("/leave", {id : this.$store.getters.getUser.id}).then((res) => {
+            let events = res.data
+            for (let i=0; i<events.length; i++) {
+                let event = events[i]
+                
+                const re = /[\d-]+.\(.\)(.~.[\d-]+.\(.\))?.(.*)/
+                let type = "휴가"
+                let etcType = ""
+                if (re.test(event.내용)) {
+                    type = RegExp.$2
+                    if (type.trim().endsWith("휴가") && type.trim().length > 2) {
+                        etcType = type.substring(0, type.lastIndexOf("휴가") - 1)
+                        type = "기타 휴가"
+                    }
+                }
+                
+                event = {
+                    name : event.내용,                
+                    start: new Date(event.시작일),
+                    end: new Date(event.종료일),
+                    startDate: event.시작일,
+                    endDate: event.종료일,
+                    color: this.colors[this.rnd(0, this.colors.length - 1)],
+                    index : Math.random().toString(36).substring(2),
+                    cnt : event.휴가일수,
+                    type : type,
+                    etcType : etcType,
+                    disabled : true,
+                }
+                this.OriginalEvents[event.index] = event
+                
+                this.events.push(event)
+            }        
         })
         
         
-        for (let i=0; i<events.length; i++) {
-            let event = events[i]
-            event.disabled = true
-            event.start = new Date(event.startDate)
-            event.end = new Date(event.endDate)
-            event.color = this.colors[this.rnd(0, this.colors.length - 1)]
-            event.index = Math.random().toString(36).substring(2)
-            const re = /[\d-]+.\(.\)(.~.[\d-]+.\(.\))?.(.*)/
-            let type = "휴가"
-            let etcType = ""
-            if (re.test(event.name)) {
-                type = RegExp.$2
-                if (type.trim().endsWith("휴가") && type.trim().length > 2) {
-                    etcType = type.substring(0, type.lastIndexOf("휴가") - 1)
-                    type = "기타 휴가"
-                }
-            }
-            event.type = type
-            event.etcType = etcType
-            this.OriginalEvents[event.index] = event
-
-            /*
-            value : event
-            {
-                name : name,                
-                start: diffDate ? this.startDate : endDate,
-                end: diffDate ? endDate : this.startDate,
-                startDate: diffDate ? startDate : event.date,
-                endDate: diffDate ? event.date : startDate,
-                color: this.colors[this.rnd(0, this.colors.length - 1)],
-                index : Math.random().toString(36).substring(2),
-                cnt : dateCnt,
-                type : "휴가",
-                etcType : "",
-                disabled : true,
-            }
-            */
-            this.events.push(event)
-        }        
     },
     mounted() {
         this.setTitle()
