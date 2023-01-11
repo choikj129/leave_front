@@ -39,10 +39,9 @@
             pw : this.pw
         })
           .then((res) => {            
-            if (res.status) {              
+            if (res.status) {
               this.$store.commit("setUser", res.data)
-              console.log(this.$store.getters.getUser)
-              this.$router.push({name : "test"})
+              this.$router.push({path : "leave"})
             } else {
               alert(res.msg)
             }            

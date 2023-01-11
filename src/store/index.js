@@ -1,5 +1,6 @@
 import Vue from "vue"
 import Vuex from "vuex"
+import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 
@@ -8,6 +9,7 @@ const state = {
         id : null,
         name : null,
         isManager : false,
+        isLogin : false,
     }
 }
 
@@ -25,6 +27,7 @@ const mutations = {
 
 
 const store = new Vuex.Store({
+    plugins : [createPersistedState()],
     state : state,
     getters : getters,
     mutations : mutations,

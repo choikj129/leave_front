@@ -11,4 +11,14 @@ export default {
             console.error(e)
         }
     },
+    async get(url) {
+        if (!url.startsWith("/")) {
+            url = "/" + url
+        }
+        try {
+            return await axios.get(url).then((res) => { return res })
+        } catch(e) {
+            console.error(e)
+        }
+    },
 }

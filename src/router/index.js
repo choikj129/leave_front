@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from '../store'
 
 Vue.use(Router)
 
@@ -27,13 +28,19 @@ const router = new Router({
 router.beforeEach(async (to, from, next) => {
   const path = to.path
   if (path == "/"){
-    router.push({name : "leave"})
-    // window.location.href = "/login"
-    // next()
-  } else if (["/login", "/logout"].includes(path)){
+    if (store.getters.getUser.isLogin) {
+      router.push({path : "leave"})
+    } else {
+      router.push({path : "login"})
+    }
+  } else if (["/login", "/logout", "/test"].includes(path)){
     next()
   } else {
-    next()
+    if (store.getters.getUser.isLogin) {
+      next()
+    } else {
+      router.push({path : "login"})
+    }
   }
 })
 

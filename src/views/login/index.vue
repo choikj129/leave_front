@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import loginForm from "./form"
 export default {
   name: 'login',
@@ -22,21 +21,7 @@ export default {
       msg: 'HELLO VUE'
     }
   },
-  methods : {
-    axios() {
-      const url = "/"
-      axios.post(
-        url,
-        {},
-        {
-          headers: {
-            'content-type': 'application/json;charset=EUC-KR'
-        }
-      })
-        .then((response) => {
-            console.log(response)
-        })
-    }
+  methods : {  
   }
 }
 </script>

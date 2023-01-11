@@ -1,6 +1,6 @@
 <template>
     <v-row class="fill-height" style="width:70%; margin-left: 22%;">
-        <v-col>
+        <v-col style="margin-top:10rem;">
             <v-sheet height="80">
                 <v-toolbar flat>
                     <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
@@ -130,10 +130,14 @@ export default {
             cnt : "1",
         },]
         */
-        
         let events = [
             
         ]
+        api.get("/leave?id="+this.$store.getters.getUser.id).then((res) => {
+            console.log(res)
+            // events = res.data
+        })
+        
         
         for (let i=0; i<events.length; i++) {
             let event = events[i]
