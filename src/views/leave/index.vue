@@ -24,6 +24,7 @@
             v-for="link in links"
             :key="link.icon"
             v-if="!link.auth || (link.auth && user.isManager)"
+            @click="change(link.type)"
           >
             <v-list-item-icon>
               <v-icon>{{ link.icon }}</v-icon>
@@ -35,26 +36,36 @@
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
-      <calendar />
+      <calendar v-if="selectType == 'calendar'"/>
+      <lists v-else-if="selectType == 'lists'"/>
+
     </v-app>    
 </template>
 
 <script>
   import calendar from "./components/calendar"
+  import lists from "./components/lists"
   export default {
-      components : {
-        calendar
-      },
-      data() {
-          return {
-              cards: ['Today'],
-              drawer: null,
-              links: [
-                  {icon : "mdi-calendar-check", text : "휴가", auth : false},
-                  {icon : "mdi-inbox-arrow-down", text : "기록", auth : true},
-              ],
-              user : this.$store.getters.getUser 
-          }
-      },
+    components : {
+      calendar,
+      lists
+    },
+    data() {
+        return {
+            cards: ['Today'],
+            drawer: null,
+            links: [
+                {icon : "mdi-calendar-check", text : "휴가 일정", auth : false, type : "calendar"},
+                {icon : "mdi-inbox-arrow-down", text : "휴가 리스트", auth : false, type : "lists"},
+            ],
+            user : this.$store.getters.getUser,
+            selectType : "lists",
+        }
+    },
+    methods : {
+      change(type) {
+        this.selectType = type
+      }
+    }
   }
 </script>

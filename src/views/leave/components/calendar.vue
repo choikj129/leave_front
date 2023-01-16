@@ -121,7 +121,7 @@ export default {
 
     }),
     created() {
-        api.get("/leave", {id : this.$store.getters.getUser.id}).then((res) => {
+        this.$get("/leave", {id : this.$store.getters.getUser.id}).then((res) => {
             let events = res.data
             for (let i=0; i<events.length; i++) {
                 let event = events[i]
@@ -303,7 +303,7 @@ export default {
                 }
             })
             if(message != "" && confirm(message+"\n를 신청하시겠습니까?")){
-                api.post("/leave", {
+                this.$post("/leave", {
                     events : this.events
                 }).then(res => {
                     console.log(res)

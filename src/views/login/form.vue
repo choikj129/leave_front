@@ -34,7 +34,7 @@
     },
     methods : {
       login() {           
-        api.post("/login", {
+        this.$post("/login", {
             id : this.id,
             pw : this.pw
         })

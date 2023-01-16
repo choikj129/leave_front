@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export default {
-    async post(url, params) {
+const methods = {
+    post : async (url, params) => {
         if (!url.startsWith("/")) {
             url = "/" + url
         }
@@ -12,7 +12,7 @@ export default {
             return e
         }
     },
-    async get(url, params={}) {
+    get : async (url, params={}) => {
         if (!url.startsWith("/")) {
             url = "/" + url
         }
@@ -33,5 +33,12 @@ export default {
             console.error(e)
             return e
         }
-    },
+    }
+}
+
+export default {
+    install (Vue) {
+        Vue.prototype.$get = methods.get
+        Vue.prototype.$post = methods.post
+    }
 }
