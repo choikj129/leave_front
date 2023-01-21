@@ -24,8 +24,11 @@
                         신청
                     </v-btn>                    
                 </v-toolbar>
+                <v-card-text style="font-size: 1.5rem; font-weight: bold;">
+					{{ cntTitle }}
+				</v-card-text>
             </v-sheet>
-            <v-sheet height="600">
+            <v-sheet height="600" style="margin-top : 2rem;">
                 <v-calendar 
                     ref="calendar"
                     v-model="focus"
@@ -67,6 +70,9 @@
                                     <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오후 반차')">
                                         <v-list-item-title>오후 반차</v-list-item-title>
                                     </v-list-item>
+                                    <v-list-item @click="setType('포상 휴가')">
+                                        <v-list-item-title>포상 휴가</v-list-item-title>
+                                    </v-list-item>
                                     <v-list-item @click="setType('기타 휴가')">
                                         <v-list-item-title>기타 휴가</v-list-item-title>
                                     </v-list-item>
@@ -100,7 +106,9 @@
   
 <script>
 import api from "@/apis/api";
+import { isCancel } from "axios";
 export default {
+    props : ["leaveCnts"],
     data: () => ({
         focus: "",
         type : "휴가",
@@ -112,56 +120,67 @@ export default {
         selectMonth : new Date(),
         startDate : null,
         changeEvents : {추가 : {}, 취소 : []},
-        OriginalEvents: {},
+        originalEvents: {},
         events: [],
-        colors: ["blue", "indigo", "deep-purple", "cyan", "green", "orange", "grey darken-1"],
+        colors: {
+            "휴가" : "blue", 
+            "포상 휴가" : "indigo",
+            "오전 반차" : "cyan",
+            "오후 반차" : "cyan", 
+            "기타 휴가" : "green",
+            "신규" : "orange",
+        },
         calendarTitle: "",
         week: ["일", "월", "화", "수", "목", "금", "토"],
         etcType : "기타",
-
+        cntTitle : "",
     }),
     created() {
-        this.$get("/leave", {id : this.$store.getters.getUser.id}).then((res) => {
-            let events = res.data
-            for (let i=0; i<events.length; i++) {
-                let event = events[i]
-                
-                const re = /[\d-]+.\(.\)(.~.[\d-]+.\(.\))?.(.*)/
-                let type = "휴가"
-                let etcType = ""
-                if (re.test(event.내용)) {
-                    type = RegExp.$2
-                    if (type.trim().endsWith("휴가") && type.trim().length > 2) {
-                        etcType = type.substring(0, type.lastIndexOf("휴가") - 1)
-                        type = "기타 휴가"
-                    }
-                }
-                
-                event = {
-                    name : event.내용,                
-                    start: new Date(event.시작일),
-                    end: new Date(event.종료일),
-                    startDate: event.시작일,
-                    endDate: event.종료일,
-                    color: this.colors[this.rnd(0, this.colors.length - 1)],
-                    index : Math.random().toString(36).substring(2),
-                    cnt : event.휴가일수,
-                    type : type,
-                    etcType : etcType,
-                    disabled : true,
-                }
-                this.OriginalEvents[event.index] = event
-                
-                this.events.push(event)
-            }        
-        })
-        
-        
+        this.setCalendar()
     },
     mounted() {
         this.setTitle()
     },
     methods: {
+        setCalendar() {
+            this.$get("/leave", {id : this.$store.getters.getUser.id}).then((res) => {
+                this.events = []
+                let events = res.data
+                for (let i=0; i<events.length; i++) {
+                    let event = events[i]
+                    
+                    const re = /[\d-]+.\(.\)(.~.[\d-]+.\(.\))?.(.*)/
+                    let type = "휴가"
+                    let etcType = ""
+                    if (re.test(event.내용)) {
+                        type = RegExp.$2                    
+                            
+                        if (type.trim() != "포상 휴가" && type.trim().endsWith("휴가") && type.trim().length > 2) {
+                            etcType = type.substring(0, type.lastIndexOf("휴가") - 1)
+                            type = "기타 휴가"
+                        }
+                    }
+                    
+                    event = {
+                        name : event.내용,                
+                        start: new Date(event.시작일),
+                        end: new Date(event.종료일),
+                        startDate: event.시작일,
+                        endDate: event.종료일,
+                        color: this.colors[type],
+                        index : Math.random().toString(36).substring(2),
+                        cnt : event.휴가일수,
+                        type : type,
+                        etcType : etcType,
+                        disabled : true,
+                        IDX : event.IDX
+                    }
+                    this.originalEvents[event.index] = event
+                    
+                    this.events.push(event)
+                }        
+            })
+        },
         getFormat(e) {
             return e.day
         },
@@ -169,7 +188,9 @@ export default {
             return event.color
         },
         setTitle() {
-            this.calendarTitle = `${this.selectMonth.getFullYear()}년 ${this.selectMonth.getMonth()+1 < 10 ? "0" + (this.selectMonth.getMonth()+1) : this.selectMonth.getMonth()+1}월`
+            const year = this.selectMonth.getFullYear()
+            this.calendarTitle = `${year}년 ${this.selectMonth.getMonth()+1 < 10 ? "0" + (this.selectMonth.getMonth()+1) : this.selectMonth.getMonth()+1}월`
+            this.cntTitle = `${year}년 사용 연차/총 연차(?/${this.leaveCnts[year].연차수}), 사용 포상 휴가/총 포상 휴가(?/${this.leaveCnts[year].포상휴가수})`
         },
         setToday() {
             this.focus = ""
@@ -188,7 +209,7 @@ export default {
                 }
             }
 
-            if (this.OriginalEvents[this.selectedEvent.index] == undefined) {
+            if (this.originalEvents[this.selectedEvent.index] == undefined) {
                 this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
             }
         },    
@@ -247,12 +268,13 @@ export default {
                 end: endDate,
                 startDate: this.startDate,
                 endDate: event.date,
-                color: this.colors[this.rnd(0, this.colors.length - 1)],
+                color: this.colors.신규,
                 index : Math.random().toString(36).substring(2),
                 cnt : dateCnt,
                 type : "휴가",
                 etcType : "",
                 disabled : false,
+                updateType : "I"
             }
             this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
             this.selectedElement = nativeEvent.target
@@ -277,36 +299,46 @@ export default {
             if (confirm(`${this.selectedEvent.name}를 취소하시겠습니까?`)) {
                 this.events = this.events.filter(event => {
                     if (event.index == this.selectedEvent.index) {
-                        if (this.OriginalEvents[this.selectedEvent.index] == undefined) {
+                        if (this.originalEvents[this.selectedEvent.index] == undefined) {
                             delete this.changeEvents.추가[this.selectedEvent.index]
                         }else {
+                            event.updateType = "D"
                             this.changeEvents.취소.push(event)
                         }
                     }
                     return event.index != this.selectedEvent.index
-                })
+                }) 
                 this.closeEvent()
             }
         },
         regist() {
             let message = ""
+            let postEvents = []
+            console.log(this.changeEvents)
             Object.keys(this.changeEvents).forEach((key) =>{
-                if (key != "취소") {
-                    Object.values(this.changeEvents[key]).forEach((value) => {
-                        message += key == "변경" ? `${value.name} 변경\n` : `${value.name}\n`
-                    })
-                }else {
-                    // console.log()
-                    Object.values(this.changeEvents[key]).forEach((value) => {
+                Object.values(this.changeEvents[key]).forEach((value) => {
+                    if (key == "취소") {                        
                         message += `${value.name} 취소\n`
-                    })
-                }
+                    }else {                        
+                        postEvents.push(value)
+                        message += `${value.name}\n`                        
+                    }
+                })
             })
+            postEvents = postEvents.concat(this.changeEvents.취소)
+            console.log(postEvents)
             if(message != "" && confirm(message+"\n를 신청하시겠습니까?")){
                 this.$post("/leave", {
-                    events : this.events
+                    events : postEvents
                 }).then(res => {
-                    console.log(res)
+                    if (res.status) {
+                        this.changeEvents = {취소 : [], 추가 : {}}
+                        this.setCalendar()
+                        this.$emit("setLists")
+                    } else { 
+                        alert(res.msg)    
+                    }
+                    
                 })
             }
         },

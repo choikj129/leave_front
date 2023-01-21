@@ -23,6 +23,14 @@ const mutations = {
     setUser(state, user) {
         return state.user = user
     },
+    clearStore(state, user) {
+        return state.user = {
+            id : null,
+            name : null,
+            isManager : false,
+            isLogin : false,
+        }
+    }
 }
 
 

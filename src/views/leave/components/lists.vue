@@ -7,7 +7,7 @@
             color="teal"
             dark
         >        
-        <v-toolbar-title>휴가 리스트</v-toolbar-title> 
+        <v-toolbar-title>휴가 리스트 (사용휴가/획득휴가)</v-toolbar-title> 
         </v-toolbar>
         
         <v-list>
@@ -20,7 +20,7 @@
             >        
                 <template v-slot:activator>
                     <v-list-item-content>
-                        <v-list-item-title v-text="key" style="font-size:2rem"></v-list-item-title>
+                        <v-list-item-title v-text="`${key} (${items[key].length}/${leaveCnts[key].총휴가수})`" style="font-size:2rem"></v-list-item-title>
                     </v-list-item-content>
                 </template>
         
@@ -40,24 +40,11 @@
   
 <script>
     // import api from "@/apis/api";
-    export default {        
+    export default {
+        props : ["items", "leaveCnts"],
         data: () => ({
-            items: [
-            ],
         }),
-        created() {
-            this.$get("/leave/lists", {
-                id : this.$store.getters.getUser.id
-            }).then((res) => {
-                // this.items = 
-                this.items = res.data.reduce((acc, obj) => {
-                    console.log(obj)
-                    const year = obj.연도
-                    acc[year] = acc[year] != undefined ? acc[year] : []
-                    acc[year].push(obj)
-                    return acc
-                }, {})
-            })
+        mounted() {
         },
     }
 </script>
