@@ -9,3 +9,5 @@
 .v-toolbar__content .v-toolbar__title { font-size: 2rem;}
 .v-btn.v-size--default { font-size: 1.2rem;}
 .v-calendar-weekly__head-weekday {border-bottom: 1px solid black; background-color: #f4f9ff; color:black!important;}
+.grid-header{font-weight: bold;}
+.col-hover { background-color: #f4f9ff!important;}

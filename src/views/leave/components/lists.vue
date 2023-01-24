@@ -7,7 +7,7 @@
             color="teal"
             dark
         >        
-        <v-toolbar-title>휴가 리스트 (사용휴가/획득휴가)</v-toolbar-title> 
+        <v-toolbar-title>휴가 리스트 (남은휴가수/총휴가수)</v-toolbar-title> 
         </v-toolbar>
         
         <v-list>
@@ -15,12 +15,12 @@
                 v-for="key in Object.keys(items)"
                 :key="items[key].title"
                 v-model="items[key].active"
-                :prepend-icon="'mdi-message'"
+                :prepend-icon="'mdi-history'"
                 no-action
             >        
                 <template v-slot:activator>
                     <v-list-item-content>
-                        <v-list-item-title v-text="`${key} (${items[key].length}/${leaveCnts[key].총휴가수})`" style="font-size:2rem"></v-list-item-title>
+                        <v-list-item-title v-text="`${key} (${leaveCnts[key].총남은휴가수}/${leaveCnts[key].총휴가수})`" style="font-size:2rem"></v-list-item-title>
                     </v-list-item-content>
                 </template>
         

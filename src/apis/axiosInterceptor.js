@@ -1,3 +1,5 @@
+import router from "../router"
+
 let requestInterceptor = null;
 let responseInterceptor = null;
 
@@ -20,7 +22,13 @@ const use = (axios) => {
   if (responseInterceptor == null) {
     responseInterceptor = axios.interceptors.response.use(
       function (response) {
-        // console.log(response.data)
+        // session 만료 시 로그인 페이지로 이동
+        if(!response.data.status) {          
+          alert(response.data.msg)
+          if (response.data.msg == "no session") {
+            router.push({path: "/login"})          
+          }
+        }
         return response.data;
       },
       function (error) {

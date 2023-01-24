@@ -39,7 +39,6 @@
             pw : this.pw
         })
           .then((res) => {   
-            console.log(res)         
             if (res.status) {
               this.$store.commit("setUser", res.data)
               this.$router.push({path : "leave"})
