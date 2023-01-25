@@ -93,7 +93,7 @@ export default {
 				this.$router.push(`/leave/${type}`)				
 			}
 		},
-		getLists() {
+		getLists(isLoadPage = false) {
 			this.$get("/leave/lists", {
 				id: this.$store.getters.getUser.id
 			}).then((res) => {
@@ -112,8 +112,20 @@ export default {
 						남은포상휴가수 : obj.포상휴가수 - obj.사용포상휴가수,
 						총휴가수 : obj.연차수 + obj.포상휴가수,
 						총남은휴가수 : (obj.연차수 + obj.포상휴가수) - (obj.사용연차수 + obj.사용포상휴가수),
+						active : false,
+					}
+
+					if (obj.연도 == new Date().getFullYear()) {
+						this.leaveCnts[obj.연도].active = true
 					}
 				})
+				if (isLoadPage) {
+					if (this.$store.getters.getUser.isManager){
+						this.changeComponent("manage")						
+					}else {
+						this.changeComponent("lists")
+					}
+				}
 			})		
 		},
 		getUsers() {
@@ -121,18 +133,14 @@ export default {
 				this.users = res.data
 				this.users.forEach((user) => {
 					user.이름_아이디 = `${user.이름} [${user.아이디}]`					
-				})
-			})
+				})				
+			})			
 		}
 	},
-	created() {
+	created() {		
 		this.getUsers()
-		this.getLists()
-		if (this.$store.getters.getUser.isManager){
-			this.changeComponent("manage")
-			return
-		}
-		this.changeComponent("lists")		
+		this.getLists(true)
+		
 	},
 }
 </script>

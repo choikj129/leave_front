@@ -152,7 +152,7 @@ export default {
     mounted() {
         this.users.forEach(user => {
             if (user.아이디 == this.$store.getters.getUser.id){
-                this.targetUser = user.아이디
+                this.targetUser = user
                 return
             }
         })
@@ -361,7 +361,7 @@ export default {
                         this.changeEvents = {취소 : [], 추가 : {}}
                         this.setCalendar(this.targetUser.아이디)
                         this.$emit("getLists")
-                    } else { 
+                    } else {
                         alert(res.msg)    
                     }
                     

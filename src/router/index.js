@@ -28,7 +28,6 @@ const router = new Router({
 
 router.beforeEach(async (to, from, next) => {
 	const path = to.path
-	console.log(store.getters.getUser)
 	if (path == "/") {
 		if (store.getters.getUser.isLogin) {
 			router.push({ path: "/leave" })

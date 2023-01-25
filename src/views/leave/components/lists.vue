@@ -12,9 +12,9 @@
         
         <v-list>
             <v-list-group
-                v-for="key in Object.keys(items)"
-                :key="items[key].title"
-                v-model="items[key].active"
+                v-for="key in Object.keys(leaveCnts)"
+                :key="leaveCnts[key].title"
+                v-model="leaveCnts[key].active"
                 :prepend-icon="'mdi-history'"
                 no-action
             >        
