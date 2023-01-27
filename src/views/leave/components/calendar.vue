@@ -195,7 +195,8 @@ export default {
                     this.originalEvents[event.index] = event
                     
                     this.events.push(event)
-                }        
+                }
+                this.setTitle()
             })
         },
         getFormat(e) {
@@ -340,9 +341,11 @@ export default {
         regist() {
             if ((!this.isMe && !this.$store.getters.getUser.isManager) || JSON.stringify(this.targetUser) == "{}") return
             let message = this.$store.getters.getUser.isManager ? `${this.targetUser.이름}님\n` : ""
+            let isMessage = false
             let postEvents = []
             Object.keys(this.changeEvents).forEach((key) =>{
                 Object.values(this.changeEvents[key]).forEach((value) => {
+                    isMessage = true
                     if (key == "취소") {                        
                         message += `${value.name} 취소\n`
                     }else {                        
@@ -352,26 +355,24 @@ export default {
                 })
             })
             postEvents = postEvents.concat(this.changeEvents.취소)
-            if(message != "" && confirm(message+"\n를 신청하시겠습니까?")){
+            if(isMessage && confirm(message+"\n를 신청하시겠습니까?")){
                 this.$post("/leave", {
                     events : postEvents,
                     id : this.targetUser.아이디
                 }).then(res => {
                     if (res.status) {
+                        this.$emit("getLists", false, () => this.setCalendar(this.targetUser.아이디))
                         this.changeEvents = {취소 : [], 추가 : {}}
-                        this.setCalendar(this.targetUser.아이디)
-                        this.$emit("getLists")
                     } else {
-                        alert(res.msg)    
+                        alert(res.msg)
                     }
-                    
                 })
             }
         },
         changeCalendar(user) {
             this.isMe = this.$store.getters.getUser.id != user.아이디 ? false : true
             this.setCalendar(user.아이디)
-            this.setTitle(user.아이디)            
+            this.setTitle()            
         },
         rnd(a, b) {
             return Math.floor((b - a + 1) * Math.random()) + a

@@ -23,11 +23,12 @@ const use = (axios) => {
     responseInterceptor = axios.interceptors.response.use(
       function (response) {
         // session 만료 시 로그인 페이지로 이동
-        if(!response.data.status) {          
+        if(!response.data.status) {
           if (response.data.msg == "no session") {
             router.push({path: "/login"})
             return        
           }
+          alert(response.data.msg)
         }
         return response.data;
       },

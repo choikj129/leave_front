@@ -11,8 +11,8 @@
 							<div class="pa-10" style="background-color:#f4f9ff;">
 								<h1 style="text-align: center" class="mb-10">Login</h1>
 								<form>
-									<v-text-field label="ID" prepend-inner-icon="mdi-account" v-model="id"></v-text-field>
-									<v-text-field prepend-inner-icon="mdi-lock" type="password" label="Password" v-model="pw">
+									<v-text-field label="ID" prepend-inner-icon="mdi-account" v-model="id" @keydown="isEnter"></v-text-field>
+									<v-text-field prepend-inner-icon="mdi-lock" type="password" label="Password" v-model="pw" @keydown="isEnter">
 									</v-text-field>
 									<v-btn color="blue lighten-1 text-capitalize" depressed large block dark @click="login" class="mb-3">
 										Login
@@ -30,9 +30,6 @@
 <script>
 export default {
   name: 'login',
-  components : {
-    loginForm
-  },
   data () {
     return {
       msg: 'HELLO VUE',
@@ -42,23 +39,22 @@ export default {
   },
   methods : {
     login() {		
-			this.$post("/login", {
-				id: this.id,
-				pw: this.pw
+		this.$post("/login", {
+			id: this.id,
+			pw: this.pw
+		})
+			.then((res) => {
+				if (res.status) {
+					this.$store.commit("setUser", res.data)
+					this.$router.push({ path: "leave" })
+				} else {
+					alert(res.msg)
+				}
 			})
-				.then((res) => {
-					if (res.status) {
-						this.$store.commit("setUser", res.data)
-						this.$router.push({ path: "leave" })
-					} else {
-						alert(res.msg)
-					}
-				})
-		}
+	},
+	isEnter(e) {
+		if (e.key == "Enter") this.login()
+	}
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-</style>

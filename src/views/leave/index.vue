@@ -12,10 +12,12 @@
 				</v-card-subtitle>
 			</v-card>
 
-			<v-list>
+			<v-list style="padding-top:0">
 				<v-list-item v-for="link in links" :key="link.type" 
 					v-if="link.auth"
 					@click="changeComponent(link.type, link.text)"
+					:class="{activeComponent:link.type == selectType}"
+					:disabled="link.disabled"
 				>
 					<v-list-item-icon>
 						<v-icon>{{ link.icon }}</v-icon>
@@ -59,20 +61,20 @@ export default {
 		return {
 			drawer: null,
 			links: [
-				{ icon: "mdi-view-list", text: "휴가 리스트", auth: !this.$store.getters.getUser.isManager, type: "lists" },
-				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage" },
-				{ icon: "mdi-calendar-month", text: "휴가 일정", auth: true, type: "calendar" },
-				{ icon: "", text: "", auth: true, type: "1" },
-				{ icon: "", text: "", auth: true, type: "2" },
-				{ icon: "", text: "", auth: true, type: "3" },
-				{ icon: "", text: "", auth: true, type: "4" },
-				{ icon: "", text: "", auth: true, type: "5" },
-				{ icon: "", text: "", auth: true, type: "6" },
-				{ icon: "", text: "", auth: true, type: "7" },
-				{ icon: "", text: "", auth: true, type: "8" },
-				{ icon: "", text: "", auth: true, type: "9" },
-				{ icon: "", text: "", auth: true, type: "10" },
-				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout" },
+				{ icon: "mdi-view-list", text: "휴가 리스트", auth: !this.$store.getters.getUser.isManager, type: "lists", disabled:false},
+				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage", disabled:false},
+				{ icon: "mdi-calendar-month", text: "휴가 일정", auth: true, type: "calendar", disabled:false},
+				{ icon: "", text: "", auth: true, type: "1", disabled:true},
+				{ icon: "", text: "", auth: true, type: "2", disabled:true},
+				{ icon: "", text: "", auth: true, type: "3", disabled:true},
+				{ icon: "", text: "", auth: true, type: "4", disabled:true},
+				{ icon: "", text: "", auth: true, type: "5", disabled:true},
+				{ icon: "", text: "", auth: true, type: "6", disabled:true},
+				{ icon: "", text: "", auth: true, type: "7", disabled:true},
+				{ icon: "", text: "", auth: true, type: "8", disabled:true},
+				{ icon: "", text: "", auth: true, type: "9", disabled:true},
+				{ icon: "", text: "", auth: true, type: "10", disabled:true},
+				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout", disabled:false},
 			],
 			user: this.$store.getters.getUser,
 			selectType: "",
@@ -93,7 +95,7 @@ export default {
 				this.$router.push(`/leave/${type}`)				
 			}
 		},
-		getLists(isLoadPage = false) {
+		getLists(isLoadPage = false, next = ()=>{}) {
 			this.$get("/leave/lists", {
 				id: this.$store.getters.getUser.id
 			}).then((res) => {
@@ -126,6 +128,7 @@ export default {
 						this.changeComponent("lists")
 					}
 				}
+				next()
 			})		
 		},
 		getUsers() {
