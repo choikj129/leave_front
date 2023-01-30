@@ -69,7 +69,7 @@ export default {
 				{ icon: "mdi-view-list", text: "휴가 리스트", auth: !this.$store.getters.getUser.isManager, type: "lists"},
 				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage"},
 				{ icon: "mdi-calendar-month", text: "휴가 일정", auth: true, type: "calendar"},
-				{ icon: "mdi-account-wrench-outline", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "logs"},
+				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "logs"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
 			],
 			user: this.$store.getters.getUser,

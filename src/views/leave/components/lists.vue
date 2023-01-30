@@ -26,10 +26,12 @@
                     </template>
             
                     <v-list-item
-                        v-for="item in items[key]"
+                        v-for="item,idx in items[key]"
                         :key="item.휴가일"
+                        style="padding-left: 0;"
                     >
                         <v-list-item-content style="flex-wrap: nowrap;">
+                            <v-list-item-title tag="span" v-text="idx+1" style="font-size:1.5rem"></v-list-item-title>
                             <v-list-item-title tag="span" v-text="item.휴가일" style="font-size:1.5rem"></v-list-item-title>
                             <v-list-item-title tag="span" v-text="item.기타휴가내용 != null ? item.기타휴가내용 : item.휴가구분" style="font-size:1.5rem"></v-list-item-title>
                         </v-list-item-content>
