@@ -36,17 +36,17 @@
 			:leave-cnts="leaveCnts"
 			:users="users"
 			@getLists="getLists"
-			/>
-			<lists v-else-if="selectType == 'lists'" 
+		/>
+		<lists v-else-if="selectType == 'lists'" 
 			:items="items" 
 			:leave-cnts="leaveCnts"
-			/>
-			<manage v-else-if="selectType == 'manage'"
+		/>
+		<manage v-else-if="selectType == 'manage'"
 			:users="users"
 			@getLists="getLists"
 			@getUsers="getUsers"
 		/>
-
+		<logs v-else-if="selectType == 'logs'"/>
 	</v-app>
 </template>
 
@@ -54,11 +54,13 @@
 import calendar from "./components/calendar"
 import lists from "./components/lists"
 import manage from "./components/manage"
+import logs from "./components/logs"
 export default {
 	components: {
 		calendar,
 		lists,
-		manage
+		manage,
+		logs,
 	},
 	data() {
 		return {
@@ -67,6 +69,7 @@ export default {
 				{ icon: "mdi-view-list", text: "휴가 리스트", auth: !this.$store.getters.getUser.isManager, type: "lists"},
 				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage"},
 				{ icon: "mdi-calendar-month", text: "휴가 일정", auth: true, type: "calendar"},
+				{ icon: "mdi-account-wrench-outline", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "logs"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
 			],
 			user: this.$store.getters.getUser,
