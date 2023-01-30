@@ -252,7 +252,6 @@ export default {
                 requestAnimationFrame(() => requestAnimationFrame(() => open()))
                 return
             }
-            if (this.$store.getters.getUser.isManager) return
             this.etcType = event.etcType
             open()
             nativeEvent.stopPropagation()
