@@ -163,6 +163,7 @@ export default {
     methods: {
         setCalendar(id) {
             this.$get("/leave", {id : id}).then((res) => {
+                this.originalEvents = {}
                 this.events = []
                 let events = res.data
                 for (let i=0; i<events.length; i++) {
@@ -250,7 +251,7 @@ export default {
             this.selectMonth.setMonth(event.start.month - 1)
             this.setTitle()
         },  
-        showEvent({nativeEvent, event}){   
+        showEvent({nativeEvent, event}){
             if ((!this.isMe && !this.$store.getters.getUser.isManager) || JSON.stringify(this.targetUser) == "{}") return
             this.etcType = event.etcType
             const open = () => {
@@ -269,6 +270,7 @@ export default {
         selectEvent(event) {            
             if ((!this.isMe && !this.$store.getters.getUser.isManager) || JSON.stringify(this.targetUser) == "{}") return
             if (this.selectedOpen) {
+                if (this.selectedOpen) this.closeEvent()
                 this.selectDate = false
                 return
             }
@@ -322,6 +324,8 @@ export default {
                 this.setEvent(this.etcType.endsWith("휴가") ? this.etcType : this.etcType + " 휴가")
             }        
             this.selectedOpen = false
+            this.selectedEvent = {}
+            this.selectedElement = null
         },
         deleteEvent(){
             if ((!this.isMe && !this.$store.getters.getUser.isManager) || JSON.stringify(this.targetUser) == "{}") return
@@ -373,8 +377,15 @@ export default {
         },
         changeCalendar(user) {
             this.isMe = this.$store.getters.getUser.id != user.아이디 ? false : true
+            this.changeEvents = {추가 : {}, 취소 : []}
+            this.isOpened = false
+            this.selectedOpen = false
+            this.selectDate = false
+            this.startDate = null
+            this.selectedEvent = {}
+            this.selectedElement = null
             this.setCalendar(user.아이디)
-            this.setTitle()            
+            this.setTitle()
         },
         rnd(a, b) {
             return Math.floor((b - a + 1) * Math.random()) + a
