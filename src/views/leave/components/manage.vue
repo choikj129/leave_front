@@ -1,12 +1,12 @@
 <template>
-    <div class="text-center" style="margin-left:10rem;">
+    <div class="text-center main-component">
         <v-dialog
             v-model="dialog"
             width="500"
         >
             <template v-slot:activator="{ on, attrs }">                
-                <div>
-                    <div class="mt-3">
+                <div style="width: 100%;">
+                    <div class="mt-3 mr-16">
                         <v-btn fab text small color="grey darken-2" @click="changeYear(-1)">
                             <v-icon>
                                 mdi-chevron-left
@@ -20,55 +20,38 @@
                                 mdi-chevron-right
                             </v-icon>
                         </v-btn>                        
-                        <v-btn depressed color="primary" style="position:absolute; right:20%;" @click="excelDown()">
+                        <v-btn depressed color="primary" style="position:absolute; right:15%;" @click="excelDown()">
                             엑셀다운로드
                         </v-btn>
                     </div>
-                    <v-container class="grey lighten-5 mb-6" style="margin-top : 5rem; ">
-                        <v-row :align="'start'" no-gutters style="height: 50px;">
-                            <v-col>
-                                <v-card class="pa-2 grid-header"  outlined tile>
-                                    이름 (아이디)
-                                </v-card>
-                            </v-col>
-                            <v-col>
-                                <v-card class="pa-2 grid-header"  outlined tile>
-                                    사용연차/연차
-                                </v-card>
-                            </v-col>
-                            <v-col>
-                                <v-card class="pa-2 grid-header"  outlined tile>                
-                                    사용포상휴가/포상휴가
-                                </v-card>
-                            </v-col>
-                        </v-row>
-                        <v-hover v-for="user in users" :key="user.아이디">
-                            <template v-slot:default="{ hover }">
-                                <v-card v-bind="attrs" v-on="on" @click="targetInfo(user)"
-                                    :elevation="hover ? 15 : 3"
-                                    class="mx-auto"
-                                >
-                                    <v-row :align="'start'" no-gutters style="height: 40px; cursor: pointer;">
-                                        <v-col>
-                                            <v-card class="pa-2" :class="{'col-hover':hover}" tile>
-                                                {{ user.이름 }} ({{ user.아이디 }})
-                                            </v-card>
-                                        </v-col>
-                                        <v-col>
-                                            <v-card class="pa-2" :class="{'col-hover':hover}" tile>
-                                                {{ user.사용연차수 }} / {{ user.연차수 == null ? "연차 설정이 필요합니다." : user.연차수 }}
-                                            </v-card>
-                                        </v-col>
-                                        <v-col>
-                                            <v-card class="pa-2" :class="{'col-hover':hover}" tile>
-                                                {{ user.사용포상휴가수 }} / {{ user.포상휴가수 }}
-                                            </v-card>
-                                        </v-col>
-                                    </v-row>
-                                </v-card>
-                            </template>
-                        </v-hover>
-                    </v-container>
+                    <v-simple-table style="width: 75%; margin:auto; margin-top: 20px; margin-bottom:50px;">
+                        <template>
+                            <thead>
+                                <tr>
+                                    <th class="text-center grid-header">
+                                        이름 [아이디]
+                                    </th>
+                                    <th class="text-center grid-header">
+                                        사용연차/연차
+                                    </th>
+                                    <th class="text-center grid-header">
+                                        사용포상휴가/포상휴가
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <v-hover v-for="user in users" :key="user.아이디">
+                                    <template v-slot:default="{ hover }">
+                                        <tr v-bind="attrs" v-on="on" @click="targetInfo(user)">
+                                            <td class="grid-body">{{ user.이름 }} [{{ user.아이디 }}]</td>
+                                            <td class="grid-body">{{ user.사용연차수 }} / {{ user.연차수 == null ? "연차 설정이 필요합니다." : user.연차수 }}</td>
+                                            <td class="grid-body">{{ user.사용포상휴가수 }} / {{ user.포상휴가수 }}</td>
+                                        </tr>
+                                    </template>
+                                </v-hover>
+                            </tbody>
+                        </template>
+                    </v-simple-table>
                 </div>
             </template>
             <v-card>

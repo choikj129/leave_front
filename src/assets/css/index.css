@@ -1,6 +1,6 @@
-.f3 {font-size: 3rem;}
-.f4 {font-size: 4rem;}
-.f5 {font-size: 5rem;}
+.f3 {font-size: 3rem!important;}
+.f4 {font-size: 4rem!important;}
+.f5 {font-size: 5rem!important;}
 .posR {position: relative;}
 .btn {font-size: 1.7rem!important; font-weight: bold;}
 .form-control, .btn {min-height: 38px; border-radius: 2px;}
@@ -9,8 +9,23 @@
 .v-toolbar__content .v-toolbar__title { font-size: 2rem;}
 .v-btn.v-size--default { font-size: 1.2rem;}
 .v-calendar-weekly__head-weekday {border-bottom: 1px solid black; background-color: #f4f9ff; color:black!important;}
-.grid-header{font-weight: bold;}
+.grid-header{font-weight: bold!important; font-size:1.7rem!important; color:black!important;}
+.grid-body{font-size: 1.3rem!important;}
 .col-hover { background-color: #f4f9ff!important;}
 .activeComponent { background-color: #f4f9ff; }
 .isLogout { position:absolute; width: 100%; bottom:10px; }
 .di { display: inline; }
+.v-data-table>.v-data-table__wrapper>table>tbody>tr>td, .v-data-table>.v-data-table__wrapper>table>tfoot>tr>td, .v-data-table>.v-data-table__wrapper>table>thead>tr>td {
+    font-size: 1.2rem;
+    height: 35px;
+}
+.main-component {
+    width: calc(100% - 256px);
+    margin-left: 256px;
+    display: flex;
+    justify-content : center;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    flex-direction: column;
+}

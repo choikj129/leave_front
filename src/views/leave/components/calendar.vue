@@ -1,118 +1,120 @@
 <template>
-    <v-row class="fill-height" style="width:70%; margin-left: 22%;">
-        <v-col style="margin-top:10rem;">
-            <v-sheet height="80">
-                <v-toolbar flat>
-                    <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
-                        Today
-                    </v-btn>
-                    <v-btn fab text small color="grey darken-2" @click="prev">
-                        <v-icon small>
-                            mdi-chevron-left
-                        </v-icon>
-                    </v-btn>
-                    <v-btn fab text small color="grey darken-2" @click="next">
-                        <v-icon small>
-                            mdi-chevron-right
-                        </v-icon>
-                    </v-btn>
-                    <v-toolbar-title>
-                        {{ calendarTitle }}
-                    </v-toolbar-title>
+    <div class="main-component">
+        <v-row class="fill-height" style="width:82%;">
+            <v-col style="margin-top:10rem;">
+                <v-sheet height="80">
+                    <v-toolbar flat>
+                        <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
+                            Today
+                        </v-btn>
+                        <v-btn fab text small color="grey darken-2" @click="prev">
+                            <v-icon small>
+                                mdi-chevron-left
+                            </v-icon>
+                        </v-btn>
+                        <v-btn fab text small color="grey darken-2" @click="next">
+                            <v-icon small>
+                                mdi-chevron-right
+                            </v-icon>
+                        </v-btn>
+                        <v-toolbar-title>
+                            {{ calendarTitle }}
+                        </v-toolbar-title>
+                        <v-spacer></v-spacer>
+                        <v-btn depressed color="primary" @click="regist">
+                            신청
+                        </v-btn>                    
+                    </v-toolbar>
+                    <v-autocomplete 
+                        style="width:20rem; float:right; top:15rem; right:17rem; position:absolute;"
+                        :items="users"
+                        item-text="이름_아이디"
+                        item-value="아이디"
+                        @change="changeCalendar"
+                        v-model="targetUser"
+                        return-object
+                        :auto-select-first="true"
+                    ></v-autocomplete>
                     <v-spacer></v-spacer>
-                    <v-btn depressed color="primary" @click="regist">
-                        신청
-                    </v-btn>                    
-                </v-toolbar>
-                <v-autocomplete 
-                    style="width:20rem; float:right; top:15rem; right:17rem; position:absolute;"
-                    :items="users"
-                    item-text="이름_아이디"
-                    item-value="아이디"
-                    @change="changeCalendar"
-                    v-model="targetUser"
-                    return-object
-                    :auto-select-first="true"
-                ></v-autocomplete>
-                <v-spacer></v-spacer>
-                <v-card-text style="font-size: 1.5rem; float:right; font-weight: bold;">
-					{{ cntTitle }}
-				</v-card-text>
-            </v-sheet>
-            <v-sheet height="600" style="margin-top : 2rem;">
-                <v-calendar 
-                    ref="calendar"
-                    v-model="focus"
-                    color="secondary"
-                    :events="events"
-                    :event-color="getEventColor"
-                    :type="'month'"
-                    @change="changeMonth"
-                    @click:next="next"
-                    @click:date="selectEvent"
-                    @click:event="showEvent"                
-                    locale="ko"
-                    :show-month-on-first="false"
-                    :day-format="getFormat"
-                >
-                </v-calendar>
-                <v-menu 
-                    max-width="350px"
-                    v-model="selectedOpen"
-                    :close-on-content-click="false"
-                    :activator="selectedElement"
-                    offset-x>
-                    <v-card color="grey lighten-4" min-width="350px"  flat>
-                        <v-toolbar :color="selectedEvent.color" dark>
-                            <v-menu bottom right>
-                                <template v-slot:activator="{ on, attrs }">
-                                    <v-btn  outlined color="#f5f5f5" v-bind="attrs" v-on="on">
-                                        <span>{{ selectedEvent.type }}</span>
-                                        <v-icon right>mdi-menu-down</v-icon>
-                                    </v-btn>
-                                </template>
-                                <v-list v-if="!selectedEvent.disabled">
-                                    <v-list-item @click="setType('휴가')">
-                                        <v-list-item-title>휴가</v-list-item-title>
-                                    </v-list-item>
-                                    <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오전 반차')">
-                                        <v-list-item-title>오전 반차</v-list-item-title>
-                                    </v-list-item>
-                                    <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오후 반차')">
-                                        <v-list-item-title>오후 반차</v-list-item-title>
-                                    </v-list-item>
-                                    <v-list-item @click="setType('포상 휴가')">
-                                        <v-list-item-title>포상 휴가</v-list-item-title>
-                                    </v-list-item>
-                                    <v-list-item @click="setType('기타 휴가')">
-                                        <v-list-item-title>기타 휴가</v-list-item-title>
-                                    </v-list-item>
-                                </v-list>
-                            </v-menu>
-                            <v-text-field 
-                                placeholder="기타" 
-                                style="width:30%;margin-top: 14px;margin-left: 12px;"
-                                v-model="etcType"
-                                v-if="selectedEvent.type=='기타 휴가' && !selectedEvent.disabled"    
-                            ></v-text-field>
-                            <v-spacer></v-spacer>
-                            <v-btn icon @click="deleteEvent">
-                                <v-icon>mdi-delete</v-icon>
-                            </v-btn>
-                        </v-toolbar>
-                        <v-card-text>
-                            <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>                            
-                        </v-card-text>
-                        <v-card-actions>
-                            <v-btn text color="secondary" @click="closeEvent">
-                                close
-                            </v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-menu>
-            </v-sheet>
-        </v-col>
-    </v-row>
+                    <v-card-text style="font-size: 1.5rem; float:right; font-weight: bold;">
+                        {{ cntTitle }}
+                    </v-card-text>
+                </v-sheet>
+                <v-sheet height="600" style="margin-top : 2rem;">
+                    <v-calendar 
+                        ref="calendar"
+                        v-model="focus"
+                        color="secondary"
+                        :events="events"
+                        :event-color="getEventColor"
+                        :type="'month'"
+                        @change="changeMonth"
+                        @click:next="next"
+                        @click:date="selectEvent"
+                        @click:event="showEvent"                
+                        locale="ko"
+                        :show-month-on-first="false"
+                        :day-format="getFormat"
+                    >
+                    </v-calendar>
+                    <v-menu 
+                        max-width="350px"
+                        v-model="selectedOpen"
+                        :close-on-content-click="false"
+                        :activator="selectedElement"
+                        offset-x>
+                        <v-card color="grey lighten-4" min-width="350px"  flat>
+                            <v-toolbar :color="selectedEvent.color" dark>
+                                <v-menu bottom right>
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-btn  outlined color="#f5f5f5" v-bind="attrs" v-on="on">
+                                            <span>{{ selectedEvent.type }}</span>
+                                            <v-icon right>mdi-menu-down</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <v-list v-if="!selectedEvent.disabled">
+                                        <v-list-item @click="setType('휴가')">
+                                            <v-list-item-title>휴가</v-list-item-title>
+                                        </v-list-item>
+                                        <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오전 반차')">
+                                            <v-list-item-title>오전 반차</v-list-item-title>
+                                        </v-list-item>
+                                        <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오후 반차')">
+                                            <v-list-item-title>오후 반차</v-list-item-title>
+                                        </v-list-item>
+                                        <v-list-item @click="setType('포상 휴가')">
+                                            <v-list-item-title>포상 휴가</v-list-item-title>
+                                        </v-list-item>
+                                        <v-list-item @click="setType('기타 휴가')">
+                                            <v-list-item-title>기타 휴가</v-list-item-title>
+                                        </v-list-item>
+                                    </v-list>
+                                </v-menu>
+                                <v-text-field 
+                                    placeholder="기타" 
+                                    style="width:30%;margin-top: 14px;margin-left: 12px;"
+                                    v-model="etcType"
+                                    v-if="selectedEvent.type=='기타 휴가' && !selectedEvent.disabled"    
+                                ></v-text-field>
+                                <v-spacer></v-spacer>
+                                <v-btn icon @click="deleteEvent">
+                                    <v-icon>mdi-delete</v-icon>
+                                </v-btn>
+                            </v-toolbar>
+                            <v-card-text>
+                                <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>                            
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-btn text color="secondary" @click="closeEvent">
+                                    close
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-menu>
+                </v-sheet>
+            </v-col>
+        </v-row>
+    </div>
 </template>
   
 <script>
