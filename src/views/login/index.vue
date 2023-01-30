@@ -14,7 +14,7 @@
 									<v-text-field label="ID" prepend-inner-icon="mdi-account" v-model="id" @keydown="isEnter"></v-text-field>
 									<v-text-field prepend-inner-icon="mdi-lock" type="password" label="Password" v-model="pw" @keydown="isEnter">
 									</v-text-field>
-									<v-btn color="blue lighten-1 text-capitalize" depressed large block dark @click="login" class="mb-3">
+									<v-btn color="blue lighten-1" block dark @click="login" class="mb-3">
 										Login
 									</v-btn>
 								</form>
