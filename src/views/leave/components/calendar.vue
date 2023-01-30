@@ -25,7 +25,7 @@
                             신청
                         </v-btn>                    
                     </v-toolbar>
-                    <v-autocomplete 
+                    <!-- <v-autocomplete 
                         style="width:20rem; float:right; top:15rem; right:17rem; position:absolute;"
                         :items="users"
                         item-text="이름_아이디"
@@ -35,7 +35,7 @@
                         return-object
                         :auto-select-first="true"
                     ></v-autocomplete>
-                    <v-spacer></v-spacer>
+                    <v-spacer></v-spacer> -->
                     <v-card-text style="font-size: 1.5rem; float:right; font-weight: bold;">
                         {{ cntTitle }}
                     </v-card-text>
@@ -61,6 +61,7 @@
                         max-width="350px"
                         v-model="selectedOpen"
                         :close-on-content-click="false"
+                        :close-on-click="true"
                         :activator="selectedElement"
                         offset-x>
                         <v-card color="grey lighten-4" min-width="350px"  flat>
@@ -125,7 +126,6 @@ export default {
         type : "휴가",
         selectedEvent: {},
         selectedElement: null,
-        isOpened : false,
         selectedOpen: false,
         selectDate : false,
         selectMonth : new Date(),
@@ -145,23 +145,15 @@ export default {
         week: ["일", "월", "화", "수", "목", "금", "토"],
         etcType : "기타",
         cntTitle : "",
-        targetUser: {},
-        isMe : true,
     }),
     created() {
-        this.setCalendar(this.$store.getters.getUser.id)
+        this.setCalendar()
     },
     mounted() {
-        this.users.forEach(user => {
-            if (user.아이디 == this.$store.getters.getUser.id){
-                this.targetUser = user
-                return
-            }
-        })
         this.setTitle()
     },
     methods: {
-        setCalendar(id) {
+        setCalendar(id = this.$store.getters.getUser.id) {
             this.$get("/leave", {id : id}).then((res) => {
                 this.originalEvents = {}
                 this.events = []
@@ -215,9 +207,7 @@ export default {
             const 남은연차 = this.leaveCnts[year] != undefined && this.leaveCnts[year].남은연차수 != undefined ? this.leaveCnts[year].남은연차수 : "0"
             const 포상휴가 = this.leaveCnts[year] != undefined && this.leaveCnts[year].포상휴가수 != undefined ? this.leaveCnts[year].포상휴가수 : "0"
             const 남은포상휴가 = this.leaveCnts[year] != undefined && this.leaveCnts[year].남은포상휴가수 != undefined ? this.leaveCnts[year].남은포상휴가수 : "0"
-            this.cntTitle = this.isMe 
-                ? this.$store.getters.getUser.isManager ? "관리자 계정" : `${year}년 남은 연차/총 연차(${남은연차}/${연차}) | 남은 포상 휴가/총 포상 휴가(${남은포상휴가}/${포상휴가})` 
-                : `${this.targetUser.이름}님의 휴가`
+            this.cntTitle = this.$store.getters.getUser.isManager ? "관리자 계정" : `${year}년 남은 연차/총 연차(${남은연차}/${연차}) | 남은 포상 휴가/총 포상 휴가(${남은포상휴가}/${포상휴가})`
         },
         setToday() {
             this.focus = ""
@@ -252,25 +242,25 @@ export default {
             this.setTitle()
         },  
         showEvent({nativeEvent, event}){
-            if ((!this.isMe && !this.$store.getters.getUser.isManager) || JSON.stringify(this.targetUser) == "{}") return
-            this.etcType = event.etcType
             const open = () => {
                 this.selectedEvent = event
                 this.selectedElement = nativeEvent.target
                 requestAnimationFrame(() => requestAnimationFrame(() => this.selectedOpen = true))
             }
             if (this.selectedOpen) {
-                this.selectedOpen = false
+                this.closeEvent()
                 requestAnimationFrame(() => requestAnimationFrame(() => open()))
-            } else {
-                open()
+                return
             }
+            if (this.$store.getters.getUser.isManager) return
+            this.etcType = event.etcType
+            open()
             nativeEvent.stopPropagation()
         },
         selectEvent(event) {            
-            if ((!this.isMe && !this.$store.getters.getUser.isManager) || JSON.stringify(this.targetUser) == "{}") return
+            if (this.$store.getters.getUser.isManager) return
             if (this.selectedOpen) {
-                if (this.selectedOpen) this.closeEvent()
+                this.closeEvent()
                 this.selectDate = false
                 return
             }
@@ -324,11 +314,9 @@ export default {
                 this.setEvent(this.etcType.endsWith("휴가") ? this.etcType : this.etcType + " 휴가")
             }        
             this.selectedOpen = false
-            this.selectedEvent = {}
-            this.selectedElement = null
         },
         deleteEvent(){
-            if ((!this.isMe && !this.$store.getters.getUser.isManager) || JSON.stringify(this.targetUser) == "{}") return
+            if (this.$store.getters.getUser.isManager) return
             if (confirm(`${this.selectedEvent.name}를 취소하시겠습니까?`)) {
                 this.events = this.events.filter(event => {
                     if (event.index == this.selectedEvent.index) {
@@ -345,13 +333,11 @@ export default {
             }
         },
         regist() {
-            if ((!this.isMe && !this.$store.getters.getUser.isManager) || JSON.stringify(this.targetUser) == "{}") return
-            let message = this.$store.getters.getUser.isManager ? `${this.targetUser.이름}님\n` : ""
-            let isMessage = false
+            if (this.$store.getters.getUser.isManager) return
+            let message = ""
             let postEvents = []
             Object.keys(this.changeEvents).forEach((key) =>{
                 Object.values(this.changeEvents[key]).forEach((value) => {
-                    isMessage = true
                     if (key == "취소") {                        
                         message += `${value.name} 취소\n`
                     }else {                        
@@ -361,13 +347,13 @@ export default {
                 })
             })
             postEvents = postEvents.concat(this.changeEvents.취소)
-            if(isMessage && confirm(message+"\n를 신청하시겠습니까?")){
+            if(message != "" && confirm(message+"\n를 신청하시겠습니까?")){
                 this.$post("/leave", {
                     events : postEvents,
-                    id : this.targetUser.아이디
+                    id : this.$store.getters.getUser.id
                 }).then(res => {
                     if (res.status) {
-                        this.$emit("getLists", false, () => this.setCalendar(this.targetUser.아이디))
+                        this.$emit("getLists", false, () => this.setCalendar())
                         this.changeEvents = {취소 : [], 추가 : {}}
                     } else {
                         alert(res.msg)
@@ -378,7 +364,6 @@ export default {
         changeCalendar(user) {
             this.isMe = this.$store.getters.getUser.id != user.아이디 ? false : true
             this.changeEvents = {추가 : {}, 취소 : []}
-            this.isOpened = false
             this.selectedOpen = false
             this.selectDate = false
             this.startDate = null
@@ -393,12 +378,6 @@ export default {
         getDateCnt(d1, d2) {
             return Math.abs((d2.getTime() - d1.getTime())/ (1000 * 60 * 60 * 24)) + 1
         },
-    },
-    updated() {
-        if (this.isOpened && !this.selectedOpen) {
-            this.closeEvent()            
-        }
-        this.isOpened = this.selectedOpen
     }
 }
 </script>
