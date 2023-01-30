@@ -3,7 +3,7 @@
 	<div class="main-component">
 		<h3 class="mr-10">휴가 기록 (최근 30건)</h3>
 		<br>
-		<v-simple-table style="width: 80%;" class="mt-10">
+		<v-simple-table style="width: 80%;" class="mt-10 mb-10">
 			<template>
 				<thead>
 					<tr>
