@@ -16,8 +16,11 @@
 				<v-list-item v-for="link in links" :key="link.type" 
 					v-if="link.auth"
 					@click="changeComponent(link.type, link.text)"
-					:class="{activeComponent:link.type == selectType}"
-					:disabled="link.disabled"
+					:class="{
+						activeComponent : link.type == selectType,
+						isLogout : link.type == 'logout'
+					}"
+
 				>
 					<v-list-item-icon>
 						<v-icon>{{ link.icon }}</v-icon>
@@ -61,20 +64,10 @@ export default {
 		return {
 			drawer: null,
 			links: [
-				{ icon: "mdi-view-list", text: "휴가 리스트", auth: !this.$store.getters.getUser.isManager, type: "lists", disabled:false},
-				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage", disabled:false},
-				{ icon: "mdi-calendar-month", text: "휴가 일정", auth: true, type: "calendar", disabled:false},
-				{ icon: "", text: "", auth: true, type: "1", disabled:true},
-				{ icon: "", text: "", auth: true, type: "2", disabled:true},
-				{ icon: "", text: "", auth: true, type: "3", disabled:true},
-				{ icon: "", text: "", auth: true, type: "4", disabled:true},
-				{ icon: "", text: "", auth: true, type: "5", disabled:true},
-				{ icon: "", text: "", auth: true, type: "6", disabled:true},
-				{ icon: "", text: "", auth: true, type: "7", disabled:true},
-				{ icon: "", text: "", auth: true, type: "8", disabled:true},
-				{ icon: "", text: "", auth: true, type: "9", disabled:true},
-				{ icon: "", text: "", auth: true, type: "10", disabled:true},
-				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout", disabled:false},
+				{ icon: "mdi-view-list", text: "휴가 리스트", auth: !this.$store.getters.getUser.isManager, type: "lists"},
+				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage"},
+				{ icon: "mdi-calendar-month", text: "휴가 일정", auth: true, type: "calendar"},
+				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
 			],
 			user: this.$store.getters.getUser,
 			selectType: "",
@@ -129,15 +122,15 @@ export default {
 					}
 				}
 				next()
-			})		
+			})
 		},
-		getUsers() {
-			this.$get("/users").then((res) => {
+		getUsers(year = new Date().getFullYear()) {
+			this.$get("/users", {year : year}).then((res) => {
 				this.users = res.data
 				this.users.forEach((user) => {
 					user.이름_아이디 = `${user.이름} [${user.아이디}]`					
 				})				
-			})			
+			})
 		}
 	},
 	created() {		

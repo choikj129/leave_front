@@ -12,3 +12,5 @@
 .grid-header{font-weight: bold;}
 .col-hover { background-color: #f4f9ff!important;}
 .activeComponent { background-color: #f4f9ff; }
+.isLogout { position:absolute; width: 100%; bottom:10px; }
+.di { display: inline; }

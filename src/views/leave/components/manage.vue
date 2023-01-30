@@ -6,9 +6,24 @@
         >
             <template v-slot:activator="{ on, attrs }">                
                 <div>
-                    <h3>
-                        {{userInfo.year}} 년 휴가 관리
-                    </h3>
+                    <div class="mt-3">
+                        <v-btn fab text small color="grey darken-2" @click="changeYear(-1)">
+                            <v-icon>
+                                mdi-chevron-left
+                            </v-icon>
+                        </v-btn>
+                        <h3 class="di mt-3">
+                            {{userInfo.year}} 년 휴가 관리
+                        </h3>
+                        <v-btn fab text small color="grey darken-2" @click="changeYear(1)">
+                            <v-icon>
+                                mdi-chevron-right
+                            </v-icon>
+                        </v-btn>                        
+                        <v-btn depressed color="primary" style="position:absolute; right:20%;" @click="excelDown()">
+                            엑셀다운로드
+                        </v-btn>
+                    </div>
                     <v-container class="grey lighten-5 mb-6" style="margin-top : 5rem; ">
                         <v-row :align="'start'" no-gutters style="height: 50px;">
                             <v-col>
@@ -18,12 +33,12 @@
                             </v-col>
                             <v-col>
                                 <v-card class="pa-2 grid-header"  outlined tile>
-                                    연차
+                                    사용연차/연차
                                 </v-card>
                             </v-col>
                             <v-col>
                                 <v-card class="pa-2 grid-header"  outlined tile>                
-                                    포상휴가
+                                    사용포상휴가/포상휴가
                                 </v-card>
                             </v-col>
                         </v-row>
@@ -41,12 +56,12 @@
                                         </v-col>
                                         <v-col>
                                             <v-card class="pa-2" :class="{'col-hover':hover}" tile>
-                                                {{ user.연차수 == null ? "연차 설정이 필요합니다." : user.연차수 }}
+                                                {{ user.사용연차수 }} / {{ user.연차수 == null ? "연차 설정이 필요합니다." : user.연차수 }}
                                             </v-card>
                                         </v-col>
                                         <v-col>
                                             <v-card class="pa-2" :class="{'col-hover':hover}" tile>
-                                                {{ user.포상휴가수 }}
+                                                {{ user.사용포상휴가수 }} / {{ user.포상휴가수 }}
                                             </v-card>
                                         </v-col>
                                     </v-row>
@@ -94,6 +109,7 @@
 </template>
 
 <script>
+import excel from "@/apis/excel"
 export default {
     props : ["users"],
     data: () => ({
@@ -105,6 +121,7 @@ export default {
             year : new Date().getFullYear()
         },
         dialog: false,
+        targetDate : new Date()
     }),
     methods : {
         targetInfo(user) {
@@ -119,8 +136,8 @@ export default {
         update() {
             this.$post("/users", {userInfo : this.userInfo}).then((res) =>{
                 if (res.status) {
-                    this.$emit("getUsers")   
-                    this.$emit("getLists")   
+                    this.$emit("getUsers", this.userInfo.year)   
+                    this.$emit("getLists")
                 }
             })
             this.dialog = false
@@ -129,6 +146,25 @@ export default {
             if(!/[\d]|Backspace|Delete|NumLock/.test(e.key)) {
                 e.returnValue = false
             }
+        },
+        changeYear(d) {
+            this.targetDate = new Date(this.targetDate.getFullYear() + d, 0, 1)
+            this.userInfo.year = this.targetDate.getFullYear()
+            this.$emit("getUsers", this.userInfo.year)
+        },
+        excelDown() {
+            let excelUsers = []
+            this.users.forEach(user => {
+                excelUsers.push({
+                    이름 : user.이름,
+                    아이디 : user.아이디,
+                    연차수 : user.연차수,
+                    사용연차수 : user.사용연차수,
+                    포상휴가수 : user.포상휴가수,
+                    사용포상휴가수 : user.사용포상휴가수                    
+                })
+            })
+            excel.excelDownload(excelUsers, `${this.userInfo.year}년_직원_휴가`, `${this.userInfo.year}년 휴가`)
         }
     },
     mounted() {
