@@ -1,7 +1,7 @@
 <template>
     <div class="main-component">
         <v-row class="fill-height" style="width:82%;">
-            <v-col style="margin-top:10rem;">
+            <v-col style="margin-bottom:2rem;">
                 <v-sheet height="80">
                     <v-toolbar flat>
                         <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
@@ -40,7 +40,7 @@
                         {{ cntTitle }}
                     </v-card-text>
                 </v-sheet>
-                <v-sheet height="600" style="margin-top : 2rem;">
+                <v-sheet style="margin-top : 2rem;">
                     <v-calendar 
                         ref="calendar"
                         v-model="focus"
@@ -55,6 +55,7 @@
                         locale="ko"
                         :show-month-on-first="false"
                         :day-format="getFormat"
+                        style="min-height: 700px; "
                     >
                     </v-calendar>
                     <v-menu 
@@ -82,9 +83,6 @@
                                         </v-list-item>
                                         <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오후 반차')">
                                             <v-list-item-title>오후 반차</v-list-item-title>
-                                        </v-list-item>
-                                        <v-list-item @click="setType('포상 휴가')">
-                                            <v-list-item-title>포상 휴가</v-list-item-title>
                                         </v-list-item>
                                         <v-list-item @click="setType('기타 휴가')">
                                             <v-list-item-title>기타 휴가</v-list-item-title>
@@ -135,7 +133,6 @@ export default {
         events: [],
         colors: {
             "휴가" : "blue", 
-            "포상 휴가" : "indigo",
             "오전 반차" : "cyan",
             "오후 반차" : "cyan", 
             "기타 휴가" : "green",
@@ -167,7 +164,7 @@ export default {
                     if (re.test(event.내용)) {
                         type = RegExp.$2                    
                             
-                        if (type.trim() != "포상 휴가" && type.trim().endsWith("휴가") && type.trim().length > 2) {
+                        if (type.trim().endsWith("휴가") && type.trim().length > 2) {
                             etcType = type.substring(0, type.lastIndexOf("휴가") - 1)
                             type = "기타 휴가"
                         }
@@ -203,11 +200,9 @@ export default {
         setTitle() {
             const year = this.selectMonth.getFullYear()
             this.calendarTitle = `${year}년 ${this.selectMonth.getMonth()+1 < 10 ? "0" + (this.selectMonth.getMonth()+1) : this.selectMonth.getMonth()+1}월`
-            const 연차 = this.leaveCnts[year] != undefined && this.leaveCnts[year].연차수 != undefined ? this.leaveCnts[year].연차수 : "0"
-            const 남은연차 = this.leaveCnts[year] != undefined && this.leaveCnts[year].남은연차수 != undefined ? this.leaveCnts[year].남은연차수 : "0"
-            const 포상휴가 = this.leaveCnts[year] != undefined && this.leaveCnts[year].포상휴가수 != undefined ? this.leaveCnts[year].포상휴가수 : "0"
-            const 남은포상휴가 = this.leaveCnts[year] != undefined && this.leaveCnts[year].남은포상휴가수 != undefined ? this.leaveCnts[year].남은포상휴가수 : "0"
-            this.cntTitle = this.$store.getters.getUser.isManager ? "관리자 계정" : `${year}년 남은 연차/총 연차(${남은연차}/${연차}) | 남은 포상 휴가/총 포상 휴가(${남은포상휴가}/${포상휴가})`
+            const 휴가 = this.leaveCnts[year] != undefined && this.leaveCnts[year].휴가수 != undefined ? this.leaveCnts[year].휴가수 : "0"
+            const 잔여휴가 = this.leaveCnts[year] != undefined && this.leaveCnts[year].남은휴가수 != undefined ? this.leaveCnts[year].남은휴가수 : "0"
+            this.cntTitle = this.$store.getters.getUser.isManager ? "관리자 계정" : `${year}년 잔여 휴가/총 휴가(${잔여휴가}/${휴가})`
         },
         setToday() {
             this.focus = ""

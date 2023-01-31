@@ -24,11 +24,10 @@ const use = (axios) => {
       function (response) {
         // session 만료 시 로그인 페이지로 이동
         if(!response.data.status) {
+          console.log(response.data)
           if (response.data.msg == "no session") {
-            router.push({path: "/login"})
-            return        
+            router.push({path: "/login"})            
           }
-          alert(response.data.msg)
         }
         return response.data;
       },

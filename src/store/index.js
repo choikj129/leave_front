@@ -8,6 +8,7 @@ const state = {
     user : {
         id : null,
         name : null,
+        position : null,
         isManager : false,
         isLogin : false,
     }
@@ -27,6 +28,7 @@ const mutations = {
         return state.user = {
             id : null,
             name : null,
+            position : null,
             isManager : false,
             isLogin : false,
         }

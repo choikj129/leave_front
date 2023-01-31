@@ -29,3 +29,13 @@
     align-items: center;
     flex-direction: column;
 }
+.grid-right-line {
+    border-right: thin solid rgba(0,0,0, .12);
+}
+.elevation-1 th {
+    font-size : 1.5rem!important;
+    color:black!important;
+}
+.elevation-1 td {
+    font-size : 1.4rem!important;
+}

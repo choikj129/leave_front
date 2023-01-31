@@ -8,7 +8,7 @@
                 color="teal"
                 dark
             >        
-            <v-toolbar-title>휴가 리스트 (남은휴가수/총휴가수)</v-toolbar-title> 
+            <v-toolbar-title>휴가 리스트 (잔여 휴가수/총 휴가수)</v-toolbar-title> 
             </v-toolbar>
             
             <v-list>
@@ -21,7 +21,7 @@
                 >        
                     <template v-slot:activator>
                         <v-list-item-content>
-                            <v-list-item-title v-text="`${key} (${leaveCnts[key].총남은휴가수}/${leaveCnts[key].총휴가수})`" style="font-size:2rem"></v-list-item-title>
+                            <v-list-item-title v-text="`${key} (${leaveCnts[key].남은휴가수}/${leaveCnts[key].휴가수})`" style="font-size:2rem"></v-list-item-title>
                         </v-list-item-content>
                     </template>
             

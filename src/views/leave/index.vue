@@ -4,7 +4,7 @@
 			<v-card class="mx-auto" max-width="344" color="#e2efff">
 				<img src="../../assets/img/odinue_ci.svg" style="width: 100%; position: relative;">
 				<v-card-text style="font-size: 2rem; font-weight: bold;">
-					{{ user.name }}
+					{{ user.name }} {{ user.position }}
 				</v-card-text>
 
 				<v-card-subtitle style="font-size: 1.5rem;font-weight: bold;">
@@ -43,7 +43,7 @@
 		/>
 		<manage v-else-if="selectType == 'manage'"
 			:users="users"
-			@getLists="getLists"
+			@getManageLists="getManageLists"
 			@getUsers="getUsers"
 		/>
 		<logs v-else-if="selectType == 'logs'"/>
@@ -77,6 +77,7 @@ export default {
 			items: [],
 			leaveCnts : {},
 			users : [],
+			manageItems : []
 		}
 	},
 	methods: {
@@ -95,21 +96,18 @@ export default {
 			this.$get("/leave/lists", {
 				id: this.$store.getters.getUser.id
 			}).then((res) => {
-				// this.items = 
+				this.manageItems = []
 				this.items = res.data.lists.reduce((acc, obj) => {
 					const year = obj.연도
 					acc[year] = acc[year] != undefined ? acc[year] : []
-					acc[year].push(obj)					
+					acc[year].push(obj)
+
 					return acc
 				}, {})
 				res.data.cnts.forEach((obj) => {
 					this.leaveCnts[obj.연도] = {
-						연차수 : obj.연차수,
-						포상휴가수 : obj.포상휴가수,
-						남은연차수 : obj.연차수 - obj.사용연차수,
-						남은포상휴가수 : obj.포상휴가수 - obj.사용포상휴가수,
-						총휴가수 : obj.연차수 + obj.포상휴가수,
-						총남은휴가수 : (obj.연차수 + obj.포상휴가수) - (obj.사용연차수 + obj.사용포상휴가수),
+						휴가수 : obj.휴가수,
+						남은휴가수 : obj.휴가수 - obj.사용휴가수,						
 						active : false,
 					}
 
@@ -128,18 +126,34 @@ export default {
 			})
 		},
 		getUsers(year = new Date().getFullYear()) {
+			this.users = []
 			this.$get("/users", {year : year}).then((res) => {
 				this.users = res.data
 				this.users.forEach((user) => {
-					user.이름_아이디 = `${user.이름} [${user.아이디}]`					
+					user.이름_아이디 = `${user.이름} [${user.아이디}]`
+					user.직위원본 = user.직위
 				})				
 			})
+		},
+		getManageLists(id, year, next = ()=>{}) {
+			this.$get("/users/lists", {
+				id: id,
+				year : year,
+			}).then((res) => {
+				let count = 0
+				let data = res.data.reduce((acc, obj) => {
+					count += obj.휴가일수
+					obj.누적휴가수 = count 
+					acc.push(obj)
+					return acc
+				}, [])
+				next(data)
+			})			
 		}
 	},
 	created() {		
-		this.getUsers()
-		this.getLists(true)
-		
+		if (this.$store.getters.getUser.isManager) this.getUsers()
+		this.getLists(true)		
 	},
 }
 </script>
