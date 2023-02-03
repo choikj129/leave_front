@@ -1,8 +1,8 @@
 <template>
-  <div class="login">
-    <img src="../../assets/img/odinue_ci.svg" style="width: 30%; position: relative; top : -3rem;">  
-    <div class="f5 posR" style="top : -10rem;">휴가 관리</div>  
-    <v-app id="inspire" style="height:0">
+	<div class="login">
+		<img src="../../assets/img/odinue_ci.svg" style="width: 30%; position: relative; top : -3rem;">  
+		<div class="f5 posR" style="top : -10rem;">휴가 관리</div>  
+		<v-app id="inspire" style="height:0">
 			<!-- Login Component -->
 			<v-container style="max-width: 450px">
 				<v-layout align-center row wrap>

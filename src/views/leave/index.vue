@@ -38,12 +38,12 @@
 			@getLists="getLists"
 		/>
 		<lists v-else-if="selectType == 'lists'" 
-			:items="items" 
+			:items="items"
 			:leave-cnts="leaveCnts"
+			:users="users"
 		/>
 		<manage v-else-if="selectType == 'manage'"
 			:users="users"
-			@getManageLists="getManageLists"
 			@getUsers="getUsers"
 		/>
 		<logs v-else-if="selectType == 'logs'"/>
@@ -66,8 +66,8 @@ export default {
 		return {
 			drawer: null,
 			links: [
-				{ icon: "mdi-view-list", text: "휴가 리스트", auth: !this.$store.getters.getUser.isManager, type: "lists"},
 				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage"},
+				{ icon: "mdi-view-list", text: "휴가 리스트", auth: true, type: "lists"},
 				{ icon: "mdi-calendar-month", text: "휴가 일정", auth: true, type: "calendar"},
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "logs"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
@@ -80,10 +80,9 @@ export default {
 			manageItems : []
 		}
 	},
-	methods: {
-		changeComponent(type, text) {
-			if (text == "") return
-			else if (type == "logout"){
+	methods: {		
+		changeComponent(type) {
+			if (type == "logout"){
 				this.$router.push("/logout")
 				return
 			}
@@ -92,18 +91,12 @@ export default {
 				this.$router.push(`/leave/${type}`)				
 			}
 		},
+		/* 휴가 신청시 데이터가 수정되어 부모 컴포넌트에서 처리 */
 		getLists(isLoadPage = false, next = ()=>{}) {
 			this.$get("/leave/lists", {
 				id: this.$store.getters.getUser.id
 			}).then((res) => {
-				this.manageItems = []
-				this.items = res.data.lists.reduce((acc, obj) => {
-					const year = obj.연도
-					acc[year] = acc[year] != undefined ? acc[year] : []
-					acc[year].push(obj)
-
-					return acc
-				}, {})
+				this.manageItems = []				
 				res.data.cnts.forEach((obj) => {
 					this.leaveCnts[obj.연도] = {
 						휴가수 : obj.휴가수,
@@ -114,7 +107,7 @@ export default {
 					if (obj.연도 == new Date().getFullYear()) {
 						this.leaveCnts[obj.연도].active = true
 					}
-				})
+				})				
 				if (isLoadPage) {
 					if (this.$store.getters.getUser.isManager){
 						this.changeComponent("manage")						
@@ -122,6 +115,7 @@ export default {
 						this.changeComponent("lists")
 					}
 				}
+				/* next로 calendar 후처리 */
 				next()
 			})
 		},
@@ -132,24 +126,10 @@ export default {
 				this.users.forEach((user) => {
 					user.이름_아이디 = `${user.이름} [${user.아이디}]`
 					user.직위원본 = user.직위
+					user.입사일원본 = user.입사일
 				})				
 			})
 		},
-		getManageLists(id, year, next = ()=>{}) {
-			this.$get("/users/lists", {
-				id: id,
-				year : year,
-			}).then((res) => {
-				let count = 0
-				let data = res.data.reduce((acc, obj) => {
-					count += obj.휴가일수
-					obj.누적휴가수 = count 
-					acc.push(obj)
-					return acc
-				}, [])
-				next(data)
-			})			
-		}
 	},
 	created() {		
 		if (this.$store.getters.getUser.isManager) this.getUsers()

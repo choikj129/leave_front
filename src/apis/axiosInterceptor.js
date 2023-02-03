@@ -7,12 +7,12 @@ const use = (axios) => {
   // 모든 axios 요청에 대한 선처리
   if (requestInterceptor == null) {
     requestInterceptor = axios.interceptors.request.use(
-      function (config) {
+      (config) => {
         config.headers =  {"Content-Type" : "application/json;charset=UTF-8"}
         config.url = "/api" + config.url
         return config;
       },
-      function (error) {
+      (error) => {
         console.error(error)
         return Promise.reject(error);
       }
@@ -21,7 +21,7 @@ const use = (axios) => {
   // 모든 axios 응답에 대한 선처리
   if (responseInterceptor == null) {
     responseInterceptor = axios.interceptors.response.use(
-      function (response) {
+      (response) => {
         // session 만료 시 로그인 페이지로 이동
         if(!response.data.status) {
           console.log(response.data)
@@ -31,7 +31,7 @@ const use = (axios) => {
         }
         return response.data;
       },
-      function (error) {
+      (error) => {
         // console.error(error)
         return Promise.reject(error);
       }
@@ -40,10 +40,10 @@ const use = (axios) => {
 };
 
  const eject = (axios) => {
-  if (requestInterceptor != null) {
+  if (requestInterceptor) {
     axios.interceptors.request.eject(requestInterceptor);
   }
-  if (responseInterceptor != null) {
+  if (responseInterceptor) {
     axios.interceptors.response.eject(responseInterceptor);
   }
 };

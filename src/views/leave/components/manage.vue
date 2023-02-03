@@ -1,14 +1,17 @@
 <template>
-    <div class="text-center main-component">        
+    <div class="text-center main-component">
+        <!-- 모달 팝업 기본 태그 -->
         <v-dialog
             v-model="dialog"            
             width="400"
             @click:outside="close"
-        >            
-            <template v-slot:activator="{ on, attrs }">                
+        >
+            <!-- v-slot on : 모달 오픈 -->
+            <template v-slot:activator="{ on, attrs }">
+                <!-- 상단 버튼 및 정보 -->
                 <div style="width: 100%;">
                     <div class="mt-3 mr-16">
-                        <v-btn fab text small color="grey darken-2" @click="changeYear(-1)">
+                        <v-btn outlined fab text small color="grey darken-2" @click="changeYear(-1)">
                             <v-icon>
                                 mdi-chevron-left
                             </v-icon>
@@ -16,21 +19,22 @@
                         <h3 class="di mt-3">
                             {{userInfo.연도}} 년 휴가 관리
                         </h3>
-                        <v-btn fab text small color="grey darken-2" @click="changeYear(1)">
+                        <v-btn outlined fab text small color="grey darken-2" @click="changeYear(1)">
                             <v-icon>
                                 mdi-chevron-right
                             </v-icon>
-                        </v-btn>                        
-                        <v-btn depressed color="success" style="position:absolute; right:20%;" @click="excelDown">
-                            엑셀다운로드
                         </v-btn>
-                        <v-btn depressed color="primary" style="position:absolute; right:15%;" @click="showInsert">
-                            직원추가
-                        </v-btn>
+                        <span style="position: absolute; right : 12%;">
+                            <v-btn depressed color="success" @click="excelDown">
+                                엑셀다운로드
+                            </v-btn>
+                            <v-btn depressed color="primary" @click="showInsert">
+                                직원추가
+                            </v-btn>
+                        </span>                     
                     </div>
-                    <div class="mt-2">
-                        ※이름 클릭시 해당 직원의 휴가 리스트가 나오고, 휴가 클릭시 설정이 나옵니다.※
-                    </div>
+
+                    <!-- 테이블 -->
                     <v-simple-table style="width: 75%; margin:auto; margin-top: 20px; margin-bottom:50px;">
                         <template>
                             <thead>
@@ -47,6 +51,9 @@
                                     <th class="text-center grid-header grid-right-line">
                                         휴가
                                     </th>
+                                    <th class="text-center grid-header grid-right-line">
+                                        입사일 (년차)
+                                    </th>
                                     <th class="text-center grid-header">
                                         삭제
                                     </th>
@@ -55,18 +62,21 @@
                             <tbody>
                                 <v-hover v-for="user in users" :key="user.아이디">
                                     <template v-slot:default="{ hover }">
-                                        <tr v-bind="attrs">
-                                            <td v-on="on" @click="targetInfo(user, true)" class="grid-body">
+                                        <tr v-bind="attrs" v-on="on" @click="targetInfo(user)">
+                                            <td  class="grid-body">
                                                 {{ user.이름 }} [{{ user.아이디 }}]
                                             </td>
-                                            <td v-on="on" @click="targetInfo(user, true)" class="grid-body grid-right-line">
+                                            <td class="grid-body grid-right-line">
                                                 {{ user.직위}}
                                             </td>
-                                            <td v-on="on" @click="targetInfo(user, false)" class="grid-body">
+                                            <td class="grid-body">
                                                 {{ user.사용휴가수 }}
                                             </td>
-                                            <td v-on="on" @click="targetInfo(user, false)" class="grid-body grid-right-line">
-                                                {{ user.휴가수 == null ? "휴가 설정이 필요합니다." : user.휴가수 }}
+                                            <td class="grid-body grid-right-line">
+                                                {{ !user.휴가수 ? "휴가 설정이 필요합니다." : user.휴가수 }}
+                                            </td>
+                                            <td class="grid-body grid-right-line">
+                                                {{ user.입사일 ? `${user.입사일.replace(/([\d]{4})([\d]{2})([\d]{2})/g, "$1년 $2월 $3일")} (${user.입사년차}년차)` : null }}
                                             </td>
                                             <td @click="" class="grid-body">
                                                 <v-btn depressed dark color="red lighten-1" @click="deleteUser(user)">
@@ -81,25 +91,10 @@
                     </v-simple-table>
                 </div>
             </template>
-            <v-data-table v-if="isLists"
-                :headers="headers"
-                :items="items"
-                hide-default-footer
-                :loading="isLoading"
-                loading-text="Loading... Please wait"
-                class="elevation-1"
-            >
-                <template v-slot:item.휴가구분="{ item }">
-                    <v-chip
-                        :color="getColor(item.휴가구분)"
-                        dark
-                    >
-                        {{ item.휴가구분 }}
-                    </v-chip>
-                </template>
-            </v-data-table>
-            <div v-else>
-                <v-card v-if="dialogType=='update'">
+           
+            <div>
+                <!-- 직원 정보 수정 모달 -->
+                <v-card v-if="dialogType =='update'">
                     <v-card-title class="text-h5 grey lighten-2">
                         {{ userInfo.이름 }} ({{ userInfo.아이디 }})
                     </v-card-title>
@@ -110,6 +105,7 @@
                             <v-text-field v-model="userInfo.이름" label="이름" disabled outlined></v-text-field>
                             <v-text-field v-model="userInfo.직위" label="직위" outlined></v-text-field>
                             <v-text-field @keydown="keydown" v-model="userInfo.휴가수" label="휴가" outlined></v-text-field>
+                            <v-text-field @keydown="keydown" v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" outlined :disabled="userInfo.입사일원본 ? true : false"></v-text-field>
                         </v-container>
                     </v-form>
     
@@ -119,7 +115,9 @@
                         <v-btn color="primary" text @click="update">수정</v-btn>
                     </v-card-actions>
                 </v-card>
-                <v-card v-else-if="dialogType=='insert'">
+
+                <!-- 직원 추가 모달 -->
+                <v-card v-else-if="dialogType =='insert'">
                     <v-card-title class="text-h5 grey lighten-2">
                         직원 추가
                     </v-card-title>                    
@@ -128,6 +126,7 @@
                             <v-text-field v-model="insertUserInfo.이름" label="이름" outlined></v-text-field>
                             <v-text-field v-model="insertUserInfo.직위" label="직위" outlined></v-text-field>
                             <v-text-field v-model="insertUserInfo.아이디" label="아이디" outlined></v-text-field>
+                            <v-text-field v-model="insertUserInfo.입사일" label="입사일 (YYYYMMDD)" outlined></v-text-field>
                         </v-container>
                     </v-form>
     
@@ -137,8 +136,6 @@
                         <v-btn color="primary" text @click="insertUser">등록</v-btn>
                     </v-card-actions>
                 </v-card>
-                
-
             </div>
         </v-dialog>
     </div>
@@ -148,59 +145,48 @@
 import excel from "@/apis/excel"
 export default {
     props : ["users", ],
-    data: () => ({
-        userInfo : {
-            연도 : new Date().getFullYear()
-        },
-        insertUserInfo : {
-            이름 : "",
-            직위 : "",
-            아이디 : "",
-        },
-        items : [],
-        dialog: false,
-        dialogType : "",
-        targetDate : new Date(),
-        isLists : false,
-        isLoading : false,
-        headers: [
-            { text: '휴가일', sortable: false, value: '휴가일', width:"140", align:"center"},
-            { text: '휴가 구분', sortable: false, value: '휴가구분', width:"140", align:"center"},
-            { text: '누적 휴가 수', sortable: false, value: '누적휴가수', width:"120", align:"center"},          
-        ],
-        colors: {
-            "휴가" : "blue", 
-            "오전 반차" : "cyan",
-            "오후 반차" : "cyan", 
-            "기타 휴가" : "green",
-        },
-    }),
+    data() {
+		return {
+            userInfo : {
+                연도 : new Date().getFullYear()
+            },
+            insertUserInfo : {
+                이름 : "",
+                직위 : "",
+                아이디 : "",
+            },
+            items : [],
+            dialog: false,
+            dialogType : "",
+            targetDate : new Date(),
+        }
+    },
     methods : {
-        targetInfo(user, type) {
+        targetInfo(user) {
             this.items = []
             this.isLoading = true
             user.연도 = this.userInfo.연도
             this.userInfo = user
-            this.isLists = type
-            if (!type) this.dialogType = "update"
-            this.$emit("getManageLists", this.userInfo.아이디, this.userInfo.연도, (data) => {
-                this.items = data
-                this.isLoading = false
-            })
+            this.dialogType = "update"
         },
         update() {
-            console.log(this.userInfo)
-            if (this.userInfo.휴가수 == null) {
+            if (!this.userInfo.휴가수) {
                 alert("휴가를 설정해주십시오.")
                 return
             }
-            const position = this.userInfo.직위 == this.userInfo.직위원본 ? null : this.userInfo.직위
+            if (this.userInfo.입사일 && this.userInfo.입사일.length != 8) {
+                alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
+                return
+            }
             this.$post("/users/update", {
                 userInfo : {
                     id : this.userInfo.아이디,
                     year : this.userInfo.연도,
                     cnt : this.userInfo.휴가수,
-                    position : position,
+                    /* EMP 테이블 update는 수정이 있을 때만 */
+                    isEmpChange : (this.userInfo.직위 && this.userInfo.직위 != this.userInfo.직위원본) || (!this.userInfo.입사일원본 && this.userInfo.입사일),
+                    position : this.userInfo.직위,
+                    date : this.userInfo.입사일,
                 }
             }).then((res) =>{
                 if (res.status) {
@@ -227,10 +213,20 @@ export default {
                     직위 : user.직위,
                     휴가수 : user.휴가수,
                     사용휴가수 : user.사용휴가수,
+                    입사일 : user.입사일 ? user.입사일.replace(/([\d]{4})([\d]{2})([\d]{2})/g, "$1-$2-$3") : null,
                     이메일 : `${user.아이디}@odinue.net`,
                 })
             })
-            excel.excelDownload(excelUsers, `${this.userInfo.연도}년_직원_휴가`, `${this.userInfo.연도}년 휴가`)
+            /* 컬럼 가로 길이 설정 */
+            const colOpt = [
+                {wch : 10},
+                {wch : 10},
+                {wch : 10},
+                {wch : 10},
+                {wch : 15},
+                {wch : 30},
+            ]
+            excel.excelDownload(excelUsers, `${this.userInfo.연도}년_직원_휴가`, `${this.userInfo.연도}년 휴가`, {"!cols" : colOpt})
         },
         showInsert() {
             this.dialog = true
@@ -239,15 +235,25 @@ export default {
                 이름 : "",
                 직위 : "",
                 아이디 : "",
+                입사일 : "",
             }
 
         },
         insertUser() {
+            if (!this.insertUserInfo.이름) {
+                alert("이름을 입력해주십시오.")
+                return
+            }
+            if (!this.insertUserInfo.아이디) {
+                alert("아이디를 입력해주십시오.")
+                return
+            }
             this.dialog = false
             this.$post("/users/insert", {
                 name : this.insertUserInfo.이름,
-                id : this.insertUserInfo.이름,
-                position : this.insertUserInfo.이름,
+                id : this.insertUserInfo.아이디,
+                position : this.insertUserInfo.직위,
+                date : this.insertUserInfo.입사일,
             }).then((res) => {
                 this.$emit("getUsers", this.userInfo.연도)
             })
@@ -265,10 +271,8 @@ export default {
         close() {
             this.dialog = false
             this.userInfo.직위 = this.userInfo.직위원본
+            this.userInfo.입사일 = this.userInfo.입사일원본
         },
-        getColor(type) {
-            return this.colors[type]
-        }
     },
     mounted() {
     }

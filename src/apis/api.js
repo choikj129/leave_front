@@ -36,6 +36,7 @@ const methods = {
     }
 }
 
+/* Global 함수로 사용할 수 있게 */
 export default {
     install (Vue) {
         Vue.prototype.$get = methods.get

@@ -1,7 +1,8 @@
 <template>
     <div class="main-component">
-        <v-row class="fill-height" style="width:82%;">
+        <v-row class="fill-height" style="width:98%;">
             <v-col style="margin-bottom:2rem;">
+                <!-- 상단 버튼 및 정보 -->
                 <v-sheet height="80">
                     <v-toolbar flat>
                         <v-btn outlined class="mr-4" color="grey darken-2" @click="setToday">
@@ -25,22 +26,13 @@
                             신청
                         </v-btn>                    
                     </v-toolbar>
-                    <!-- <v-autocomplete 
-                        style="width:20rem; float:right; top:15rem; right:17rem; position:absolute;"
-                        :items="users"
-                        item-text="이름_아이디"
-                        item-value="아이디"
-                        @change="changeCalendar"
-                        v-model="targetUser"
-                        return-object
-                        :auto-select-first="true"
-                    ></v-autocomplete>
-                    <v-spacer></v-spacer> -->
                     <v-card-text style="font-size: 1.5rem; float:right; font-weight: bold;">
                         {{ cntTitle }}
                     </v-card-text>
                 </v-sheet>
+
                 <v-sheet style="margin-top : 2rem;">
+                    <!-- 캘린더 -->
                     <v-calendar 
                         ref="calendar"
                         v-model="focus"
@@ -58,6 +50,8 @@
                         style="min-height: 700px; "
                     >
                     </v-calendar>
+
+                    <!-- 이벤트 클릭 팝업 -->
                     <v-menu 
                         max-width="350px"
                         v-model="selectedOpen"
@@ -119,45 +113,46 @@
 <script>
 export default {
     props : ["leaveCnts", "users"],
-    data: () => ({
-        focus: "",
-        type : "휴가",
-        selectedEvent: {},
-        selectedElement: null,
-        selectedOpen: false,
-        selectDate : false,
-        selectMonth : new Date(),
-        startDate : null,
-        changeEvents : {추가 : {}, 취소 : []},
-        originalEvents: {},
-        events: [],
-        colors: {
-            "휴가" : "blue", 
-            "오전 반차" : "cyan",
-            "오후 반차" : "cyan", 
-            "기타 휴가" : "green",
-            "신규" : "orange",
-        },
-        calendarTitle: "",
-        week: ["일", "월", "화", "수", "목", "금", "토"],
-        etcType : "기타",
-        cntTitle : "",
-    }),
+    data() {
+        return {
+            focus: "",
+            type : "휴가",
+            selectedEvent: {},
+            selectedElement: null,
+            selectedOpen: false,
+            selectDate : false,
+            selectMonth : new Date(),
+            startDate : null,
+            changeEvents : {추가 : {}, 취소 : []},
+            originalEvents: {},
+            events: [],
+            colors: {
+                "휴가" : "blue", 
+                "오전 반차" : "cyan",
+                "오후 반차" : "cyan", 
+                "기타 휴가" : "green",
+                "신규" : "orange",
+            },
+            calendarTitle: "",
+            week: ["일", "월", "화", "수", "목", "금", "토"],
+            etcType : "기타",
+            cntTitle : "",
+        }
+    },
     created() {
         this.setCalendar()
-    },
-    mounted() {
         this.setTitle()
     },
     methods: {
-        setCalendar(id = this.$store.getters.getUser.id) {
-            this.$get("/leave", {id : id}).then((res) => {
+        setCalendar() {
+            this.$get("/leave", {id : this.$store.getters.getUser.id}).then((res) => {
                 this.originalEvents = {}
                 this.events = []
                 let events = res.data
                 for (let i=0; i<events.length; i++) {
                     let event = events[i]
-                    
+
+                    /* 휴가 내용 재조립 */
                     const re = /[\d-]+.\(.\)(.~.[\d-]+.\(.\))?.(.*)/
                     let type = "휴가"
                     let etcType = ""
@@ -177,7 +172,7 @@ export default {
                         startDate: event.시작일,
                         endDate: event.종료일,
                         color: this.colors[type],
-                        index : Math.random().toString(36).substring(2),
+                        index : Math.random().toString(36).substring(2),  /* 휴가 신청 목록 검색 용도 */
                         cnt : event.휴가일수,
                         type : type,
                         etcType : etcType,
@@ -192,36 +187,41 @@ export default {
             })
         },
         getFormat(e) {
+            /* 달력 일 포맷 */
             return e.day
         },
         getEventColor(event) {
+            /* 캘린더 이벤트 색 */
             return event.color
         },
-        setTitle() {
+        setTitle() {            
             const year = this.selectMonth.getFullYear()
             this.calendarTitle = `${year}년 ${this.selectMonth.getMonth()+1 < 10 ? "0" + (this.selectMonth.getMonth()+1) : this.selectMonth.getMonth()+1}월`
-            const 휴가 = this.leaveCnts[year] != undefined && this.leaveCnts[year].휴가수 != undefined ? this.leaveCnts[year].휴가수 : "0"
-            const 잔여휴가 = this.leaveCnts[year] != undefined && this.leaveCnts[year].남은휴가수 != undefined ? this.leaveCnts[year].남은휴가수 : "0"
+            const 휴가 = this.leaveCnts[year] && this.leaveCnts[year].휴가수 ? this.leaveCnts[year].휴가수 : "0"
+            const 잔여휴가 = this.leaveCnts[year] && this.leaveCnts[year].남은휴가수 ? this.leaveCnts[year].남은휴가수 : "0"
             this.cntTitle = this.$store.getters.getUser.isManager ? "관리자 계정" : `${year}년 잔여 휴가/총 휴가(${잔여휴가}/${휴가})`
         },
         setToday() {
             this.focus = ""
         },
         setType(type) {
+            /* 이벤트 휴가 타입 설정 */
             this.selectedEvent.type = type
             this.selectedEvent.cnt = type.endsWith("반차") ? 0.5 : Math.round(this.selectedEvent.cnt)
             this.setEvent(type)
         },
         setEvent(type) {
             this.selectedEvent.name = this.selectedEvent.name.replace(/([\d-]+.\(.\)(.~.[\d-]+.\(.\))?).*/g, `$1 ${type}`)
+
+            /* events에 있으면 수정*/
             for (let i=0; i<this.events.length; i++) {
                 if (this.events[i].index == this.selectedEvent.index) {
                     this.events[i] = this.selectedEvent
                     break
                 }
             }
-
-            if (this.originalEvents[this.selectedEvent.index] == undefined) {
+            /* 원본 events에 없으면 changeEvents에 추가 */
+            if (!this.originalEvents[this.selectedEvent.index]) {
                 this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
             }
         },    
@@ -258,6 +258,7 @@ export default {
                 this.selectDate = false
                 return
             }
+            /* 처음 클릭한 날짜를 시작 or 종료 날짜로 */
             if (!this.selectDate){
                 this.selectDate = true
                 this.startDate = event.date
@@ -301,7 +302,7 @@ export default {
         },
         closeEvent() {
             if (this.selectedEvent.type=='기타 휴가') {
-                if (this.etcType == "") {
+                if (!this.etcType) {
                     this.etcType = "기타"
                 }
                 this.selectedEvent.etcType = this.etcType
@@ -314,7 +315,7 @@ export default {
             if (confirm(`${this.selectedEvent.name}를 취소하시겠습니까?`)) {
                 this.events = this.events.filter(event => {
                     if (event.index == this.selectedEvent.index) {
-                        if (this.originalEvents[this.selectedEvent.index] == undefined) {
+                        if (!this.originalEvents[this.selectedEvent.index]) {
                             delete this.changeEvents.추가[this.selectedEvent.index]
                         }else {
                             event.updateType = "D"

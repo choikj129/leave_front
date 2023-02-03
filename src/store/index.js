@@ -3,7 +3,7 @@ import Vuex from "vuex"
 import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
-
+/* store 데이터 */
 const state = {    
     user : {
         id : null,
@@ -13,13 +13,16 @@ const state = {
         isLogin : false,
     }
 }
-
+/* store 데이터 접근 
+    ex) store.getters["state 키값"]
+*/
 const getters = {
     getUser(state) {
         return state.user
     },
 }
 
+/* 데이터 수정할 수 있은 함수 */
 const mutations = {
     setUser(state, user) {
         return state.user = user

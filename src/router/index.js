@@ -29,6 +29,7 @@ const router = new Router({
 router.beforeEach(async (to, from, next) => {
 	const path = to.path
 	if (path == "/") {
+		/* 미 로그인시 로그인 페이지로 이동 */
 		if (store.getters.getUser.isLogin) {
 			router.push({ path: "/leave" })
 		} else {
