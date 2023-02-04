@@ -54,12 +54,10 @@
                 </v-chip>
             </template>
         </v-data-table>
-        <v-card class="mt-15"  color="#f4f9ff">
+        <v-card class="mt-15"  color="#f4f9ff" v-if="!isManager">
             <v-card-title class="f3">{{ year }}년 휴가 정보</v-card-title>
             <v-card-text class="f2 mt-3">{{ cntTitle }}</v-card-text>
         </v-card>
-        <div class="mt-15 f3"></div>
-        <div class="f2"></div>
     </div>
 </template>
   

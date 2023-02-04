@@ -3,7 +3,7 @@ import Vuex from "vuex"
 import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
-/* store µ¥ÀÌÅÍ */
+/* store ë°ì´í„° */
 const state = {    
     user : {
         id : null,
@@ -11,18 +11,32 @@ const state = {
         position : null,
         isManager : false,
         isLogin : false,
+    },
+    position : {
+        A : "ì‚¬ì¥",
+        B : "ë¶€ì‚¬ì¥",
+        C : "ì´ì‚¬",
+        D : "ë³¸ë¶€ì¥",
+        E : "ë¶€ì¥",
+        F : "ì°¨ì¥",
+        G : "ê³¼ì¥",
+        H : "ëŒ€ë¦¬",
+        I : "ì£¼ì„",
     }
 }
-/* store µ¥ÀÌÅÍ Á¢±Ù 
-    ex) store.getters["state Å°°ª"]
+/* store ë°ì´í„° ì ‘ê·¼ 
+    ex) store.getters["state í‚¤ê°’"]
 */
 const getters = {
     getUser(state) {
         return state.user
     },
+    getPosition(state) {
+        return state.position
+    },
 }
 
-/* µ¥ÀÌÅÍ ¼öÁ¤ÇÒ ¼ö ÀÖÀº ÇÔ¼ö */
+/* ë°ì´í„° ìˆ˜ì •í•  ìˆ˜ ìˆì€ í•¨ìˆ˜ */
 const mutations = {
     setUser(state, user) {
         return state.user = user

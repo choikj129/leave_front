@@ -67,7 +67,7 @@
                                                 {{ user.이름 }} [{{ user.아이디 }}]
                                             </td>
                                             <td class="grid-body grid-right-line">
-                                                {{ user.직위}}
+                                                {{ user.직위 }}
                                             </td>
                                             <td class="grid-body">
                                                 {{ user.사용휴가수 }}
@@ -103,7 +103,15 @@
                     <v-form >
                         <v-container style="width:100%">
                             <v-text-field v-model="userInfo.이름" label="이름" disabled outlined></v-text-field>
-                            <v-text-field v-model="userInfo.직위" label="직위" outlined></v-text-field>
+                            <v-select
+                                :items="positions"
+                                label="직위"
+                                item-text="표시내용"
+                                item-value="코드명"
+                                v-model="userInfo.직위코드"
+                                class="vSelect"
+                                outlined
+                            ></v-select>
                             <v-text-field @keydown="keydown" v-model="userInfo.휴가수" label="휴가" outlined></v-text-field>
                             <v-text-field @keydown="keydown" v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" outlined :disabled="userInfo.입사일원본 ? true : false"></v-text-field>
                         </v-container>
@@ -124,7 +132,15 @@
                     <v-form >
                         <v-container style="width:100%">
                             <v-text-field v-model="insertUserInfo.이름" label="이름" outlined></v-text-field>
-                            <v-text-field v-model="insertUserInfo.직위" label="직위" outlined></v-text-field>
+                            <v-select
+                                :items="positions"
+                                label="직위"
+                                item-text="표시내용"
+                                item-value="코드명"
+                                v-model="insertUserInfo.직위코드"
+                                class="vSelect"
+                                outlined
+                            ></v-select>
                             <v-text-field v-model="insertUserInfo.아이디" label="아이디" outlined></v-text-field>
                             <v-text-field v-model="insertUserInfo.입사일" label="입사일 (YYYYMMDD)" outlined></v-text-field>
                         </v-container>
@@ -144,7 +160,7 @@
 <script>
 import excel from "@/apis/excel"
 export default {
-    props : ["users", ],
+    props : ["users", "positions"],
     data() {
 		return {
             userInfo : {
@@ -152,8 +168,9 @@ export default {
             },
             insertUserInfo : {
                 이름 : "",
-                직위 : "",
                 아이디 : "",
+                직위코드 : "",
+                입사일 : "",
             },
             items : [],
             dialog: false,
@@ -184,8 +201,8 @@ export default {
                     year : this.userInfo.연도,
                     cnt : this.userInfo.휴가수,
                     /* EMP 테이블 update는 수정이 있을 때만 */
-                    isEmpChange : (this.userInfo.직위 && this.userInfo.직위 != this.userInfo.직위원본) || (!this.userInfo.입사일원본 && this.userInfo.입사일),
-                    position : this.userInfo.직위,
+                    isEmpChange : (this.userInfo.직위코드 && this.userInfo.직위코드 != this.userInfo.직위코드원본) || (!this.userInfo.입사일원본 && this.userInfo.입사일),
+                    position : this.userInfo.직위코드,
                     date : this.userInfo.입사일,
                 }
             }).then((res) =>{
@@ -233,7 +250,7 @@ export default {
             this.dialogType='insert'
             this.insertUserInfo = {
                 이름 : "",
-                직위 : "",
+                직위코드 : "",
                 아이디 : "",
                 입사일 : "",
             }
@@ -244,6 +261,10 @@ export default {
                 alert("이름을 입력해주십시오.")
                 return
             }
+            if (!this.insertUserInfo.직위코드) {
+                alert("직위를 입력해주십시오.")
+                return
+            }
             if (!this.insertUserInfo.아이디) {
                 alert("아이디를 입력해주십시오.")
                 return
@@ -252,29 +273,27 @@ export default {
             this.$post("/users/insert", {
                 name : this.insertUserInfo.이름,
                 id : this.insertUserInfo.아이디,
-                position : this.insertUserInfo.직위,
-                date : this.insertUserInfo.입사일,
+                position : this.insertUserInfo.직위코드,
+                date : this.insertUserInfo.입사일 ? this.insertUserInfo.입사일 : null,
             }).then((res) => {
                 this.$emit("getUsers", this.userInfo.연도)
             })
         },
         deleteUser(user) {
-            this.dialog = false
             if (confirm(`${user.이름} ${user.직위}님을 삭제하시겠습니까?`)) {
                 this.$get("/users/delete", {
                     id : user.아이디
                 }).then((res) => {
+                    this.dialog = false
                     this.$emit("getUsers", this.userInfo.연도)
                 })
             }
         },
         close() {
             this.dialog = false
-            this.userInfo.직위 = this.userInfo.직위원본
+            this.userInfo.직위코드 = this.userInfo.직위코드원본
             this.userInfo.입사일 = this.userInfo.입사일원본
         },
     },
-    mounted() {
-    }
 }
 </script>

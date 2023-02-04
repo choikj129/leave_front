@@ -26,7 +26,9 @@ const use = (axios) => {
         if(!response.data.status) {
           console.log(response.data)
           if (response.data.msg == "no session") {
-            router.push({path: "/login"})            
+            if (!window.location.href.endsWith("/login")) {
+              router.push({path: "/login"})            
+            }
           }
         }
         return response.data;

@@ -9,9 +9,7 @@
 
 <script>
 export default {
-  name: 'App',
-  updated() {
-  }
+  name: 'App'
 }
 </script>
 
