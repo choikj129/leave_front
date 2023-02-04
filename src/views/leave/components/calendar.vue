@@ -26,9 +26,6 @@
                             신청
                         </v-btn>                    
                     </v-toolbar>
-                    <v-card-text style="font-size: 1.5rem; float:right; font-weight: bold;">
-                        {{ cntTitle }}
-                    </v-card-text>
                 </v-sheet>
 
                 <v-sheet style="margin-top : 2rem;">
@@ -112,7 +109,7 @@
   
 <script>
 export default {
-    props : ["leaveCnts", "users"],
+    props : ["leaveCnts"],
     data() {
         return {
             focus: "",
@@ -136,7 +133,6 @@ export default {
             calendarTitle: "",
             week: ["일", "월", "화", "수", "목", "금", "토"],
             etcType : "기타",
-            cntTitle : "",
         }
     },
     created() {
@@ -197,9 +193,6 @@ export default {
         setTitle() {            
             const year = this.selectMonth.getFullYear()
             this.calendarTitle = `${year}년 ${this.selectMonth.getMonth()+1 < 10 ? "0" + (this.selectMonth.getMonth()+1) : this.selectMonth.getMonth()+1}월`
-            const 휴가 = this.leaveCnts[year] && this.leaveCnts[year].휴가수 ? this.leaveCnts[year].휴가수 : "0"
-            const 잔여휴가 = this.leaveCnts[year] && this.leaveCnts[year].남은휴가수 ? this.leaveCnts[year].남은휴가수 : "0"
-            this.cntTitle = this.$store.getters.getUser.isManager ? "관리자 계정" : `${year}년 잔여 휴가/총 휴가(${잔여휴가}/${휴가})`
         },
         setToday() {
             this.focus = ""
@@ -312,7 +305,7 @@ export default {
         },
         deleteEvent(){
             if (this.$store.getters.getUser.isManager) return
-            if (confirm(`${this.selectedEvent.name}를 취소하시겠습니까?`)) {
+            if (confirm(`${this.selectedEvent.name}를 취소하시겠습니까?\n(취소 후 신청을 해야 적용됩니다.)`)) {
                 this.events = this.events.filter(event => {
                     if (event.index == this.selectedEvent.index) {
                         if (!this.originalEvents[this.selectedEvent.index]) {

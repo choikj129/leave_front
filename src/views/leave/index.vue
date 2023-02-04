@@ -33,12 +33,9 @@
 			</v-list>
 		</v-navigation-drawer>
 		<calendar v-if="selectType == 'calendar'" 
-			:leave-cnts="leaveCnts"
-			:users="users"
 			@getLists="getLists"
 		/>
 		<lists v-else-if="selectType == 'lists'" 
-			:items="items"
 			:leave-cnts="leaveCnts"
 			:users="users"
 		/>
@@ -93,19 +90,16 @@ export default {
 		},
 		/* 휴가 신청시 데이터가 수정되어 부모 컴포넌트에서 처리 */
 		getLists(isLoadPage = false, next = ()=>{}) {
-			this.$get("/leave/lists", {
+			this.$get("/leave/cnts", {
 				id: this.$store.getters.getUser.id
 			}).then((res) => {
 				this.manageItems = []				
-				res.data.cnts.forEach((obj) => {
+				res.data.forEach((obj) => {
 					this.leaveCnts[obj.연도] = {
 						휴가수 : obj.휴가수,
-						남은휴가수 : obj.휴가수 - obj.사용휴가수,						
+						사용휴가수 : obj.사용휴가수,						
+						잔여휴가수 : obj.휴가수 - obj.사용휴가수,						
 						active : false,
-					}
-
-					if (obj.연도 == new Date().getFullYear()) {
-						this.leaveCnts[obj.연도].active = true
 					}
 				})				
 				if (isLoadPage) {
@@ -132,7 +126,7 @@ export default {
 		},
 	},
 	created() {		
-		if (this.$store.getters.getUser.isManager) this.getUsers()
+		this.getUsers()
 		this.getLists(true)		
 	},
 }

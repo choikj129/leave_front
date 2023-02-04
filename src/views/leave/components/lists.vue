@@ -7,7 +7,7 @@
                 <v-col
                     class="d-flex"
                     cols="12"
-                    :sm="isManager ? 6 : 10"
+                    sm="6"
                 >
                     <v-select
                         :items="years"
@@ -17,12 +17,13 @@
                         class="vSelect"
                     ></v-select>
                 </v-col>
-                <v-col v-if="isManager"
+                <v-col
                     class="d-flex"
                     cols="12"
                     sm="6"
                 >
-                    <v-autocomplete             
+                    <v-autocomplete
+                        :disabled="!isManager"
                         :items="users"
                         item-text="이름_아이디"
                         item-value="아이디"
@@ -53,6 +54,12 @@
                 </v-chip>
             </template>
         </v-data-table>
+        <v-card class="mt-15"  color="#f4f9ff">
+            <v-card-title class="f3">{{ year }}년 휴가 정보</v-card-title>
+            <v-card-text class="f2 mt-3">{{ cntTitle }}</v-card-text>
+        </v-card>
+        <div class="mt-15 f3"></div>
+        <div class="f2"></div>
     </div>
 </template>
   
@@ -67,7 +74,7 @@
                     { text: '누적 휴가 수', sortable: false, value: '누적휴가수', width:"250", align:"center"},          
                 ],
                 isLoading : false,
-                targetUser : "",
+                targetUser : this.$store.getters.getUser.id,
                 years : [],
                 year : new Date().getFullYear(),
                 items : [],
@@ -77,7 +84,8 @@
                     "오후 반차" : "cyan", 
                     "기타 휴가" : "green",
                 },
-                isManager : this.$store.getters.getUser.isManager
+                isManager : this.$store.getters.getUser.isManager,
+                cntTitle : "",
             }
         },
         methods : {
@@ -102,21 +110,23 @@
                     }
                     this.items = data
                     this.isLoading = false
+                    const 휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].휴가수 ? this.leaveCnts[this.year].휴가수 : "0"
+                    const 사용휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].사용휴가수 ? this.leaveCnts[this.year].사용휴가수 : "0"
+                    const 잔여휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].잔여휴가수 ? this.leaveCnts[this.year].잔여휴가수 : "0"
+                    this.cntTitle = `${사용휴가}개 사용 | ${잔여휴가}개 사용 가능 (총 ${휴가}개 휴가 부여)`
                 })
             },
             changeUser() {
                 this.isLoading = true
                 this.items = []
-                this.getLists(this.targetUser, this.year)
+                this.getLists(this.targetUser, this.year)                
             },
             getColor(type) {
                 return this.colors[type]
             },
         },
-        mounted() {            
-            this.targetUser = this.$store.getters.getUser.id
-            this.getLists(this.targetUser, new Date().getFullYear())
-            
+        mounted() {
+            this.getLists(this.targetUser, new Date().getFullYear())            
         },
     }
 </script>
