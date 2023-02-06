@@ -64,6 +64,7 @@
 <script>
     export default {
         props : ["leaveCnts", "users"],
+        name : "lists",
         data() {
             return {
                 headers: [

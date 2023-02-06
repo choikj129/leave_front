@@ -28,7 +28,7 @@
                             <v-btn depressed color="success" @click="excelDown">
                                 엑셀다운로드
                             </v-btn>
-                            <v-btn depressed color="primary" @click="showInsert">
+                            <v-btn depressed color="primary" @click="showInsert" class="ml-3">
                                 직원추가
                             </v-btn>
                         </span>                     
@@ -109,11 +109,11 @@
                                 item-text="표시내용"
                                 item-value="코드명"
                                 v-model="userInfo.직위코드"
-                                class="vSelect"
+                                class="vSelect required"
                                 outlined
                             ></v-select>
-                            <v-text-field @keydown="keydown" v-model="userInfo.휴가수" label="휴가" outlined></v-text-field>
-                            <v-text-field @keydown="keydown" v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" outlined :disabled="userInfo.입사일원본 ? true : false"></v-text-field>
+                            <v-text-field @keydown="keydown" v-model="userInfo.휴가수" label="휴가" outlined class="required"></v-text-field>
+                            <v-text-field @keydown="keydown" v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" outlined></v-text-field>
                         </v-container>
                     </v-form>
     
@@ -131,17 +131,17 @@
                     </v-card-title>                    
                     <v-form >
                         <v-container style="width:100%">
-                            <v-text-field v-model="insertUserInfo.이름" label="이름" outlined></v-text-field>
+                            <v-text-field v-model="insertUserInfo.이름" label="이름" class="required" outlined></v-text-field>
                             <v-select
                                 :items="positions"
                                 label="직위"
                                 item-text="표시내용"
                                 item-value="코드명"
                                 v-model="insertUserInfo.직위코드"
-                                class="vSelect"
+                                class="vSelect required"
                                 outlined
                             ></v-select>
-                            <v-text-field v-model="insertUserInfo.아이디" label="아이디" outlined></v-text-field>
+                            <v-text-field v-model="insertUserInfo.아이디" label="아이디" class="required" outlined></v-text-field>
                             <v-text-field v-model="insertUserInfo.입사일" label="입사일 (YYYYMMDD)" outlined></v-text-field>
                         </v-container>
                     </v-form>
@@ -161,6 +161,7 @@
 import excel from "@/apis/excel"
 export default {
     props : ["users", "positions"],
+    name : "manage",
     data() {
 		return {
             userInfo : {

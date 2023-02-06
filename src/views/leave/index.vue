@@ -2,7 +2,7 @@
 	<v-app id="inspire">
 		<v-navigation-drawer v-model="drawer" app>
 			<v-card class="mx-auto" max-width="344" color="#e2efff">
-				<img src="../../assets/img/odinue_ci.svg" style="width: 100%; position: relative;">
+				<img src="../../assets/img/odinue_ci.svg">
 				<v-card-text style="font-size: 2rem; font-weight: bold;">
 					{{ user.name }} {{ user.position }}
 				</v-card-text>
@@ -15,10 +15,11 @@
 			<v-list style="padding-top:0">
 				<v-list-item v-for="link in links" :key="link.type" 
 					v-if="link.auth"
-					@click="changeComponent(link.type, link.text)"
+					@click="changeComponent(link.type)"
 					:class="{
 						activeComponent : link.type == selectType,
-						isLogout : link.type == 'logout'
+						isLogout : link.type == 'logout',
+						isDownload : link.type == 'download',
 					}"
 
 				>
@@ -42,7 +43,7 @@
 		<manage v-else-if="selectType == 'manage'"
 			:users="users"
 			:positions="positions"
-			@getUsers="getUsers"			
+			@getUsers="getUsers"
 		/>
 	</v-app>
 </template>
@@ -57,6 +58,7 @@ export default {
 		lists,
 		manage,		
 	},
+	name : "leave",
 	data() {
 		return {
 			drawer: null,
@@ -64,7 +66,7 @@ export default {
 				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage"},
 				{ icon: "mdi-view-list", text: "휴가 리스트", auth: true, type: "lists"},
 				{ icon: "mdi-calendar-month", text: "휴가 일정", auth: true, type: "calendar"},
-				// { icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "logs"},
+				{ icon: "mdi-text-long", text: "매뉴얼 다운로드", auth: true, type: "download"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
 			],
 			user: this.$store.getters.getUser,
@@ -80,6 +82,9 @@ export default {
 		changeComponent(type) {
 			if (type == "logout"){
 				this.$router.push("/logout")
+				return
+			} else if (type == "download") {
+				this.download()
 				return
 			}
 			this.selectType = type
@@ -123,6 +128,15 @@ export default {
 				})				
 			})
 		},
+		download() {
+			const link = document.createElement("a")
+			link.href = "/api/download"
+			link.setAttribute("download", null)
+			link.setAttribute("id", "download")
+			document.body.appendChild(link)
+			link.click()
+			document.body.removeChild(link)
+		}
 	},
 	created() {		
 		this.getUsers()

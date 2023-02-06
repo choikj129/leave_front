@@ -22,7 +22,7 @@
                             {{ calendarTitle }}
                         </v-toolbar-title>
                         <v-spacer></v-spacer>
-                        <v-btn depressed color="primary" @click="regist">
+                        <v-btn depressed color="primary" @click="regist" v-if="!$store.getters.getUser.isManager">
                             신청
                         </v-btn>                    
                     </v-toolbar>
@@ -110,6 +110,7 @@
 <script>
 export default {
     props : ["leaveCnts"],
+    name : "calendar",
     data() {
         return {
             focus: "",
