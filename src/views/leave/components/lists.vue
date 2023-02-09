@@ -30,6 +30,7 @@
                         @change="changeUser"
                         v-model="targetUser"
                         :auto-select-first="true"
+                        return-object
                         label="이름 [아이디]"
                     ></v-autocomplete>
                 </v-col>
@@ -41,7 +42,8 @@
             :headers="headers"
             :items="items"            
             :loading="isLoading"
-            loading-text="Loading... Please wait"
+            :items-per-page="-1"
+            hide-default-footer
             class="elevation-1"
         >
             <!-- 해당 컬럼은 색추가 -->
@@ -54,8 +56,8 @@
                 </v-chip>
             </template>
         </v-data-table>
-        <v-card class="mt-15"  color="#f4f9ff" v-if="!isManager">
-            <v-card-title class="f3">{{ year }}년 휴가 정보</v-card-title>
+        <v-card class="mt-15"  color="#f4f9ff" v-if="targetUser.이름">
+            <v-card-title class="f3">{{ isManager ? `${targetUser.이름} ${targetUser.직위} ` : null }}{{ year }}년 휴가 정보</v-card-title>
             <v-card-text class="f2 mt-3">{{ cntTitle }}</v-card-text>
         </v-card>
     </div>
@@ -73,7 +75,10 @@
                     { text: '누적 휴가 수', sortable: false, value: '누적휴가수', width:"250", align:"center"},          
                 ],
                 isLoading : false,
-                targetUser : this.$store.getters.getUser.id,
+                targetUser : {
+                    아이디 : this.$store.getters.getUser.id,
+                    이름 : this.$store.getters.getUser.isManager ? null : this.$store.getters.getUser.name,
+                },
                 years : [],
                 year : new Date().getFullYear(),
                 items : [],
@@ -88,31 +93,33 @@
             }
         },
         methods : {
-            getLists(id, year) {
+            getLists(user, year) {                
                 this.$get("/users/lists", {
-                    id: id,
+                    id: user.아이디,
                     year : year,
                 }).then((res) => {
-                    let count = 0
-                    let data = res.data.lists.reduce((acc, obj) => {
-                        count += obj.휴가일수
-                        obj.누적휴가수 = count 
-                        acc.push(obj)
-                        return acc
-                    }, [])
-
-                    /* 초기 로딩시 연동 select box 값 설정 */
-                    if (this.years.length == 0) {
-                        for (let i=new Date().getFullYear(); i>res.data.date[0].휴가시작연도-1; i--) {
-                            this.years.push(i)
+                    this.$emit("getCnts", false, user.아이디, ()=>{
+                        let count = 0
+                        let data = res.data.lists.reduce((acc, obj) => {
+                            count += obj.휴가일수
+                            obj.누적휴가수 = count 
+                            acc.push(obj)
+                            return acc
+                        }, [])
+    
+                        /* 초기 로딩시 연동 select box 값 설정 */
+                        if (this.years.length == 0) {
+                            for (let i=new Date().getFullYear(); i>res.data.date[0].휴가시작연도-1; i--) {
+                                this.years.push(i)
+                            }
                         }
-                    }
-                    this.items = data
-                    this.isLoading = false
-                    const 휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].휴가수 ? this.leaveCnts[this.year].휴가수 : "0"
-                    const 사용휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].사용휴가수 ? this.leaveCnts[this.year].사용휴가수 : "0"
-                    const 잔여휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].잔여휴가수 ? this.leaveCnts[this.year].잔여휴가수 : "0"
-                    this.cntTitle = `${사용휴가}개 사용 | ${잔여휴가}개 사용 가능 (총 ${휴가}개 휴가 부여)`
+                        this.items = data
+                        this.isLoading = false
+                        const 휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].휴가수 ? this.leaveCnts[this.year].휴가수 : "0"
+                        const 사용휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].사용휴가수 ? this.leaveCnts[this.year].사용휴가수 : "0"
+                        const 잔여휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].잔여휴가수 ? this.leaveCnts[this.year].잔여휴가수 : "0"
+                        this.cntTitle = `${사용휴가}개 사용 | ${잔여휴가}개 사용 가능 (총 ${휴가}개 휴가 부여)`
+                    })
                 })
             },
             changeUser() {

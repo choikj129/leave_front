@@ -1,7 +1,7 @@
 <template>
     <div class="main-component">
         <v-row class="fill-height" style="width:98%;">
-            <v-col style="margin-bottom:2rem;">
+            <v-col style="margin-top:5rem;">
                 <!-- 상단 버튼 및 정보 -->
                 <v-sheet height="80">
                     <v-toolbar flat>
@@ -342,7 +342,7 @@ export default {
                     id : this.$store.getters.getUser.id
                 }).then(res => {
                     if (res.status) {
-                        this.$emit("getLists", false, () => this.setCalendar())
+                        this.$emit("getCnts", false, this.$store.getters.getUser.id, () => this.setCalendar())
                         this.changeEvents = {취소 : [], 추가 : {}}
                     } else {
                         alert(res.msg)

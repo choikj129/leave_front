@@ -6,10 +6,10 @@
             width="400"
             @click:outside="close"
         >
-            <!-- v-slot on : 모달 오픈 -->
-            <template v-slot:activator="{ on, attrs }">
-                <!-- 상단 버튼 및 정보 -->
-                <div style="width: 100%;">
+        <!-- v-slot on : 모달 오픈 -->
+        <template v-slot:activator="{ on, attrs }">
+            <!-- 상단 버튼 및 정보 -->
+            <div style="width: 100%;">
                     <div class="mt-3 mr-16">
                         <v-btn outlined fab text small color="grey darken-2" @click="changeYear(-1)">
                             <v-icon>
@@ -76,7 +76,10 @@
                                                 {{ !user.휴가수 ? "휴가 설정이 필요합니다." : user.휴가수 }}
                                             </td>
                                             <td class="grid-body grid-right-line">
-                                                {{ user.입사일 ? `${user.입사일.replace(/([\d]{4})([\d]{2})([\d]{2})/g, "$1년 $2월 $3일")} (${user.입사년차}년차)` : null }}
+                                                {{ user.입사일 
+                                                    ? `${user.입사일.replace(/([\d]{4})([\d]{2})([\d]{2})/g, "$1년 $2월 $3일")} (${user.입사년차})` 
+                                                    : null 
+                                                }}
                                             </td>
                                             <td @click="" class="grid-body">
                                                 <v-btn depressed dark color="red lighten-1" @click="deleteUser(user)">
@@ -112,8 +115,8 @@
                                 class="vSelect required"
                                 outlined
                             ></v-select>
-                            <v-text-field @keydown="keydown" v-model="userInfo.휴가수" label="휴가" outlined class="required"></v-text-field>
-                            <v-text-field @keydown="keydown" v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" outlined></v-text-field>
+                            <v-text-field @keydown="keydown($event, true)" v-model="userInfo.휴가수" label="휴가" outlined class="required"></v-text-field>
+                            <v-text-field @keydown="keydown" v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" :rules="dateRule" outlined></v-text-field>
                         </v-container>
                     </v-form>
     
@@ -142,7 +145,7 @@
                                 outlined
                             ></v-select>
                             <v-text-field v-model="insertUserInfo.아이디" label="아이디" class="required" outlined></v-text-field>
-                            <v-text-field v-model="insertUserInfo.입사일" label="입사일 (YYYYMMDD)" outlined></v-text-field>
+                            <v-text-field v-model="insertUserInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" :rules="dateRule" outlined></v-text-field>
                         </v-container>
                     </v-form>
     
@@ -177,12 +180,12 @@ export default {
             dialog: false,
             dialogType : "",
             targetDate : new Date(),
+            dateRule : [v => v.length <= 8 || '입사일은 8자 (YYYYMMDD)로 입력하세요']
         }
     },
     methods : {
         targetInfo(user) {
             this.items = []
-            this.isLoading = true
             user.연도 = this.userInfo.연도
             this.userInfo = user
             this.dialogType = "update"
@@ -190,6 +193,10 @@ export default {
         update() {
             if (!this.userInfo.휴가수) {
                 alert("휴가를 설정해주십시오.")
+                return
+            }
+            if (!/^[\d]+(\.5)?$/g.test(this.userInfo.휴가수)) {
+                alert("휴가는 정수, 실수(소수점은 .5)만 입력 가능합니다. (예 : 0.5, 4.5, 15)")
                 return
             }
             if (this.userInfo.입사일 && this.userInfo.입사일.length != 8) {
@@ -213,8 +220,16 @@ export default {
             })
             this.dialog = false
         },
-        keydown(e) {
-            if(!/[\d]|Backspace|Delete|NumLock/.test(e.key)) {
+        keydown(e, isFloat=false) {
+            if (e.key=="Enter") {
+                this.update()
+                return
+            }
+            if (!isFloat && e.key==".") {
+                e.returnValue = false
+                return
+            }
+            if(!/[\d]|Backspace|Delete|NumLock|ArrowLeft|ArrowRight|\./.test(e.key)) {                
                 e.returnValue = false
             }
         },
@@ -277,7 +292,7 @@ export default {
                 position : this.insertUserInfo.직위코드,
                 date : this.insertUserInfo.입사일 ? this.insertUserInfo.입사일 : null,
             }).then((res) => {
-                this.$emit("getUsers", this.userInfo.연도)
+                this.$emit("getUsers", this.userInfo.연도, true)
             })
         },
         deleteUser(user) {
@@ -294,6 +309,7 @@ export default {
             this.dialog = false
             this.userInfo.직위코드 = this.userInfo.직위코드원본
             this.userInfo.입사일 = this.userInfo.입사일원본
+            this.userInfo.휴가수 = this.userInfo.휴가수원본
         },
     },
 }

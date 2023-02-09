@@ -15,7 +15,8 @@
 .col-hover { background-color: #f4f9ff!important;}
 .activeComponent { background-color: #f4f9ff; }
 .isLogout { position:absolute; width: 100%; bottom:10px; }
-.isDownload { position:absolute; width: 100%; bottom:66px; }
+.isUpdate { position:absolute; width: 100%; bottom:66px; }
+.isDownload { position:absolute; width: 100%; bottom:122px; }
 .di { display: inline; }
 .v-data-table>.v-data-table__wrapper>table>tbody>tr>td, .v-data-table>.v-data-table__wrapper>table>tfoot>tr>td, .v-data-table>.v-data-table__wrapper>table>thead>tr>td {
     font-size: 1.2rem;
@@ -54,7 +55,7 @@
     content:" *";
     color: red;
 }
-.downBtn, .theme--light.v-btn.v-btn--disabled.v-btn--has-bg {
+.downBtn {
     -webkit-box-shadow : none!important;
     box-shadow : none!important;
     background-color: unset!important;
