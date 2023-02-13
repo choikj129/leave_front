@@ -47,7 +47,7 @@
 			:positions="positions"
 			@getUsers="getUsers"
 		/>
-		<logs v-else-if="selectType == 'logs'"/>
+		<history v-else-if="selectType == 'history'"/>
 		<update v-else-if="selectType == 'update'"/>
 	</v-app>
 </template>
@@ -56,14 +56,14 @@
 import calendar from "./components/calendar"
 import lists from "./components/lists"
 import manage from "./components/manage"
-import logs from "./components/logs"
+import history from "./components/history"
 import update from "./components/update"
 export default {
 	components: {
 		calendar,
 		lists,
 		manage,
-		logs,
+		history,
 		update,
 	},
 	name : "leave",
@@ -74,7 +74,7 @@ export default {
 				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage"},
 				{ icon: "mdi-view-list", text: "휴가 리스트", auth: true, type: "lists"},
 				{ icon: "mdi-calendar-month", text: "휴가 일정", auth: true, type: "calendar"},
-				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "logs"},
+				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
 				{ icon: "mdi-key-variant", text: "비밀번호 변경", auth: true, type: "update"},
 				{ icon: "mdi-download", text: "매뉴얼 다운로드", auth: true, type: "download"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
