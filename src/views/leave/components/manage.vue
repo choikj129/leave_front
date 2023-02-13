@@ -40,10 +40,13 @@
                             <thead>
                                 <tr>
                                     <th class="text-center grid-header">
-                                        이름 [아이디]
+                                        이름
+                                    </th>
+                                    <th class="text-center grid-header">
+                                        직위
                                     </th>
                                     <th class="text-center grid-header grid-right-line">
-                                        직위
+                                        아이디
                                     </th>
                                     <th class="text-center grid-header">
                                         사용휴가
@@ -63,11 +66,14 @@
                                 <v-hover v-for="user in users" :key="user.아이디">
                                     <template v-slot:default="{ hover }">
                                         <tr v-bind="attrs" v-on="on" @click="targetInfo(user)">
-                                            <td  class="grid-body">
-                                                {{ user.이름 }} [{{ user.아이디 }}]
+                                            <td class="grid-body">
+                                                {{ user.이름 }}
+                                            </td>
+                                            <td class="grid-body">
+                                                {{ user.직위 }}
                                             </td>
                                             <td class="grid-body grid-right-line">
-                                                {{ user.직위 }}
+                                                {{ user.아이디 }}
                                             </td>
                                             <td class="grid-body">
                                                 {{ user.사용휴가수 }}
@@ -106,6 +112,7 @@
                     <v-form >
                         <v-container style="width:100%">
                             <v-text-field v-model="userInfo.이름" label="이름" disabled outlined></v-text-field>
+                            <v-text-field v-model="userInfo.아이디" label="아이디" disabled outlined></v-text-field>
                             <v-select
                                 :items="positions"
                                 label="직위"

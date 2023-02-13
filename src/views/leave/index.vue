@@ -131,14 +131,16 @@ export default {
 		getUsers(year = new Date().getFullYear(), isLoadPage=false) {			
 			this.$get("/users", {year : year}).then((res) => {
 				this.users = res.data
+				if (isLoadPage) this.usersSort = []
 				this.users.forEach((user) => {
 					user.이름_아이디 = `${user.이름} ${user.직위} [${user.아이디}]`
 					user.휴가수원본 = user.휴가수
 					user.직위코드원본 = user.직위코드
 					user.입사일원본 = user.입사일
+					if (isLoadPage) this.usersSort.push(user)
 				})
 				if (isLoadPage) {
-					this.usersSort = this.users.sort((a, b) => {					
+					this.usersSort = this.usersSort.sort((a, b) => {					
 						if (a.이름 < b.이름) {
 							return -1;
 						}

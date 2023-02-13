@@ -119,6 +119,7 @@ export default {
             selectedElement: null,
             selectedOpen: false,
             selectDate : false,
+            selectDateBtn : null,
             selectMonth : new Date(),
             startDate : null,
             changeEvents : {추가 : {}, 취소 : []},
@@ -242,10 +243,16 @@ export default {
                 return
             }
             this.etcType = event.etcType
+            this.selectDate = false
+            this.startDate = null
+            if (this.selectDateBtn) {
+                this.selectDateBtn.classList.remove("selectNode")
+                this.selectDateBtn = null
+            }
             open()
             nativeEvent.stopPropagation()
         },
-        selectEvent(event) {            
+        selectEvent(event) {
             if (this.$store.getters.getUser.isManager) return
             if (this.selectedOpen) {
                 this.closeEvent()
@@ -254,8 +261,15 @@ export default {
             }
             /* 처음 클릭한 날짜를 시작 or 종료 날짜로 */
             if (!this.selectDate){
+                this.selectDateBtn = event.nativeEvent.srcElement.parentNode
                 this.selectDate = true
                 this.startDate = event.date
+                // event.nativeEvent.srcElement.parentNode.classList.add("selectNode")
+                this.selectDateBtn = event.nativeEvent.srcElement.parentElement
+                if (event.nativeEvent.srcElement.parentElement.type == "button") {
+                    this.selectDateBtn = this.selectDateBtn.parentElement
+                }
+                this.selectDateBtn.classList.add("selectNode")
                 return
             }
             const nativeEvent = event.nativeEvent
@@ -289,6 +303,10 @@ export default {
             this.selectedElement = nativeEvent.target
             this.selectDate = false
             this.startDate = null
+            if (this.selectDateBtn) {
+                this.selectDateBtn.classList.remove("selectNode")
+                this.selectDateBtn = null
+            }
 
             this.events.push(this.selectedEvent)
 
@@ -301,7 +319,7 @@ export default {
                 }
                 this.selectedEvent.etcType = this.etcType
                 this.setEvent(this.etcType.endsWith("휴가") ? this.etcType : this.etcType + " 휴가")
-            }        
+            }
             this.selectedOpen = false
         },
         deleteEvent(){
@@ -349,17 +367,6 @@ export default {
                     }
                 })
             }
-        },
-        changeCalendar(user) {
-            this.isMe = this.$store.getters.getUser.id != user.아이디 ? false : true
-            this.changeEvents = {추가 : {}, 취소 : []}
-            this.selectedOpen = false
-            this.selectDate = false
-            this.startDate = null
-            this.selectedEvent = {}
-            this.selectedElement = null
-            this.setCalendar(user.아이디)
-            this.setTitle()
         },
         rnd(a, b) {
             return Math.floor((b - a + 1) * Math.random()) + a
