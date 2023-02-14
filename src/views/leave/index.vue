@@ -1,5 +1,6 @@
 <template>
 	<v-app id="inspire">
+		<v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" class="navBar ml-5" :class="{'mt-5' : $store.getters.getUser.isMobile}"></v-app-bar-nav-icon>
 		<v-navigation-drawer v-model="drawer" app>
 			<v-card class="mx-auto" max-width="344" color="#e2efff">
 				<img src="../../assets/img/odinue_ci.svg">
@@ -35,20 +36,27 @@
 			</v-list>
 		</v-navigation-drawer>
 		<calendar v-if="selectType == 'calendar'" 
+			:is-mobile="$store.getters.getUser.isMobile"
 			@getCnts="getCnts"
 		/>
 		<lists v-else-if="selectType == 'lists'" 
+			:is-mobile="$store.getters.getUser.isMobile"
 			:leave-cnts="leaveCnts"
 			:users="usersSort"
 			@getCnts="getCnts"
 		/>
 		<manage v-else-if="selectType == 'manage'"
+			:is-mobile="$store.getters.getUser.isMobile"
 			:users="users"
 			:positions="positions"
 			@getUsers="getUsers"
 		/>
-		<history v-else-if="selectType == 'history'"/>
-		<update v-else-if="selectType == 'update'"/>
+		<history v-else-if="selectType == 'history'"
+			:is-mobile="$store.getters.getUser.isMobile"
+		/>
+		<update v-else-if="selectType == 'update'"
+			:is-mobile="$store.getters.getUser.isMobile"
+		/>
 	</v-app>
 </template>
 

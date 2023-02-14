@@ -33,6 +33,10 @@
     align-items: center;
     flex-direction: column;
 }
+.mobile-component {
+    width : 100%!important;
+    margin-left : 0px!important;
+}
 .grid-right-line {
     border-right: thin solid rgba(0,0,0, .12);
 }
@@ -64,3 +68,4 @@
 }
 .login .v-application--wrap { min-height: auto; }
 img { width: 100%; position: relative; }
+.navBar i{ font-size: 35px!important; }

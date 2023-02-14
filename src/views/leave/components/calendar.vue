@@ -1,5 +1,5 @@
 <template>
-    <div class="main-component">
+    <div class="main-component"  :class="{'mobile-component' : isMobile}">
         <v-row class="fill-height" style="width:98%;">
             <v-col style="margin-top:5rem;">
                 <!-- 상단 버튼 및 정보 -->
@@ -112,7 +112,7 @@
   
 <script>
 export default {
-    props : ["leaveCnts"],
+    props : ["leaveCnts", "isMobile"],
     name : "calendar",
     data() {
         return {

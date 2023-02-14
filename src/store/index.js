@@ -11,18 +11,8 @@ const state = {
         position : null,
         isManager : false,
         isLogin : false,
+        isMobile : false,
     },
-    position : {
-        A : "사장",
-        B : "부사장",
-        C : "이사",
-        D : "본부장",
-        E : "부장",
-        F : "차장",
-        G : "과장",
-        H : "대리",
-        I : "주임",
-    }
 }
 /* store 데이터 접근 
     ex) store.getters["state 키값"]
@@ -30,9 +20,6 @@ const state = {
 const getters = {
     getUser(state) {
         return state.user
-    },
-    getPosition(state) {
-        return state.position
     },
 }
 
@@ -48,6 +35,7 @@ const mutations = {
             position : null,
             isManager : false,
             isLogin : false,
+            isMobile : false,
         }
     }
 }

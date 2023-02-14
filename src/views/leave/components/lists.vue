@@ -1,5 +1,5 @@
 <template>
-    <div class="main-component">
+    <div class="main-component" :class="{'mobile-component' : isMobile}">
         <!-- 상단 select boxes -->
         <v-container fluid class="mt-10"
             style="display: flex!important; flex-direction: column!important; align-items: center;">
@@ -65,7 +65,7 @@
   
 <script>
     export default {
-        props : ["leaveCnts", "users"],
+        props : ["leaveCnts", "users", "isMobile"],
         name : "lists",
         data() {
             return {
