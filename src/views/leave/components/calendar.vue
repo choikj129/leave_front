@@ -53,7 +53,7 @@
                         max-width="350px"
                         v-model="selectedOpen"
                         :close-on-content-click="false"
-                        :close-on-click="true"
+                        :close-on-click="false"
                         :activator="selectedElement"
                         offset-x>
                         <v-card color="grey lighten-4" min-width="350px"  flat>
@@ -81,14 +81,17 @@
                                     </v-list>
                                 </v-menu>
                                 <v-text-field 
-                                    placeholder="기타" 
                                     style="width:30%;margin-top: 14px;margin-left: 12px;"
                                     v-model="etcType"
+                                    :autofocus="true"
                                     v-if="selectedEvent.type=='기타 휴가' && !selectedEvent.disabled"    
                                 ></v-text-field>
                                 <v-spacer></v-spacer>
-                                <v-btn icon @click="deleteEvent">
+                                <v-btn icon @click="deleteEvent" v-if="selectedEvent.updateType != 'D'">
                                     <v-icon>mdi-delete</v-icon>
+                                </v-btn>
+                                <v-btn icon @click="rollbackEvent" v-else>
+                                    <v-icon>mdi-cached</v-icon>
                                 </v-btn>
                             </v-toolbar>
                             <v-card-text>
@@ -131,6 +134,7 @@ export default {
                 "오후 반차" : "cyan", 
                 "기타 휴가" : "green",
                 "신규" : "orange",
+                "삭제" : "grey",
             },
             calendarTitle: "",
             week: ["일", "월", "화", "수", "목", "금", "토"],
@@ -318,7 +322,8 @@ export default {
                     this.etcType = "기타"
                 }
                 this.selectedEvent.etcType = this.etcType
-                this.setEvent(this.etcType.endsWith("휴가") ? this.etcType : this.etcType + " 휴가")
+                const cancel = this.selectedEvent.updateType == "D" ? " 취소" : ""
+                this.setEvent(this.etcType.endsWith("휴가") ? this.etcType : `${this.etcType} 휴가${cancel}`)
             }
             this.selectedOpen = false
         },
@@ -329,15 +334,30 @@ export default {
                     if (event.index == this.selectedEvent.index) {
                         if (!this.originalEvents[this.selectedEvent.index]) {
                             delete this.changeEvents.추가[this.selectedEvent.index]
+                            return false
                         }else {
                             event.updateType = "D"
+                            event.color = this.colors.삭제
+                            event.name += " 취소"
                             this.changeEvents.취소.push(event)
                         }
                     }
-                    return event.index != this.selectedEvent.index
+                    return true
                 }) 
                 this.closeEvent()
             }
+        },
+        rollbackEvent() {
+            this.events.forEach(event => {
+                if (this.selectedEvent.index == event.index) {
+                    event.color = this.colors[event.type]
+                    event.name = event.name.slice(0,-3)
+                    event.updateType = undefined
+                }
+            })
+            this.changeEvents.취소 = this.changeEvents.취소.filter(event => {
+                this.selectedEvent.index != event.index
+            })
         },
         regist() {
             if (this.$store.getters.getUser.isManager) return
@@ -345,12 +365,10 @@ export default {
             let postEvents = []
             Object.keys(this.changeEvents).forEach((key) =>{
                 Object.values(this.changeEvents[key]).forEach((value) => {
-                    if (key == "취소") {                        
-                        message += `${value.name} 취소\n`
-                    }else {                        
+                    if (key != "취소") {                                                                  
                         postEvents.push(value)
-                        message += `${value.name}\n`                        
                     }
+                    message += `${value.name}\n`
                 })
             })
             postEvents = postEvents.concat(this.changeEvents.취소)
@@ -360,8 +378,8 @@ export default {
                     id : this.$store.getters.getUser.id
                 }).then(res => {
                     if (res.status) {
-                        this.$emit("getCnts", false, this.$store.getters.getUser.id, () => this.setCalendar())
                         this.changeEvents = {취소 : [], 추가 : {}}
+                        this.$emit("getCnts", false, this.$store.getters.getUser.id, () => this.setCalendar())
                     } else {
                         alert(res.msg)
                     }
