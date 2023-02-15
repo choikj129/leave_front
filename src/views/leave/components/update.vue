@@ -1,5 +1,5 @@
 <template>
-    <div class="main-component" style="height:100%">
+    <div class="main-component" style="height:100%" :class="{'mobile-component' : isMobile}">
         <form style="width:400px;">
             <v-text-field 
                 v-model="$store.getters.getUser.name" 
@@ -42,6 +42,7 @@
 
 <script>
 export default {
+    props : ["isMobile"],
     name: "update",
     data() {
         return {

@@ -1,5 +1,5 @@
 <template>
-    <div class="text-center main-component">
+    <div class="text-center main-component" :class="{'mobile-component' : isMobile}">
         <!-- 모달 팝업 기본 태그 -->
         <v-dialog
             v-model="dialog"            
@@ -170,7 +170,7 @@
 <script>
 import excel from "@/apis/excel"
 export default {
-    props : ["users", "positions"],
+    props : ["users", "positions", "isMobile"],
     name : "manage",
     data() {
 		return {

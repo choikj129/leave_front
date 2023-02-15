@@ -1,6 +1,6 @@
 <template>
 	<v-app id="inspire">
-		<v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" class="navBar ml-5" :class="{'mt-5' : $store.getters.getUser.isMobile}"></v-app-bar-nav-icon>
+		<v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" class="navBar ml-5" :class="{'mt-5' : isMobile}"></v-app-bar-nav-icon>
 		<v-navigation-drawer v-model="drawer" app>
 			<v-card class="mx-auto" max-width="344" color="#e2efff">
 				<img src="../../assets/img/odinue_ci.svg">
@@ -12,16 +12,12 @@
 					{{ user.id }}@odinue.net
 				</v-card-subtitle>
 			</v-card>
-
 			<v-list style="padding-top:0">
-				<v-list-item v-for="link in links" :key="link.type" 
+				<v-list-item v-for="link in linksTop" :key="link.type" 
 					v-if="link.auth"
 					@click="changeComponent(link.type)"
 					:class="{
 						activeComponent : link.type == selectType,
-						isLogout : link.type == 'logout',
-						isDownload : link.type == 'download',
-						isUpdate : link.type == 'update',
 					}"
 
 				>
@@ -34,43 +30,70 @@
 					</v-list-item-content>
 				</v-list-item>
 			</v-list>
+			<template v-slot:append>
+				<v-list>
+					<v-list-item v-for="link in linksBottom" :key="link.type" 
+						v-if="link.auth"
+						@click="changeComponent(link.type)"
+						:class="{
+							activeComponent : link.type == selectType,
+						}"
+						
+					>
+						<v-list-item-icon>
+							<v-icon>{{ link.icon }}</v-icon>
+						</v-list-item-icon>
+	
+						<v-list-item-content>
+							<v-list-item-title>{{ link.text }}</v-list-item-title>
+						</v-list-item-content>
+					</v-list-item>
+				</v-list>
+			</template>
 		</v-navigation-drawer>
-		<calendar v-if="selectType == 'calendar'" 
-			:is-mobile="$store.getters.getUser.isMobile"
-			@getCnts="getCnts"
-		/>
-		<lists v-else-if="selectType == 'lists'" 
-			:is-mobile="$store.getters.getUser.isMobile"
-			:leave-cnts="leaveCnts"
-			:users="usersSort"
-			@getCnts="getCnts"
-		/>
-		<manage v-else-if="selectType == 'manage'"
-			:is-mobile="$store.getters.getUser.isMobile"
+		<manage v-if="selectType == 'manage'"
+			:is-mobile="isMobile"
 			:users="users"
 			:positions="positions"
 			@getUsers="getUsers"
 		/>
+		<lists v-else-if="selectType == 'lists'" 
+			:is-mobile="isMobile"
+			:leave-cnts="leaveCnts"
+			:users="usersSort"
+			@getCnts="getCnts"
+		/>
+		<request v-else-if="selectType == 'request'"
+			:is-mobile="isMobile"
+			@getCnts="getCnts"
+		/>
+		<calendar v-else-if="selectType == 'calendar'"
+			:is-mobile="isMobile"
+			@getCnts="getCnts"
+		/>
 		<history v-else-if="selectType == 'history'"
-			:is-mobile="$store.getters.getUser.isMobile"
+			:is-mobile="isMobile"
 		/>
 		<update v-else-if="selectType == 'update'"
-			:is-mobile="$store.getters.getUser.isMobile"
+			:is-mobile="isMobile"
 		/>
 	</v-app>
 </template>
 
 <script>
-import calendar from "./components/calendar"
-import lists from "./components/lists"
 import manage from "./components/manage"
+import lists from "./components/lists"
+import request from "./components/request"
+import calendar from "./components/calendar"
 import history from "./components/history"
 import update from "./components/update"
+
 export default {
 	components: {
-		calendar,
-		lists,
 		manage,
+		lists,
+		calendar,
+		request,
 		history,
 		update,
 	},
@@ -78,11 +101,14 @@ export default {
 	data() {
 		return {
 			drawer: null,
-			links: [
+			linksTop: [
 				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage"},
-				{ icon: "mdi-view-list", text: "휴가 리스트", auth: true, type: "lists"},
-				{ icon: "mdi-calendar-month", text: "휴가 일정", auth: true, type: "calendar"},
+				{ icon: "mdi-view-list", text: "휴가 현황", auth: true, type: "lists"},
+				{ icon: "mdi-calendar-plus", text: "휴가 신청", auth:  !this.$store.getters.getUser.isManager, type: "request"},
+				{ icon: "mdi-calendar-month", text: "전 직원 휴가 일정", auth:  true, type: "calendar"},
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
+			],
+			linksBottom : [
 				{ icon: "mdi-key-variant", text: "비밀번호 변경", auth: true, type: "update"},
 				{ icon: "mdi-download", text: "매뉴얼 다운로드", auth: true, type: "download"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
@@ -95,6 +121,7 @@ export default {
 			usersSort : [],
 			manageItems : [],
 			positions : [],
+			isMobile : this.$store.getters.getUser.isMobile,
 		}
 	},
 	methods: {		

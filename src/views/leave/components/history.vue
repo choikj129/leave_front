@@ -1,11 +1,11 @@
 
 <template>
-	<div class="main-component">
+	<div class="main-component" :class="{'mobile-component' : isMobile}">
 		<h3 class="mr-10">휴가 기록 (최근 30건)</h3>
 		<br>
 		<v-data-table
             :headers="headers"
-            :items="history"            
+            :items="history"
             :items-per-page="-1"
             hide-default-footer
             class="elevation-1 mt-10 mb-10"
@@ -17,6 +17,8 @@
 
 <script>
 export default {
+	props : ["isMobile"],
+	name : "history",
 	data() {
 		return {
 			history : [],

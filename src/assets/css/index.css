@@ -14,9 +14,6 @@
 .grid-body{font-size: 1.3rem!important;}
 .col-hover { background-color: #f4f9ff!important;}
 .activeComponent { background-color: #f4f9ff; }
-.isLogout { position:absolute; width: 100%; bottom:10px; }
-.isUpdate { position:absolute; width: 100%; bottom:66px; }
-.isDownload { position:absolute; width: 100%; bottom:122px; }
 .di { display: inline; }
 .selectNode { background-color: #e2efff!important; }
 .v-data-table>.v-data-table__wrapper>table>tbody>tr>td, .v-data-table>.v-data-table__wrapper>table>tfoot>tr>td, .v-data-table>.v-data-table__wrapper>table>thead>tr>td {
