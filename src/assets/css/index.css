@@ -66,3 +66,10 @@
 .login .v-application--wrap { min-height: auto; }
 img { width: 100%; position: relative; }
 .navBar i{ font-size: 35px!important; }
+.theme--light.v-calendar-weekly .v-calendar-weekly__head-weekday.v-outside { background-color: #f4f9ff; }
+.v-calendar-weekly__head :nth-child(1) {
+    color : red!important;
+}
+.v-calendar-weekly__head :nth-child(7) {
+    color : blue!important;
+}

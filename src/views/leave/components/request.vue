@@ -1,7 +1,7 @@
 <template>
     <div class="main-component"  :class="{'mobile-component' : isMobile}">
         <v-row class="fill-height" style="width:98%;">
-            <v-col style="margin-top:5rem;">
+            <v-col>
                 <!-- 상단 버튼 및 정보 -->
                 <v-sheet height="80">
                     <v-toolbar flat>
@@ -24,7 +24,7 @@
                         <v-spacer></v-spacer>
                         <v-btn depressed color="primary" @click="regist">
                             신청
-                        </v-btn>                    
+                        </v-btn>
                     </v-toolbar>
                 </v-sheet>
 
@@ -40,7 +40,7 @@
                         @change="changeMonth"
                         @click:next="next"
                         @click:date="selectEvent"
-                        @click:event="showEvent"                
+                        @click:event="showEvent"
                         locale="ko"
                         :show-month-on-first="false"
                         :day-format="getFormat"
@@ -95,7 +95,7 @@
                                 </v-btn>
                             </v-toolbar>
                             <v-card-text>
-                                <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>                            
+                                <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
                             </v-card-text>
                             <v-card-actions>
                                 <v-btn text color="secondary" @click="closeEvent">
@@ -234,6 +234,16 @@ export default {
             this.selectMonth.setFullYear(event.start.year)
             this.selectMonth.setMonth(event.start.month - 1)
             this.setTitle()
+            setTimeout(() => {
+                let children = document.getElementsByClassName("v-calendar-monthly")[0].children               
+
+                for (let i=1; i<children.length; i++) {
+                    let child = children[i]
+                    // console.log(child.firstChild.getElementsByTagName("span")[0])
+                    child.firstChild.getElementsByTagName("span")[0].style.cssText = "color:red!important"
+                    child.lastChild.getElementsByTagName("span")[0].style.cssText = "color:blue!important"
+                }
+            }, 50)
         },  
         showEvent({nativeEvent, event}){
             const open = () => {
