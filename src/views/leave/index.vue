@@ -63,7 +63,7 @@
 			:users="usersSort"
 			@getCnts="getCnts"
 		/>
-		<request v-else-if="selectType == 'request'"
+		<regist v-else-if="selectType == 'regist'"
 			:is-mobile="isMobile"
 			@getCnts="getCnts"
 		/>
@@ -83,7 +83,7 @@
 <script>
 import manage from "./components/manage"
 import lists from "./components/lists"
-import request from "./components/request"
+import regist from "./components/regist"
 import calendar from "./components/calendar"
 import history from "./components/history"
 import update from "./components/update"
@@ -93,7 +93,7 @@ export default {
 		manage,
 		lists,
 		calendar,
-		request,
+		regist,
 		history,
 		update,
 	},
@@ -104,7 +104,7 @@ export default {
 			linksTop: [
 				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage"},
 				{ icon: "mdi-view-list", text: "휴가 현황", auth: true, type: "lists"},
-				{ icon: "mdi-calendar-plus", text: "휴가 신청", auth:  !this.$store.getters.getUser.isManager, type: "request"},
+				{ icon: "mdi-calendar-plus", text: "휴가 신청", auth:  !this.$store.getters.getUser.isManager, type: "regist"},
 				{ icon: "mdi-calendar-month", text: "전 직원 휴가 일정", auth:  true, type: "calendar"},
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
 			],

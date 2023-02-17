@@ -294,25 +294,43 @@ export default {
             const endDate = new Date(event.date)
             
             const dateCnt = this.getDateCnt(startDate, endDate)
-            const name = this.startDate == event.date
-                ? `${this.startDate} (${this.week[startDate.getDay()]}) 휴가` 
-                : `${this.startDate} (${this.week[startDate.getDay()]}) ~ ${event.date} (${this.week[endDate.getDay()]}) 휴가`
 
-            this.selectedEvent = {
-                name : name,
-                start: startDate,
-                end: endDate,
-                startDate: this.startDate,
-                endDate: event.date,
-                color: this.colors.신규,
-                index : Math.random().toString(36).substring(2),
-                cnt : dateCnt,
-                type : "휴가",
-                etcType : "",
-                disabled : false,
-                updateType : "I"
+            let isWeekend = false;
+            for (let i=0; i<dateCnt; i++) {
+                let sd = new Date(this.startDate)
+                sd.setDate(startDate.getDate() + i)
+                if (sd.getDay() == 0 || sd.getDay() == 6) {
+                    isWeekend = true
+                    break
+                }
             }
-            this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
+
+            if (isWeekend) {
+                alert("주말은 휴가를 신청할 수 없습니다.")
+            } else {
+                const name = this.startDate == event.date
+                    ? `${this.startDate} (${this.week[startDate.getDay()]}) 휴가` 
+                    : `${this.startDate} (${this.week[startDate.getDay()]}) ~ ${event.date} (${this.week[endDate.getDay()]}) 휴가`
+    
+                this.selectedEvent = {
+                    name : name,
+                    start: startDate,
+                    end: endDate,
+                    startDate: this.startDate,
+                    endDate: event.date,
+                    color: this.colors.신규,
+                    index : Math.random().toString(36).substring(2),
+                    cnt : dateCnt,
+                    type : "휴가",
+                    etcType : "",
+                    disabled : false,
+                    updateType : "I"
+                }
+                this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
+                this.events.push(this.selectedEvent)
+            }
+
+
             this.selectedElement = nativeEvent.target
             this.selectDate = false
             this.startDate = null
@@ -321,7 +339,6 @@ export default {
                 this.selectDateBtn = null
             }
 
-            this.events.push(this.selectedEvent)
 
             nativeEvent.stopPropagation()
         },
