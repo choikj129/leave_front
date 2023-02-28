@@ -45,6 +45,7 @@
             :items-per-page="-1"
             hide-default-footer
             class="elevation-1"
+            :class="{'mobile-data-table' : isMobile}"
         >
             <!-- 해당 컬럼은 색추가 -->
             <template v-slot:item.휴가구분="{ item }">
@@ -57,8 +58,8 @@
             </template>
         </v-data-table>
         <v-card class="mt-15"  color="#f4f9ff" v-if="targetUser.이름">
-            <v-card-title class="f3">{{ isManager ? `${targetUser.이름} ${targetUser.직위} ` : null }}{{ year }}년 휴가 정보</v-card-title>
-            <v-card-text class="f2 mt-3">{{ cntTitle }}</v-card-text>
+            <v-card-title :class="isMobile ? 'f3_mobile' : 'f3'">{{ isManager ? `${targetUser.이름} ${targetUser.직위} ` : null }}{{ year }}년 휴가 정보</v-card-title>
+            <v-card-text class="mt-3" :class="isMobile ? 'f2_mobile' : 'f2'">{{ cntTitle }}</v-card-text>
         </v-card>
     </div>
 </template>

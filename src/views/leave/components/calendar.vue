@@ -40,7 +40,7 @@
                         locale="ko"
                         :show-month-on-first="false"
                         :day-format="getFormat"
-                        style="min-height: 700px; "
+                        :style="{ 'min-height' : calendarMinHeight}"
                     >
                     </v-calendar>
 
@@ -93,9 +93,13 @@ export default {
             },
             calendarTitle: "",
             week: ["일", "월", "화", "수", "목", "금", "토"],
+            calendarMinHeight : "700px"
         }
     },
     created() {
+        if (this.isMobile) {
+            this.calendarMinHeight = screen.height - 180 + "px"
+        }
         this.setCalendar()
         this.setTitle()
     },

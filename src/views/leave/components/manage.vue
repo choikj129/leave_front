@@ -10,7 +10,7 @@
         <template v-slot:activator="{ on, attrs }">
             <!-- 상단 버튼 및 정보 -->
             <div style="width: 100%;">
-                    <div class="mt-3 mr-16">
+                    <div class="mt-3">
                         <v-btn outlined fab text small color="grey darken-2" @click="changeYear(-1)">
                             <v-icon>
                                 mdi-chevron-left
@@ -24,7 +24,7 @@
                                 mdi-chevron-right
                             </v-icon>
                         </v-btn>
-                        <span style="position: absolute; right : 12%;">
+                        <span :class="{'manage-buttons' : !isMobile}">
                             <v-btn depressed color="success" @click="excelDown">
                                 엑셀다운로드
                             </v-btn>

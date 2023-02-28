@@ -18,7 +18,7 @@
                                 mdi-chevron-right
                             </v-icon>
                         </v-btn>
-                        <v-toolbar-title>
+                        <v-toolbar-title :class="{'f2_mobile' : isMobile}">
                             {{ calendarTitle }}
                         </v-toolbar-title>
                         <v-spacer></v-spacer>
@@ -44,7 +44,7 @@
                         locale="ko"
                         :show-month-on-first="false"
                         :day-format="getFormat"
-                        style="min-height: 700px; "
+                        :style="{ 'min-height' : calendarMinHeight}"
                     >
                     </v-calendar>
 
@@ -116,6 +116,7 @@ export default {
     name : "calendar",
     data() {
         return {
+            calendarMinHeight : "700px",
             focus: "",
             type : "휴가",
             selectedEvent: {},
@@ -142,6 +143,9 @@ export default {
         }
     },
     created() {
+        if (this.isMobile) {
+            this.calendarMinHeight = screen.height - 180 + "px"
+        }
         this.setCalendar()
         this.setTitle()
     },
