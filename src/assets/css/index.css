@@ -6,6 +6,7 @@
 .f3_mobile {font-size: 2.5rem!important;}
 .f4_mobile {font-size: 3.5rem!important;}
 .f5_mobile {font-size: 4.5rem!important;}
+.block { display: block;}
 .posR {position: relative;}
 .btn {font-size: 1.7rem!important; font-weight: bold;}
 .form-control, .btn {min-height: 38px; border-radius: 2px;}
@@ -81,5 +82,7 @@ img { width: 100%; position: relative; }
     color : blue!important;
 }
 .login-logo { width: 30%; position: relative; top : -3rem; }
+/* .mobile-index-top { height : 50%; } */
+.mobile-index-img { width: 75%; }
 .mobile-data-table { width: 95%; }
 .manage-buttons { position: absolute; right : 12%; }

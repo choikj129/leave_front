@@ -1,10 +1,10 @@
 <template>
 	<v-app id="inspire">
 		<v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" class="navBar ml-5" :class="{'mt-5' : isMobile}"></v-app-bar-nav-icon>
-		<v-navigation-drawer v-model="drawer" app>
-			<v-card class="mx-auto" max-width="344" color="#e2efff">
-				<img src="../../assets/img/odinue_ci.svg">
-				<v-card-text style="font-size: 2rem; font-weight: bold;">
+		<v-navigation-drawer v-model="drawer" app style="overflow-y:auto">
+			<v-card class="mx-auto" :class="{'mobile-index-top' : isMobile}" max-width="344" color="#e2efff">
+				<img src="../../assets/img/odinue_ci.svg" :class="{'mobile-index-img' : isMobile}">
+				<v-card-text style="font-size: 2rem; font-weight: bold; padding-top:0;">
 					{{ user.name }} {{ user.position }}
 				</v-card-text>
 
@@ -30,7 +30,7 @@
 					</v-list-item-content>
 				</v-list-item>
 			</v-list>
-			<template v-slot:append>
+			<!-- <template v-slot:append> -->
 				<v-list>
 					<v-list-item v-for="link in linksBottom" :key="link.type" 
 						v-if="link.auth"
@@ -38,7 +38,7 @@
 						:class="{
 							activeComponent : link.type == selectType,
 						}"
-						
+						:disabled="link.type.startsWith('none')"
 					>
 						<v-list-item-icon>
 							<v-icon>{{ link.icon }}</v-icon>
@@ -49,7 +49,7 @@
 						</v-list-item-content>
 					</v-list-item>
 				</v-list>
-			</template>
+			<!-- </template> -->
 		</v-navigation-drawer>
 		<manage v-if="selectType == 'manage'"
 			:is-mobile="isMobile"
@@ -109,9 +109,12 @@ export default {
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
 			],
 			linksBottom : [
+				{ icon: "", text: "", auth: true, type: "none_1"},
 				{ icon: "mdi-key-variant", text: "비밀번호 변경", auth: true, type: "update"},
 				{ icon: "mdi-download", text: "매뉴얼 다운로드", auth: true, type: "download"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
+				{ icon: "", text: "", auth: true, type: "none_2"},
+				{ icon: "", text: "", auth: true, type: "none_3"},
 			],
 			user: this.$store.getters.getUser,
 			selectType: "",
