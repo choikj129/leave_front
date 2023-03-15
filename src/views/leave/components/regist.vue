@@ -429,7 +429,11 @@ export default {
                 })
             })
             postEvents = postEvents.concat(this.changeEvents.취소)
-            if(message != "" && confirm(message+"\n를 신청하시겠습니까?")){
+            if (message == "") {
+                alert("신청할 휴가가 존재하지 않습니다.")
+                return
+            }
+            if(confirm(message+"\n를 신청하시겠습니까?")){
                 this.$post("/leave", {
                     events : postEvents,
                     id : this.$store.getters.getUser.id
