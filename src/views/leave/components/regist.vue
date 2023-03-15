@@ -41,6 +41,7 @@
                         @click:next="next"
                         @click:date="selectEvent"
                         @click:event="showEvent"
+                        @contextmenu:date="cancleClick"
                         locale="ko"
                         :show-month-on-first="false"
                         :day-format="getFormat"
@@ -140,6 +141,7 @@ export default {
             calendarTitle: "",
             week: ["일", "월", "화", "수", "목", "금", "토"],
             etcType : "기타",
+            dateHash : {},
         }
     },
     created() {
@@ -185,9 +187,11 @@ export default {
                         disabled : true,
                         IDX : event.IDX
                     }
-                    this.originalEvents[event.index] = event
-                    
+                    this.originalEvents[event.index] = event                
                     this.events.push(event)
+                    
+                    let startDate = new Date(event.startDate)                    
+                    this.dateHashUpdate(startDate, event.cnt)
                 }
                 this.setTitle()
             })
@@ -271,25 +275,41 @@ export default {
             nativeEvent.stopPropagation()
         },
         selectEvent(event) {
+            const nativeEvent = event.nativeEvent
+            const resetEvent = () => {
+                this.selectDate = false
+                this.startDate = null
+                this.selectedOpen = false
+                if (this.selectDateBtn) {
+                    this.selectDateBtn.classList.remove("selectNode")
+                    this.selectDateBtn = null
+                }                
+            }
             if (this.selectedOpen) {
                 this.closeEvent()
                 this.selectDate = false
                 return
             }
+            
+            if (this.dateHash[event.date]) {
+                alert(`${event.date}일은 이미 등록된 날짜입니다.`)
+                resetEvent()
+                return
+            }
+
             /* 처음 클릭한 날짜를 시작 or 종료 날짜로 */
-            if (!this.selectDate){
+            if (!this.selectDate){                
                 this.selectDateBtn = event.nativeEvent.srcElement.parentNode
                 this.selectDate = true
                 this.startDate = event.date
-                // event.nativeEvent.srcElement.parentNode.classList.add("selectNode")
                 this.selectDateBtn = event.nativeEvent.srcElement.parentElement
+
                 if (event.nativeEvent.srcElement.parentElement.type == "button") {
                     this.selectDateBtn = this.selectDateBtn.parentElement
                 }
                 this.selectDateBtn.classList.add("selectNode")
                 return
             }
-            const nativeEvent = event.nativeEvent
             
             if (this.startDate > event.date) {
                 [this.startDate, event.date] = [event.date, this.startDate]
@@ -299,52 +319,57 @@ export default {
             
             const dateCnt = this.getDateCnt(startDate, endDate)
 
-            let isWeekend = false;
             for (let i=0; i<dateCnt; i++) {
                 let sd = new Date(this.startDate)
-                sd.setDate(startDate.getDate() + i)
-                if (sd.getDay() == 0 || sd.getDay() == 6) {
-                    isWeekend = true
-                    break
+                sd.setDate(startDate.getDate() + i)                
+                if (sd.getDay() == 0 || sd.getDay() == 6) {                    
+                    alert("주말은 휴가를 신청할 수 없습니다.")
+                    resetEvent()
+                    return
                 }
+                let date = this.dateToYMD(sd)
+                if (this.dateHash[date]) {
+                    alert(`${date}일은 이미 등록된 날짜입니다.`)
+                    resetEvent()
+                    return
+                }
+
             }
 
-            if (isWeekend) {
-                alert("주말은 휴가를 신청할 수 없습니다.")
-            } else {
-                const name = this.startDate == event.date
-                    ? `${this.startDate} (${this.week[startDate.getDay()]}) 휴가` 
-                    : `${this.startDate} (${this.week[startDate.getDay()]}) ~ ${event.date} (${this.week[endDate.getDay()]}) 휴가`
-    
-                this.selectedEvent = {
-                    name : name,
-                    start: startDate,
-                    end: endDate,
-                    startDate: this.startDate,
-                    endDate: event.date,
-                    color: this.colors.신규,
-                    index : Math.random().toString(36).substring(2),
-                    cnt : dateCnt,
-                    type : "휴가",
-                    etcType : "",
-                    disabled : false,
-                    updateType : "I"
-                }
-                this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
-                this.events.push(this.selectedEvent)
+            const name = this.startDate == event.date
+                ? `${this.startDate} (${this.week[startDate.getDay()]}) 휴가` 
+                : `${this.startDate} (${this.week[startDate.getDay()]}) ~ ${event.date} (${this.week[endDate.getDay()]}) 휴가`
+
+            this.selectedEvent = {
+                name : name,
+                start: startDate,
+                end: endDate,
+                startDate: this.startDate,
+                endDate: event.date,
+                color: this.colors.신규,
+                index : Math.random().toString(36).substring(2),
+                cnt : dateCnt,
+                type : "휴가",
+                etcType : "",
+                disabled : false,
+                updateType : "I"
             }
-
-
+            this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
+            this.events.push(this.selectedEvent)
+            
+            this.dateHashUpdate(new Date(this.startDate), dateCnt)            
             this.selectedElement = nativeEvent.target
-            this.selectDate = false
-            this.startDate = null
+            resetEvent()
+            nativeEvent.stopPropagation()
+            
+        },
+        cancleClick(event) {
             if (this.selectDateBtn) {
                 this.selectDateBtn.classList.remove("selectNode")
                 this.selectDateBtn = null
+                this.selectDate = false
+                this.startDate = null
             }
-
-
-            nativeEvent.stopPropagation()
         },
         closeEvent() {
             if (this.selectedEvent.type=='기타 휴가') {
@@ -359,8 +384,10 @@ export default {
         },
         deleteEvent(){
             if (confirm(`${this.selectedEvent.name}를 취소하시겠습니까?\n(취소 후 신청을 해야 적용됩니다.)`)) {
+                let targetEvent = null
                 this.events = this.events.filter(event => {
                     if (event.index == this.selectedEvent.index) {
+                        targetEvent = event
                         if (!this.originalEvents[this.selectedEvent.index]) {
                             delete this.changeEvents.추가[this.selectedEvent.index]
                             return false
@@ -372,7 +399,9 @@ export default {
                         }
                     }
                     return true
-                }) 
+                })
+
+                // this.dateHashUpdate(new Date(targetEvent.startDate), targetEvent.cnt, false)
                 this.closeEvent()
             }
         },
@@ -420,6 +449,22 @@ export default {
         getDateCnt(d1, d2) {
             return Math.abs((d2.getTime() - d1.getTime())/ (1000 * 60 * 60 * 24)) + 1
         },
-    }
+        dateToYMD(date) {
+            const y = date.getFullYear()
+            const m = date.getMonth()+1 < 10 ? "0" + (date.getMonth()+1) : date.getMonth()+1
+            const d = date.getDate() < 10 ? "0" + (date.getDate()) : date.getDate()
+            return `${y}-${m}-${d}`
+        },
+        dateHashUpdate(date, cnt, isAppend=true) {
+            for (let c=0; c<Math.ceil(cnt); c++) {
+                if (isAppend) {
+                    this.dateHash[this.dateToYMD(date)] = true
+                } else {
+                    delete this.dateHash[this.dateToYMD(date)]
+                }
+                date.setDate(date.getDate() + 1)
+            }
+        },
+    },
 }
 </script>
