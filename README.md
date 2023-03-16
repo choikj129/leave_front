@@ -1,4 +1,4 @@
-# °³¹ß Á¤º¸
+# ê°œë°œ ì •ë³´
  - node version : 16.17.0
  - npm version : 9.2.0
  - vue version : 2.5.2
