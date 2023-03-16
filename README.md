@@ -1,3 +1,8 @@
+# 개발 정보
+ - node version : 16.17.0
+ - npm version : 9.2.0
+ - vue version : 2.5.2
+
 # front
 
 > A Vue.js project
