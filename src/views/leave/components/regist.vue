@@ -76,6 +76,9 @@
                                         <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오후 반차')">
                                             <v-list-item-title>오후 반차</v-list-item-title>
                                         </v-list-item>
+                                        <v-list-item @click="setType('포상 휴가')">
+                                            <v-list-item-title>포상 휴가</v-list-item-title>
+                                        </v-list-item>
                                         <v-list-item @click="setType('기타 휴가')">
                                             <v-list-item-title>기타 휴가</v-list-item-title>
                                         </v-list-item>
@@ -134,6 +137,7 @@ export default {
                 "휴가" : "blue", 
                 "오전 반차" : "cyan",
                 "오후 반차" : "cyan", 
+                "포상 휴가" : "blue-grey",
                 "기타 휴가" : "green",
                 "신규" : "orange",
                 "삭제" : "grey",
@@ -167,12 +171,13 @@ export default {
                     if (re.test(event.내용)) {
                         type = RegExp.$2                    
                             
-                        if (type.trim().endsWith("휴가") && type.trim().length > 2) {
+                        if (type.trim().endsWith("휴가") && !type.trim().endsWith("포상 휴가") && type.trim().length > 2) {
                             etcType = type.substring(0, type.lastIndexOf("휴가") - 1)
                             type = "기타 휴가"
                         }
                     }
-                    
+                    console.log(event)
+                    console.log(type)
                     event = {
                         name : event.내용,                
                         start: new Date(event.시작일),

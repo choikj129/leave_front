@@ -87,6 +87,7 @@
                     "휴가" : "blue", 
                     "오전 반차" : "cyan",
                     "오후 반차" : "cyan", 
+                    "포상 휴가" : "blue-grey",
                     "기타 휴가" : "green",
                 },
                 isManager : this.$store.getters.getUser.isManager,
