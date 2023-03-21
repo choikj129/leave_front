@@ -49,16 +49,22 @@
                                         아이디
                                     </th>
                                     <th class="text-center grid-header">
-                                        사용휴가
+                                        사용연차
                                     </th>
                                     <th class="text-center grid-header grid-right-line">
-                                        휴가
+                                        연차
+                                    </th>
+                                    <th class="text-center grid-header">
+                                        사용추가휴가
+                                    </th>
+                                    <th class="text-center grid-header grid-right-line">
+                                        추가휴가
                                     </th>
                                     <th class="text-center grid-header grid-right-line">
                                         입사일 (년차)
                                     </th>
                                     <th class="text-center grid-header">
-                                        삭제
+                                        비고
                                     </th>
                                 </tr>
                             </thead>
@@ -81,13 +87,19 @@
                                             <td class="grid-body grid-right-line">
                                                 {{ !user.휴가수 ? "휴가 설정이 필요합니다." : user.휴가수 }}
                                             </td>
+                                            <td class="grid-body">
+                                                {{ user.사용추가휴가수 }}
+                                            </td>
+                                            <td class="grid-body grid-right-line">
+                                                {{ user.추가휴가수 }}
+                                            </td>
                                             <td class="grid-body grid-right-line">
                                                 {{ user.입사일 
                                                     ? `${user.입사일.replace(/([\d]{4})([\d]{2})([\d]{2})/g, "$1년 $2월 $3일")} (${user.입사년차})` 
                                                     : null 
                                                 }}
                                             </td>
-                                            <td @click="" class="grid-body">
+                                            <td class="grid-body" style="padding : 0">
                                                 <v-btn depressed dark color="red lighten-1" @click="deleteUser(user)">
                                                     삭제
                                                 </v-btn>
@@ -108,7 +120,6 @@
                         {{ userInfo.이름 }} ({{ userInfo.아이디 }})
                     </v-card-title>
                     
-                    
                     <v-form >
                         <v-container style="width:100%">
                             <v-text-field v-model="userInfo.이름" label="이름" disabled outlined></v-text-field>
@@ -122,7 +133,6 @@
                                 class="vSelect required"
                                 outlined
                             ></v-select>
-                            <v-text-field @keydown="keydown($event, true)" v-model="userInfo.휴가수" label="휴가" outlined class="required"></v-text-field>
                             <v-text-field @keydown="keydown" v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" :rules="dateRule" outlined></v-text-field>
                         </v-container>
                     </v-form>
@@ -130,7 +140,7 @@
                     <v-card-actions>
                         <v-btn color="primary" text @click="close">닫기</v-btn>
                         <v-spacer></v-spacer>
-                        <v-btn color="primary" text @click="update">수정</v-btn>
+                        <v-btn color="primary" text @click="updateUser">수정</v-btn>
                     </v-card-actions>
                 </v-card>
 
@@ -187,7 +197,7 @@ export default {
             dialog: false,
             dialogType : "",
             targetDate : new Date(),
-            dateRule : [v => v.length <= 8 || '입사일은 8자 (YYYYMMDD)로 입력하세요']
+            dateRule : [v => v.length <= 8 || '입사일은 8자 (YYYYMMDD)로 입력하세요'],
         }
     },
     methods : {
@@ -196,36 +206,6 @@ export default {
             user.연도 = this.userInfo.연도
             this.userInfo = user
             this.dialogType = "update"
-        },
-        update() {
-            if (!this.userInfo.휴가수) {
-                alert("휴가를 설정해주십시오.")
-                return
-            }
-            if (!/^[\d]+(\.5)?$/g.test(this.userInfo.휴가수)) {
-                alert("휴가는 정수, 실수(소수점은 .5)만 입력 가능합니다. (예 : 0.5, 4.5, 15)")
-                return
-            }
-            if (this.userInfo.입사일 && this.userInfo.입사일.length != 8) {
-                alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
-                return
-            }
-            this.$post("/users/update", {
-                userInfo : {
-                    id : this.userInfo.아이디,
-                    year : this.userInfo.연도,
-                    cnt : this.userInfo.휴가수,
-                    /* EMP 테이블 update는 수정이 있을 때만 */
-                    isEmpChange : (this.userInfo.직위코드 && this.userInfo.직위코드 != this.userInfo.직위코드원본) || (!this.userInfo.입사일원본 && this.userInfo.입사일),
-                    position : this.userInfo.직위코드,
-                    date : this.userInfo.입사일,
-                }
-            }).then((res) =>{
-                if (res.status) {
-                    this.$emit("getUsers", this.userInfo.연도)   
-                }
-            })
-            this.dialog = false
         },
         keydown(e, isFloat=false) {
             if (e.key=="Enter") {
@@ -279,6 +259,30 @@ export default {
             }
 
         },
+        updateUser() {
+            console.log(this.userInfo)
+            if (this.userInfo.입사일 && this.userInfo.입사일.length != 8) {
+                alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
+                return
+            }
+            if (!this.dateValidation(this.userInfo.입사일)) {
+                alert(`${this.userInfo.입사일}일은 유효하지 않은 날짜 입니다.`)
+                return
+            }
+            this.$post("/users/update", {
+                userInfo : {
+                    id : this.userInfo.아이디,
+                    year : this.userInfo.연도,                    
+                    position : this.userInfo.직위코드,
+                    date : this.userInfo.입사일,
+                }
+            }).then((res) =>{
+                if (res.status) {
+                    this.$emit("getUsers", this.userInfo.연도)   
+                }
+            })
+            this.dialog = false
+        },
         insertUser() {
             if (!this.insertUserInfo.이름) {
                 alert("이름을 입력해주십시오.")
@@ -292,31 +296,46 @@ export default {
                 alert("아이디를 입력해주십시오.")
                 return
             }
+            if (this.insertUserInfo.입사일 && this.insertUserInfo.입사일.length != 8) {
+                alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
+                return
+            }
+            if (!this.dateValidation(this.insertUserInfo.입사일)) {
+                alert(`${this.insertUserInfo.입사일}일은 유효하지 않은 날짜 입니다.`)
+                return
+            }
             this.dialog = false
             this.$post("/users/insert", {
                 name : this.insertUserInfo.이름,
                 id : this.insertUserInfo.아이디,
                 position : this.insertUserInfo.직위코드,
-                date : this.insertUserInfo.입사일 ? this.insertUserInfo.입사일 : null,
+                date : this.insertUserInfo.입사일,
             }).then((res) => {
                 this.$emit("getUsers", this.userInfo.연도, true)
             })
         },
         deleteUser(user) {
+            setTimeout(() => {
+                this.close()
+            }, 1)
             if (confirm(`${user.이름} ${user.직위}님을 삭제하시겠습니까?`)) {
                 this.$get("/users/delete", {
                     id : user.아이디
                 }).then((res) => {
-                    this.dialog = false
-                    this.$emit("getUsers", this.userInfo.연도)
+                    this.$emit("getUsers", this.userInfo.연도, true)
                 })
             }
         },
         close() {
+            this.dialogType = ""
             this.dialog = false
             this.userInfo.직위코드 = this.userInfo.직위코드원본
             this.userInfo.입사일 = this.userInfo.입사일원본
             this.userInfo.휴가수 = this.userInfo.휴가수원본
+        },
+        dateValidation(date) {
+            const isDate = new Date(`${date.substring(0,4)}-${date.substring(4,6)}-${date.substring(6,8)}`)
+            return isNaN(isDate) ? false : true
         },
     },
 }

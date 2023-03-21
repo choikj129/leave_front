@@ -115,7 +115,6 @@
 </template>
   
 <script>
-import store from "../../../store";
 
 export default {
     props : ["isMobile"],
@@ -252,8 +251,8 @@ export default {
             setTimeout(() => {
                 let children = document.getElementsByClassName("v-calendar-monthly")[0].children
                 let childrenDay = document.getElementsByClassName("v-calendar-weekly__day");
-                let holidayLength = store.getters.getHoliday.length
-                let holiday = store.getters.getHoliday
+                let holidayLength = this.$store.getters.getHoliday.length
+                let holiday = this.$store.getters.getHoliday
 
                 for (let i=1; i<children.length; i++) {
                     let child = children[i]
@@ -261,18 +260,18 @@ export default {
                     child.firstChild.getElementsByTagName("span")[0].style.cssText = "color:red!important"
                     child.lastChild.getElementsByTagName("span")[0].style.cssText = "color:blue!important"
                 }
-              //공휴일 추가
-              for(let i=0; i<childrenDay.length; i++) {
-                let temp = childrenDay[i].innerText;
-                for(let j=0; j<holidayLength; j++) {
-                  if(holiday[j].년 == event.start.year && parseInt(holiday[j].월)  == event.start.month  &&  parseInt(temp) == parseInt(holiday[j].일)){
-                    if(!(i < 7 && parseInt(temp) > 7) && !(i > 28 && parseInt(temp) < 7)){
-                      childrenDay[i].getElementsByTagName("span")[0].style.cssText = "color:red!important"
-                      childrenDay[i].getElementsByTagName("span")[0].innerHTML = temp + "<br>" + holiday[j].명칭 + "</br>"
+                //공휴일 추가
+                for(let i=0; i<childrenDay.length; i++) {
+                    let temp = childrenDay[i].innerText;
+                    for(let j=0; j<holidayLength; j++) {
+                        if(holiday[j].년 == event.start.year && parseInt(holiday[j].월)  == event.start.month  &&  parseInt(temp) == parseInt(holiday[j].일)){
+                            if(!(i < 7 && parseInt(temp) > 7) && !(i > 28 && parseInt(temp) < 7)){
+                                childrenDay[i].getElementsByTagName("span")[0].style.cssText = "color:red!important"
+                                childrenDay[i].getElementsByTagName("span")[0].innerHTML = temp + "<br>" + holiday[j].명칭 + "</br>"
+                            }
+                        }
                     }
-                  }
                 }
-              }
             }, 50)
         },  
         showEvent({nativeEvent, event}){
@@ -345,11 +344,11 @@ export default {
             let holiday = store.getters.getHoliday
             let sd = new Date(this.startDate)
             for(let j=0; j<holidayLength; j++) {
-              if (sd.getDay() == parseInt(holiday[j].일)) {
-                alert("공휴일은 휴가를 신청할 수 없습니다.")
-                resetEvent()
-                return
-              }
+                if (sd.getDay() == parseInt(holiday[j].일)) {
+                    alert("공휴일은 휴가를 신청할 수 없습니다.")
+                    resetEvent()
+                    return
+                }
             }
             for (let i=0; i<dateCnt; i++) {
                 let sd = new Date(this.startDate)
@@ -468,7 +467,8 @@ export default {
             if(confirm(message+"\n를 신청하시겠습니까?")){
                 this.$post("/leave", {
                     events : postEvents,
-                    id : this.$store.getters.getUser.id
+                    id : this.$store.getters.getUser.id,
+                    name : this.$store.getters.getUser.name,
                 }).then(res => {
                     if (res.status) {
                         this.changeEvents = {취소 : [], 추가 : {}}

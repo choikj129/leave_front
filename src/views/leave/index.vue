@@ -51,7 +51,13 @@
 				</v-list>
 			<!-- </template> -->
 		</v-navigation-drawer>
-		<manage v-if="selectType == 'manage'"
+		<manageUser v-if="selectType == 'manage_user'"
+			:is-mobile="isMobile"
+			:users="users"
+			:positions="positions"
+			@getUsers="getUsers"
+		/>
+		<manageVacation v-else-if="selectType == 'manage_vacation'"
 			:is-mobile="isMobile"
 			:users="users"
 			:positions="positions"
@@ -81,7 +87,8 @@
 </template>
 
 <script>
-import manage from "./components/manage"
+import manageUser from "./components/manage_user"
+import manageVacation from "./components/manage_vacation"
 import lists from "./components/lists"
 import regist from "./components/regist"
 import calendar from "./components/calendar"
@@ -90,7 +97,8 @@ import update from "./components/update"
 
 export default {
 	components: {
-		manage,
+		manageUser,
+		manageVacation,
 		lists,
 		calendar,
 		regist,
@@ -102,10 +110,11 @@ export default {
 		return {
 			drawer: null,
 			linksTop: [
-				{ icon: "mdi-account-wrench-outline", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage"},
-				{ icon: "mdi-view-list", text: "휴가 현황", auth: true, type: "lists"},
+				{ icon: "mdi-account-wrench-outline", text: "직원 관리", auth: this.$store.getters.getUser.isManager, type: "manage_user"},
+				{ icon: "mdi-calendar-account", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage_vacation"},
 				{ icon: "mdi-calendar-plus", text: "휴가 신청", auth:  !this.$store.getters.getUser.isManager, type: "regist"},
 				{ icon: "mdi-calendar-month", text: "전 직원 휴가 일정", auth:  true, type: "calendar"},
+				{ icon: "mdi-view-list", text: "휴가 현황", auth: true, type: "lists"},
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
 			],
 			linksBottom : [
@@ -157,7 +166,7 @@ export default {
 				})				
 				if (isLoadPage) {
 					if (this.$store.getters.getUser.isManager){
-						this.changeComponent("manage")
+						this.changeComponent("manage_user")
 					}else {
 						this.changeComponent("lists")
 					}
@@ -201,16 +210,16 @@ export default {
 		}
 	},
 	created() {
-      this.getUsers(new Date().getFullYear(), true)
-      this.getCnts(true)
-      this.$get("/holiday").then((res) => {
-        if (res.status) {
-          this.$store.commit("setHoliday", res.data)
-        } else {
-          alert(res.msg)
-        }
-      })
-      this.$get("/code", {name : "직위", reverse : true}).then(res => {
+		this.getUsers(new Date().getFullYear(), true)
+		this.getCnts(true)
+		this.$get("/holiday").then((res) => {
+			if (res.status) {
+			this.$store.commit("setHoliday", res.data)
+			} else {
+			alert(res.msg)
+			}
+		})
+		this.$get("/code", {name : "직위", reverse : true}).then(res => {
 			this.positions = res.data
 		})
 	},

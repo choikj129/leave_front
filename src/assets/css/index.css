@@ -75,12 +75,12 @@
 img { width: 100%; position: relative; }
 .navBar i{ font-size: 35px!important; }
 .theme--light.v-calendar-weekly .v-calendar-weekly__head-weekday.v-outside { background-color: #f4f9ff; }
-.v-calendar-weekly__head :nth-child(1) {
+/* .v-calendar-weekly__head :nth-child(1) {
     color : red!important;
 }
 .v-calendar-weekly__head :nth-child(7) {
     color : blue!important;
-}
+} */
 .login-logo { width: 30%; position: relative; top : -3rem; }
 /* .mobile-index-top { height : 50%; } */
 .mobile-index-img { width: 75%; }
