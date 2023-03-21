@@ -105,18 +105,8 @@ export default {
         }
         this.setCalendar()
         this.setTitle()
-        this.setHoliday()
     },
     methods: {
-        setHoliday() {
-          this.$get("/holiday").then((res) => {
-            if (res.status) {
-              this.$store.commit("setHoliday", res.data)
-            } else {
-              alert(res.msg)
-            }
-          })
-        },
         setCalendar() {
             this.$get("/leave", {isAll : true}).then((res) => {
                 this.events = []

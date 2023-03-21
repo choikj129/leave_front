@@ -200,10 +200,17 @@ export default {
 			document.body.removeChild(link)
 		}
 	},
-	created() {		
-		this.getUsers(new Date().getFullYear(), true)		
-		this.getCnts(true)
-		this.$get("/code", {name : "직위", reverse : true}).then(res => {
+	created() {
+      this.getUsers(new Date().getFullYear(), true)
+      this.getCnts(true)
+      this.$get("/holiday").then((res) => {
+        if (res.status) {
+          this.$store.commit("setHoliday", res.data)
+        } else {
+          alert(res.msg)
+        }
+      })
+      this.$get("/code", {name : "직위", reverse : true}).then(res => {
 			this.positions = res.data
 		})
 	},
