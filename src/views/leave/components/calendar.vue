@@ -89,6 +89,7 @@ export default {
                 "휴가" : "blue", 
                 "오전 반차" : "cyan",
                 "오후 반차" : "cyan", 
+                "포상 휴가" : "blue-grey",
                 "기타 휴가" : "green",
                 "신규" : "orange",
                 "삭제" : "grey",
@@ -129,7 +130,7 @@ export default {
                     if (re.test(event.내용)) {
                         type = RegExp.$2                    
                             
-                        if (type.trim().endsWith("휴가") && type.trim().length > 2) {
+                        if (type.trim().endsWith("휴가") && !type.trim().endsWith("포상 휴가") && type.trim().length > 2) {
                             type = "기타 휴가"
                         }
                     }
