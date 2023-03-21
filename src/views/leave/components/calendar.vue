@@ -72,6 +72,8 @@
 </template>
   
 <script>
+import store from "../../../store";
+
 export default {
     props : ["isMobile"],
     name : "calendar",
@@ -102,8 +104,18 @@ export default {
         }
         this.setCalendar()
         this.setTitle()
+        this.setHoliday()
     },
     methods: {
+        setHoliday() {
+          this.$get("/holiday").then((res) => {
+            if (res.status) {
+              this.$store.commit("setHoliday", res.data)
+            } else {
+              alert(res.msg)
+            }
+          })
+        },
         setCalendar() {
             this.$get("/leave", {isAll : true}).then((res) => {
                 this.events = []
@@ -166,13 +178,28 @@ export default {
             this.selectMonth.setMonth(event.start.month - 1)
             this.setTitle()
             setTimeout(() => {
-                let children = document.getElementsByClassName("v-calendar-monthly")[0].children               
+                let children = document.getElementsByClassName("v-calendar-monthly")[0].children
+                let childrenDay = document.getElementsByClassName("v-calendar-weekly__day");
+                let holidayLength = store.getters.getHoliday.length
+                let holiday = store.getters.getHoliday
 
                 for (let i=1; i<children.length; i++) {
                     let child = children[i]
                     // console.log(child.firstChild.getElementsByTagName("span")[0])
                     child.firstChild.getElementsByTagName("span")[0].style.cssText = "color:red!important"
                     child.lastChild.getElementsByTagName("span")[0].style.cssText = "color:blue!important"
+                }
+                //공휴일 추가
+                for(let i=0; i<childrenDay.length; i++) {
+                  let temp = childrenDay[i].innerText;
+                  for(let j=0; j<holidayLength; j++) {
+                    if(holiday[j].년 == event.start.year && parseInt(holiday[j].월)  == event.start.month  &&  parseInt(temp) == parseInt(holiday[j].일)){
+                      if(!(i < 7 && parseInt(temp) > 7) && !(i > 28 && parseInt(temp) < 7)){
+                        childrenDay[i].getElementsByTagName("span")[0].style.cssText = "color:red!important"
+                        childrenDay[i].getElementsByTagName("span")[0].innerHTML = temp + "<br>" + holiday[j].명칭 + "</br>"
+                      }
+                    }
+                  }
                 }
             }, 50)
         },  

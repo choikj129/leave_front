@@ -13,6 +13,7 @@ const state = {
         isLogin : false,
         isMobile : false,
     },
+    holiday : []
 }
 /* store 데이터 접근 
     ex) store.getters["state 키값"]
@@ -21,12 +22,18 @@ const getters = {
     getUser(state) {
         return state.user
     },
+    getHoliday(state) {
+        return state.holiday
+    },
 }
 
 /* 데이터 수정할 수 있은 함수 */
 const mutations = {
     setUser(state, user) {
         return state.user = user
+    },
+    setHoliday(state, holiday) {
+        return state.holiday = holiday
     },
     clearStore(state, user) {
         return state.user = {
