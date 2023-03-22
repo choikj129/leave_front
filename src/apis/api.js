@@ -23,8 +23,8 @@ const methods = {
                 if (i > 0) {
                     url += "&"
                 }
-                url += `${key}=${params[key]}`        
-            })    
+                url += `${key}=${params[key]}`
+            })
         }
 
         try {

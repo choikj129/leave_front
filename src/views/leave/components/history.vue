@@ -11,7 +11,7 @@
             class="elevation-1 mt-10 mb-10"
 			style="width: 80%;"
         >
-        </v-data-table>		
+        </v-data-table>
 	</div>
 </template>
 
@@ -32,7 +32,7 @@ export default {
 	},
 	created() {
 		this.$get("/users/history").then((res) => {
-			this.history = res.data				
+			this.history = res.data
 		})
 	}
 }

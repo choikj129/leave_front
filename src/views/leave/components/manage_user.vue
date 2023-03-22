@@ -2,7 +2,7 @@
     <div class="text-center main-component" :class="{'mobile-component' : isMobile}">
         <!-- 모달 팝업 기본 태그 -->
         <v-dialog
-            v-model="dialog"            
+            v-model="dialog"
             width="400"
             @click:outside="close"
         >
@@ -31,7 +31,7 @@
                             <v-btn depressed color="primary" @click="showInsert" class="ml-3">
                                 직원추가
                             </v-btn>
-                        </span>                     
+                        </span>
                     </div>
 
                     <!-- 테이블 -->
@@ -94,9 +94,9 @@
                                                 {{ user.추가휴가수 }}
                                             </td>
                                             <td class="grid-body grid-right-line">
-                                                {{ user.입사일 
-                                                    ? `${user.입사일.replace(/([\d]{4})([\d]{2})([\d]{2})/g, "$1년 $2월 $3일")} (${user.입사년차})` 
-                                                    : null 
+                                                {{ user.입사일
+                                                    ? `${user.입사일.replace(/([\d]{4})([\d]{2})([\d]{2})/g, "$1년 $2월 $3일")} (${user.입사년차})`
+                                                    : null
                                                 }}
                                             </td>
                                             <td class="grid-body" style="padding : 0">
@@ -148,7 +148,7 @@
                 <v-card v-else-if="dialogType =='insert'">
                     <v-card-title class="text-h5 grey lighten-2">
                         직원 추가
-                    </v-card-title>                    
+                    </v-card-title>
                     <v-form >
                         <v-container style="width:100%">
                             <v-text-field v-model="insertUserInfo.이름" label="이름" class="required" outlined></v-text-field>
@@ -216,7 +216,7 @@ export default {
                 e.returnValue = false
                 return
             }
-            if(!/[\d]|Backspace|Delete|NumLock|ArrowLeft|ArrowRight|\./.test(e.key)) {                
+            if(!/[\d]|Backspace|Delete|NumLock|ArrowLeft|ArrowRight|\./.test(e.key)) {
                 e.returnValue = false
             }
         },
@@ -271,13 +271,13 @@ export default {
             this.$post("/users/update", {
                 userInfo : {
                     id : this.userInfo.아이디,
-                    year : this.userInfo.연도,                    
+                    year : this.userInfo.연도,
                     position : this.userInfo.직위코드,
                     date : this.userInfo.입사일,
                 }
             }).then((res) =>{
                 if (res.status) {
-                    this.$emit("getUsers", this.userInfo.연도)   
+                    this.$emit("getUsers", this.userInfo.연도)
                 }
                 this.dialog = false
             })

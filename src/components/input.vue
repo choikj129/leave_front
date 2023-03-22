@@ -1,14 +1,14 @@
 <template>
     <div id="input">
         <div class="form-group">
-            <input 
+            <input
                 :type="type"
-                class="form-control" 
-                :placeholder="placeholder" 
+                class="form-control"
+                :placeholder="placeholder"
                 :value="text"
                 @input="$emit('input', $event.target.value)"
             >
-        </div>      
+        </div>
     </div>
 </template>
 
@@ -31,7 +31,7 @@
         name: 'cp-input',
         data () {
             return {
-                // placeholder : "",                
+                // placeholder : "",
             }
         },
         methods : {

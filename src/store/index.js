@@ -4,7 +4,7 @@ import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 /* store 데이터 */
-const state = {    
+const state = {
     user : {
         id : null,
         name : null,
@@ -15,7 +15,7 @@ const state = {
     },
     holiday : []
 }
-/* store 데이터 접근 
+/* store 데이터 접근
     ex) store.getters["state 키값"]
 */
 const getters = {

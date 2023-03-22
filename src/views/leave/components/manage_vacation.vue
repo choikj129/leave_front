@@ -2,7 +2,7 @@
     <div class="text-center main-component" :class="{'mobile-component' : isMobile}">
         <!-- 모달 팝업 기본 태그 -->
         <v-dialog
-            v-model="dialog"            
+            v-model="dialog"
             :width="dialogWidth"
             @click:outside="close"
         >
@@ -23,7 +23,7 @@
                             <v-icon>
                                 mdi-chevron-right
                             </v-icon>
-                        </v-btn>                    
+                        </v-btn>
                     </div>
 
                     <!-- 테이블 -->
@@ -124,7 +124,7 @@
                         <v-container style="width:100%">
                             <v-text-field v-model="userInfo.이름" label="이름" outlined disabled></v-text-field>
                             <v-text-field v-model="userInfo.아이디" label="아이디" outlined disabled></v-text-field>
-                            <v-text-field 
+                            <v-text-field
                                 @keydown="keydown($event, true)"
                                 v-model="userInfo.휴가수"
                                 label="휴가"
@@ -145,7 +145,7 @@
                 <v-card v-else-if="dialogType =='reward'">
                     <v-card-title class="text-h5 grey lighten-2">
                         추가 휴가 등록
-                    </v-card-title>                    
+                    </v-card-title>
                     <v-form >
                         <v-container style="width:100%">
                             <v-text-field v-model="rewardUserInfo.이름" label="이름" outlined disabled></v-text-field>
@@ -174,7 +174,7 @@
                 <!-- 포상/리프레시 내역 모달 -->
                 <v-data-table v-else-if="dialogType =='list'"
                     :headers="headers"
-                    :items="items"            
+                    :items="items"
                     :loading="isLoading"
                     :items-per-page="-1"
                     hide-default-footer
@@ -206,11 +206,11 @@
                 headers: [
                     { text: '휴가 유형', sortable: false, value: '휴가유형', width:"200", align:"center"},
                     { text: '휴가일수', sortable: false, value: '휴가일수', width:"100", align:"center"},
-                    // { text: '사용일수', sortable: false, value: '사용일수', width:"250", align:"center"},          
-                    { text: '등록일', sortable: false, value: '등록일', width:"150", align:"center"},          
-                    { text: '만료일', sortable: false, value: '만료일', width:"150", align:"center"},          
+                    // { text: '사용일수', sortable: false, value: '사용일수', width:"250", align:"center"},
+                    { text: '등록일', sortable: false, value: '등록일', width:"150", align:"center"},
+                    { text: '만료일', sortable: false, value: '만료일', width:"150", align:"center"},
                 ],
-                items : [],                
+                items : [],
                 userInfo : {
                     연도 : new Date().getFullYear()
                 },
@@ -236,17 +236,17 @@
                 targetDate : new Date(),
                 dateRule : [v => v.length <= 8 || '등록일은 8자 (YYYYMMDD)로 입력하세요'],
                 vacationList : [
-                    { 
+                    {
                         표시내용 : "포상 휴가",
                         유형 : "포상",
                     },
-                    { 
+                    {
                         표시내용 : "리프레시 휴가",
                         유형 : "리프레시",
                     },
                 ],
                 colors: {
-                    "포상" : "blue", 
+                    "포상" : "blue",
                     "리프레시" : "green",
                 }
             }
@@ -273,7 +273,7 @@
                     유형 : "포상",
                     휴가일수 : "",
                     등록일 : ""
-                }                
+                }
             },
             showList(id) {
                 this.items = []
@@ -295,7 +295,7 @@
                     e.returnValue = false
                     return
                 }
-                if(!/[\d]|Backspace|Delete|NumLock|ArrowLeft|ArrowRight|\./.test(e.key)) {                
+                if(!/[\d]|Backspace|Delete|NumLock|ArrowLeft|ArrowRight|\./.test(e.key)) {
                     e.returnValue = false
                 }
             },
@@ -324,16 +324,16 @@
                     return
                 }
                 console.log(this.userInfo)
-                this.$post("/leave/cnt/update", {                
+                this.$post("/leave/cnt/update", {
                     id : this.userInfo.아이디,
-                    year : this.userInfo.연도,                    
-                    cnt : this.userInfo.휴가수                
+                    year : this.userInfo.연도,
+                    cnt : this.userInfo.휴가수
                 }).then((res) =>{
                     if (res.status) {
                         this.$emit("getUsers", this.userInfo.연도)
                     }
-                    this.close()              
-                })            
+                    this.close()
+                })
             },
             insertReward() {
                 console.log(this.rewardUserInfo)

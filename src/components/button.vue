@@ -2,7 +2,7 @@
     <div id="button">
         <div class="form-group">
             <button class="btn btn-primary btn-block" @click="clickFunction">{{text}}</button>
-        </div>    
+        </div>
     </div>
 </template>
 
@@ -21,11 +21,11 @@
         name: 'cp-button',
         data () {
             return {
-                // placeholder : "",                
+                // placeholder : "",
             }
         },
         methods : {
-            clickFunction() {   
+            clickFunction() {
                 this.$emit(this.functionName)
             }
         }

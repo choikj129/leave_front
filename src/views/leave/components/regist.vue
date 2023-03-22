@@ -30,7 +30,7 @@
 
                 <v-sheet style="margin-top : 2rem;">
                     <!-- 캘린더 -->
-                    <v-calendar 
+                    <v-calendar
                         ref="calendar"
                         v-model="focus"
                         color="secondary"
@@ -50,7 +50,7 @@
                     </v-calendar>
 
                     <!-- 이벤트 클릭 팝업 -->
-                    <v-menu 
+                    <v-menu
                         max-width="350px"
                         v-model="selectedOpen"
                         :close-on-content-click="false"
@@ -84,11 +84,11 @@
                                         </v-list-item>
                                     </v-list>
                                 </v-menu>
-                                <v-text-field 
+                                <v-text-field
                                     style="width:30%;margin-top: 14px;margin-left: 12px;"
                                     v-model="etcType"
                                     :autofocus="true"
-                                    v-if="selectedEvent.type=='기타 휴가' && !selectedEvent.disabled"    
+                                    v-if="selectedEvent.type=='기타 휴가' && !selectedEvent.disabled"
                                 ></v-text-field>
                                 <v-spacer></v-spacer>
                                 <v-btn icon @click="deleteEvent" v-if="selectedEvent.updateType != 'D'">
@@ -135,9 +135,9 @@ export default {
             originalEvents: {},
             events: [],
             colors: {
-                "휴가" : "blue", 
+                "휴가" : "blue",
                 "오전 반차" : "cyan",
-                "오후 반차" : "cyan", 
+                "오후 반차" : "cyan",
                 "포상 휴가" : "blue-grey",
                 "기타 휴가" : "green",
                 "신규" : "orange",
@@ -170,7 +170,7 @@ export default {
                     let type = "휴가"
                     let etcType = ""
                     if (re.test(event.내용)) {
-                        type = RegExp.$2                    
+                        type = RegExp.$2
                             
                         if (type.trim().endsWith("휴가") && !type.trim().endsWith("포상 휴가") && type.trim().length > 2) {
                             etcType = type.substring(0, type.lastIndexOf("휴가") - 1)
@@ -180,7 +180,7 @@ export default {
                     console.log(event)
                     console.log(type)
                     event = {
-                        name : event.내용,                
+                        name : event.내용,
                         start: new Date(event.시작일),
                         end: new Date(event.종료일),
                         startDate: event.시작일,
@@ -193,10 +193,10 @@ export default {
                         disabled : true,
                         IDX : event.IDX
                     }
-                    this.originalEvents[event.index] = event                
+                    this.originalEvents[event.index] = event
                     this.events.push(event)
                     
-                    let startDate = new Date(event.startDate)                    
+                    let startDate = new Date(event.startDate)
                     this.dateHashUpdate(startDate, event.cnt)
                 }
                 this.setTitle()
@@ -210,7 +210,7 @@ export default {
             /* 캘린더 이벤트 색 */
             return event.color
         },
-        setTitle() {            
+        setTitle() {
             const year = this.selectMonth.getFullYear()
             this.calendarTitle = `${year}년 ${this.selectMonth.getMonth()+1 < 10 ? "0" + (this.selectMonth.getMonth()+1) : this.selectMonth.getMonth()+1}월`
         },
@@ -237,11 +237,11 @@ export default {
             if (!this.originalEvents[this.selectedEvent.index]) {
                 this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
             }
-        },    
-        prev() {            
+        },
+        prev() {
             this.$refs.calendar.prev()
         },
-        next() {            
+        next() {
             this.$refs.calendar.next()
         },
         changeMonth(event) {
@@ -273,7 +273,7 @@ export default {
                     }
                 }
             }, 50)
-        },  
+        },
         showEvent({nativeEvent, event}){
             const open = () => {
                 this.selectedEvent = event
@@ -304,7 +304,7 @@ export default {
                 if (this.selectDateBtn) {
                     this.selectDateBtn.classList.remove("selectNode")
                     this.selectDateBtn = null
-                }                
+                }
             }
             if (this.selectedOpen) {
                 this.closeEvent()
@@ -319,7 +319,7 @@ export default {
             }
 
             /* 처음 클릭한 날짜를 시작 or 종료 날짜로 */
-            if (!this.selectDate){                
+            if (!this.selectDate){
                 this.selectDateBtn = event.nativeEvent.srcElement.parentNode
                 this.selectDate = true
                 this.startDate = event.date
@@ -352,8 +352,8 @@ export default {
             }
             for (let i=0; i<dateCnt; i++) {
                 let sd = new Date(this.startDate)
-                sd.setDate(startDate.getDate() + i)                
-                if (sd.getDay() == 0 || sd.getDay() == 6) {                    
+                sd.setDate(startDate.getDate() + i)
+                if (sd.getDay() == 0 || sd.getDay() == 6) {
                     alert("주말은 휴가를 신청할 수 없습니다.")
                     resetEvent()
                     return
@@ -368,7 +368,7 @@ export default {
             }
 
             const name = this.startDate == event.date
-                ? `${this.startDate} (${this.week[startDate.getDay()]}) 휴가` 
+                ? `${this.startDate} (${this.week[startDate.getDay()]}) 휴가`
                 : `${this.startDate} (${this.week[startDate.getDay()]}) ~ ${event.date} (${this.week[endDate.getDay()]}) 휴가`
 
             this.selectedEvent = {
@@ -388,7 +388,7 @@ export default {
             this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
             this.events.push(this.selectedEvent)
             
-            this.dateHashUpdate(new Date(this.startDate), dateCnt)            
+            this.dateHashUpdate(new Date(this.startDate), dateCnt)
             this.selectedElement = nativeEvent.target
             resetEvent()
             nativeEvent.stopPropagation()
@@ -453,7 +453,7 @@ export default {
             let postEvents = []
             Object.keys(this.changeEvents).forEach((key) =>{
                 Object.values(this.changeEvents[key]).forEach((value) => {
-                    if (key != "취소") {                                                                  
+                    if (key != "취소") {
                         postEvents.push(value)
                     }
                     message += `${value.name}\n`

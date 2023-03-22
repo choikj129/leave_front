@@ -13,7 +13,7 @@
 				</v-card-subtitle>
 			</v-card>
 			<v-list style="padding-top:0">
-				<v-list-item v-for="link in linksTop" :key="link.type" 
+				<v-list-item v-for="link in linksTop" :key="link.type"
 					v-if="link.auth"
 					@click="changeComponent(link.type)"
 					:class="{
@@ -32,7 +32,7 @@
 			</v-list>
 			<!-- <template v-slot:append> -->
 				<v-list>
-					<v-list-item v-for="link in linksBottom" :key="link.type" 
+					<v-list-item v-for="link in linksBottom" :key="link.type"
 						v-if="link.auth"
 						@click="changeComponent(link.type)"
 						:class="{
@@ -63,7 +63,7 @@
 			:positions="positions"
 			@getUsers="getUsers"
 		/>
-		<lists v-else-if="selectType == 'lists'" 
+		<lists v-else-if="selectType == 'lists'"
 			:is-mobile="isMobile"
 			:leave-cnts="leaveCnts"
 			:users="usersSort"
@@ -136,7 +136,7 @@ export default {
 			isMobile : this.$store.getters.getUser.isMobile,
 		}
 	},
-	methods: {		
+	methods: {
 		changeComponent(type) {
 			if (type == "logout"){
 				this.$router.push("/logout")
@@ -146,8 +146,8 @@ export default {
 				return
 			}
 			this.selectType = type
-			if (this.$route.path != `/leave/${type}`) { 
-				this.$router.push(`/leave/${type}`)				
+			if (this.$route.path != `/leave/${type}`) {
+				this.$router.push(`/leave/${type}`)
 			}
 		},
 		/* 휴가 신청시 데이터가 수정되어 부모 컴포넌트에서 처리 */
@@ -159,11 +159,11 @@ export default {
 				res.data.forEach((obj) => {
 					this.leaveCnts[obj.연도] = {
 						휴가수 : obj.휴가수,
-						사용휴가수 : obj.사용휴가수,						
-						잔여휴가수 : obj.휴가수 - obj.사용휴가수,						
+						사용휴가수 : obj.사용휴가수,
+						잔여휴가수 : obj.휴가수 - obj.사용휴가수,
 						active : false,
 					}
-				})				
+				})
 				if (isLoadPage) {
 					if (this.$store.getters.getUser.isManager){
 						this.changeComponent("manage_user")
@@ -175,7 +175,7 @@ export default {
 				next()
 			})
 		},
-		getUsers(year = new Date().getFullYear(), isLoadPage=false) {			
+		getUsers(year = new Date().getFullYear(), isLoadPage=false) {
 			this.$get("/users", {year : year}).then((res) => {
 				this.users = res.data
 				if (isLoadPage) this.usersSort = []
@@ -187,7 +187,7 @@ export default {
 					if (isLoadPage) this.usersSort.push(user)
 				})
 				if (isLoadPage) {
-					this.usersSort = this.usersSort.sort((a, b) => {					
+					this.usersSort = this.usersSort.sort((a, b) => {
 						if (a.이름 < b.이름) {
 							return -1;
 						}

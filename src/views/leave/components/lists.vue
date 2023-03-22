@@ -40,7 +40,7 @@
         <!-- 테이블 -->
         <v-data-table
             :headers="headers"
-            :items="items"            
+            :items="items"
             :loading="isLoading"
             :items-per-page="-1"
             hide-default-footer
@@ -73,7 +73,7 @@
                 headers: [
                     { text: '휴가일', sortable: false, value: '휴가일', width:"400", align:"center"},
                     { text: '휴가 구분', sortable: false, value: '휴가구분', width:"300", align:"center"},
-                    { text: '누적 휴가 수', sortable: false, value: '누적휴가수', width:"250", align:"center"},          
+                    { text: '누적 휴가 수', sortable: false, value: '누적휴가수', width:"250", align:"center"},
                 ],
                 isLoading : false,
                 targetUser : {
@@ -84,9 +84,9 @@
                 year : new Date().getFullYear(),
                 items : [],
                 colors: {
-                    "휴가" : "blue", 
+                    "휴가" : "blue",
                     "오전 반차" : "cyan",
-                    "오후 반차" : "cyan", 
+                    "오후 반차" : "cyan",
                     "포상 휴가" : "blue-grey",
                     "기타 휴가" : "green",
                 },
@@ -95,7 +95,7 @@
             }
         },
         methods : {
-            getLists(user, year) {                
+            getLists(user, year) {
                 this.$get("/leave/lists", {
                     id: user.아이디,
                     year : year,
@@ -104,7 +104,7 @@
                         let count = 0
                         let data = res.data.lists.reduce((acc, obj) => {
                             count += obj.휴가일수
-                            obj.누적휴가수 = count 
+                            obj.누적휴가수 = count
                             acc.push(obj)
                             return acc
                         }, [])
@@ -127,14 +127,14 @@
             changeUser() {
                 this.isLoading = true
                 this.items = []
-                this.getLists(this.targetUser, this.year)                
+                this.getLists(this.targetUser, this.year)
             },
             getColor(type) {
                 return this.colors[type]
             },
         },
         mounted() {
-            this.getLists(this.targetUser, new Date().getFullYear())            
+            this.getLists(this.targetUser, new Date().getFullYear())
         },
     }
 </script>

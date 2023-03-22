@@ -1,6 +1,6 @@
 <template>
 	<div class="login">
-		<img src="../../assets/img/odinue_ci.svg" style="width: 300px; margin-top:3rem;">  
+		<img src="../../assets/img/odinue_ci.svg" style="width: 300px; margin-top:3rem;">
 		<!-- <div class="f5_mobile posR">휴가 관리</div> -->
 		<v-app id="inspire" style="height:0;">
 			<!-- Login Component -->
@@ -39,7 +39,7 @@ export default {
     }
   },
   methods : {
-    login() {		
+    login() {
 		this.$post("/login", {
 			id: this.id,
 			pw: this.pw
@@ -48,7 +48,7 @@ export default {
 				if (res.status) {
 					this.$store.commit("setUser", res.data)
 					this.$router.push({ path: "leave" })
-				} else {					
+				} else {
 					res.msg ? alert(res.msg) : alert(res.message)
 				}
 			})

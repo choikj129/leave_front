@@ -1,27 +1,27 @@
 <template>
     <div class="main-component" style="height:100%" :class="{'mobile-component' : isMobile}">
         <form style="width:400px;">
-            <v-text-field 
-                v-model="$store.getters.getUser.name" 
-                label="이름" 
+            <v-text-field
+                v-model="$store.getters.getUser.name"
+                label="이름"
                 disabled
             ></v-text-field>
-            <v-text-field 
-                v-model="$store.getters.getUser.position" 
+            <v-text-field
+                v-model="$store.getters.getUser.position"
                 label="직위"
                 disabled
-                ></v-text-field>            
-                <v-text-field 
-                v-model="pw" 
+                ></v-text-field>
+                <v-text-field
+                v-model="pw"
                 label="비밀번호"
                 :rules="rules.pw"
                 @blur=""
                 type="password"
                 @keydown="isEnter"
                 required
-                ></v-text-field>            
-                <v-text-field 
-                v-model="pwCheck" 
+                ></v-text-field>
+                <v-text-field
+                v-model="pwCheck"
                 label="비밀번호 확인"
                 :rules="rules.pwCheck"
                 type="password"
@@ -29,8 +29,8 @@
                 required
             ></v-text-field>
 
-            <v-btn class="me-4" depressed color="primary black" 
-                @click="updatePW"                
+            <v-btn class="me-4" depressed color="primary black"
+                @click="updatePW"
                 :disabled="!pw || !pwCheck || pw != pwCheck"
             >
                 변경
@@ -47,7 +47,7 @@ export default {
     data() {
         return {
             pw: "",
-            pwCheck: "",            
+            pwCheck: "",
             rules : {
                 pw : [
                     (value) => {

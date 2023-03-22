@@ -27,7 +27,7 @@
 
                 <v-sheet style="margin-top : 2rem;">
                     <!-- 캘린더 -->
-                    <v-calendar 
+                    <v-calendar
                         ref="calendar"
                         v-model="focus"
                         color="secondary"
@@ -36,7 +36,7 @@
                         :type="'month'"
                         @change="changeMonth"
                         @click:next="next"
-                        @click:event="showEvent"                
+                        @click:event="showEvent"
                         locale="ko"
                         :show-month-on-first="false"
                         :day-format="getFormat"
@@ -45,7 +45,7 @@
                     </v-calendar>
 
                     <!-- 이벤트 클릭 팝업 -->
-                    <v-menu 
+                    <v-menu
                         max-width="350px"
                         v-model="selectedOpen"
                         :close-on-content-click="false"
@@ -56,7 +56,7 @@
                             <v-toolbar :color="selectedEvent.color" dark>
                             </v-toolbar>
                             <v-card-text>
-                                <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>                            
+                                <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
                             </v-card-text>
                             <v-card-actions>
                                 <v-btn text color="secondary" @click="closeEvent">
@@ -85,9 +85,9 @@ export default {
             selectMonth : new Date(),
             events: [],
             colors: {
-                "휴가" : "blue", 
+                "휴가" : "blue",
                 "오전 반차" : "cyan",
-                "오후 반차" : "cyan", 
+                "오후 반차" : "cyan",
                 "포상 휴가" : "blue-grey",
                 "기타 휴가" : "green",
                 "신규" : "orange",
@@ -117,7 +117,7 @@ export default {
                     const re = /[\d-]+.\(.\)(.~.[\d-]+.\(.\))?.(.*)/
                     let type = "휴가"
                     if (re.test(event.내용)) {
-                        type = RegExp.$2                    
+                        type = RegExp.$2
                             
                         if (type.trim().endsWith("휴가") && !type.trim().endsWith("포상 휴가") && type.trim().length > 2) {
                             type = "기타 휴가"
@@ -125,7 +125,7 @@ export default {
                     }
                     
                     event = {
-                        name : event.내용,                
+                        name : event.내용,
                         start: new Date(event.시작일),
                         end: new Date(event.종료일),
                         startDate: event.시작일,
@@ -136,7 +136,7 @@ export default {
                         type : type,
                         disabled : true,
                         IDX : event.IDX
-                    }                    
+                    }
                     this.events.push(event)
                 }
                 this.setTitle()
@@ -157,10 +157,10 @@ export default {
         setToday() {
             this.focus = ""
         },
-        prev() {            
+        prev() {
             this.$refs.calendar.prev()
         },
-        next() {            
+        next() {
             this.$refs.calendar.next()
         },
         changeMonth(event) {
@@ -192,7 +192,7 @@ export default {
                     }
                 }
             }, 50)
-        },  
+        },
         showEvent({nativeEvent, event}){
             const open = () => {
                 this.selectedEvent = event

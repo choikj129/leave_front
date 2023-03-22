@@ -18,10 +18,10 @@ export default {
                     patternType : "solid",
                     fgColor: { rgb: "FFFCFCC2" },
                 },
-                border : { 
-                    bottom : { style : "thin", color : { rgb: "FF000000" } } 
+                border : {
+                    bottom : { style : "thin", color : { rgb: "FF000000" } }
                 },
-            }        
+            }
         })
 
         /* 기타 옵션 */
@@ -36,14 +36,14 @@ export default {
         excel.writeFile(wb, file)
     },
     /* 엑셀 column 이름 */
-    getColumnList(count) {        
+    getColumnList(count) {
         const base = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"]
         let result = []
         for (let i=0; i<count; i++) {
             let col = base[i % 26]
-            let cnt = i		
+            let cnt = i
             while (Math.floor(cnt / 26) > 0) {
-                cnt = Math.floor(cnt / 26) -1 
+                cnt = Math.floor(cnt / 26) -1
                 col = base[cnt % 26] + col
             }
             result.push(col)
