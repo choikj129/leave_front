@@ -1,177 +1,375 @@
 <template>
-    <div class="main-component" :class="{'mobile-component' : isMobile}">
-        <v-data-table :headers="headers" :items="desserts">
-            <template v-slot:item.name="props">
-                <v-edit-dialog v-model:return-value="props.item.name" @save="save" @cancel="cancel" @open="open"
-                    @close="close">
-                    {{ props.item.name }}
-                    <template v-slot:input>
-                        <v-text-field v-model="props.item.name" :rules="[max25chars]" label="Edit" single-line
-                            counter></v-text-field>
-                    </template>
-                </v-edit-dialog>
-            </template>
-            <template v-slot:item.iron="props">
-                <v-edit-dialog v-model:return-value="props.item.iron" large persistent @save="save" @cancel="cancel"
-                    @open="open" @close="close">
-                    <div>{{ props.item.iron }}</div>
-                    <template v-slot:input>
-                        <div class="mt-4 text-h6">
-                            Update Iron
-                        </div>
-                        <v-text-field v-model="props.item.iron" :rules="[max25chars]" label="Edit" single-line counter
-                            autofocus></v-text-field>
-                    </template>
-                </v-edit-dialog>
-            </template>
-        </v-data-table>
+    <div class="text-center main-component" :class="{'mobile-component' : isMobile}">
+        <!-- 모달 팝업 기본 태그 -->
+        <v-dialog
+            v-model="dialog"            
+            :width="dialogWidth"
+            @click:outside="close"
+        >
+        <!-- v-slot on : 모달 오픈 -->
+        <template v-slot:activator="{ on, attrs }">
+            <!-- 상단 버튼 및 정보 -->
+            <div style="width: 100%;">
+                    <div class="mt-3" :class="{'mr-16' : !isMobile}">
+                        <v-btn outlined fab text small color="grey darken-2" @click="changeYear(-1)">
+                            <v-icon>
+                                mdi-chevron-left
+                            </v-icon>
+                        </v-btn>
+                        <h3 class="di mt-3">
+                            {{userInfo.연도}} 년 휴가 관리
+                        </h3>
+                        <v-btn outlined fab text small color="grey darken-2" @click="changeYear(1)">
+                            <v-icon>
+                                mdi-chevron-right
+                            </v-icon>
+                        </v-btn>                    
+                    </div>
 
-        <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-            {{ snackText }}
-
-            <template v-slot:action="{ attrs }">
-                <v-btn v-bind="attrs" variant="text" @click="snack = false">
-                    Close
-                </v-btn>
+                    <!-- 테이블 -->
+                    <v-simple-table style="width: 75%; margin:auto; margin-top: 20px; margin-bottom:50px;">
+                        <template>
+                            <thead>
+                                <tr>
+                                    <th class="text-center grid-header">
+                                        이름
+                                    </th>
+                                    <th class="text-center grid-header">
+                                        직위
+                                    </th>
+                                    <th class="text-center grid-header grid-right-line">
+                                        아이디
+                                    </th>
+                                    <th class="text-center grid-header">
+                                        사용연차
+                                    </th>
+                                    <th class="text-center grid-header grid-right-line">
+                                        연차
+                                    </th>
+                                    <th class="text-center grid-header">
+                                        사용포상휴가
+                                    </th>
+                                    <th class="text-center grid-header">
+                                        포상휴가
+                                    </th>
+                                    <th class="text-center grid-header">
+                                        사용리프레시휴가
+                                    </th>
+                                    <th class="text-center grid-header">
+                                        리프레시휴가
+                                    </th>
+                                    <th class="text-center grid-header grid-right-line">
+                                        기타휴가
+                                    </th>
+                                    <th class="text-center grid-header" >
+                                        비고
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="user in users" :key="user.아이디" v-on="on" @click="showList(user.아이디)">
+                                    <td class="grid-body">
+                                        {{ user.이름 }}
+                                    </td>
+                                    <td class="grid-body">
+                                        {{ user.직위 }}
+                                    </td>
+                                    <td class="grid-body grid-right-line">
+                                        {{ user.아이디 }}
+                                    </td>
+                                    <td class="grid-body">
+                                        {{ user.사용휴가수 }}
+                                    </td>
+                                    <td class="grid-body grid-right-line">
+                                        {{ !user.휴가수 ? "휴가 설정이 필요합니다." : user.휴가수 }}
+                                    </td>
+                                    <td class="grid-body">
+                                        {{ user.사용포상휴가수 }}
+                                    </td>
+                                    <td class="grid-body">
+                                        {{ user.포상휴가수 }}
+                                    </td>
+                                    <td class="grid-body">
+                                        {{ user.사용리프레시휴가수 }}
+                                    </td>
+                                    <td class="grid-body">
+                                        {{ user.리프레시휴가수 }}
+                                    </td>
+                                    <td class="grid-body grid-right-line">
+                                        {{ user.기타휴가수 }}
+                                    </td>
+                                    <td class="grid-body" style="padding : 0">
+                                        <v-btn depressed dark color="blue lighten-1" v-on="on" @click="showVacation(user)">
+                                            휴가
+                                        </v-btn>
+                                        <v-btn depressed dark color="blue lighten-1" v-on="on" @click="showReward(user)">
+                                            추가휴가
+                                        </v-btn>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </template>
+                    </v-simple-table>
+                </div>
             </template>
-        </v-snackbar>
+           
+            <div>
+                <!-- 직원 정보 수정 모달 -->
+                <v-card v-if="dialogType =='update'">
+                    <v-card-title class="text-h5 grey lighten-2">
+                        {{ userInfo.이름 }} ({{ userInfo.아이디 }})
+                    </v-card-title>
+                    
+                    <v-form >
+                        <v-container style="width:100%">
+                            <v-text-field v-model="userInfo.이름" label="이름" outlined disabled></v-text-field>
+                            <v-text-field v-model="userInfo.아이디" label="아이디" outlined disabled></v-text-field>
+                            <v-text-field 
+                                @keydown="keydown($event, true)"
+                                v-model="userInfo.휴가수"
+                                label="휴가"
+                                class="required"
+                                outlined>
+                            </v-text-field>
+                        </v-container>
+                    </v-form>
+                    
+                    <v-card-actions>
+                        <v-btn color="primary" text @click="close">닫기</v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" text @click="updateUser">수정</v-btn>
+                    </v-card-actions>
+                </v-card>
+
+                <!-- 포상/리프레시 추가 모달 -->
+                <v-card v-else-if="dialogType =='reward'">
+                    <v-card-title class="text-h5 grey lighten-2">
+                        추가 휴가 등록
+                    </v-card-title>                    
+                    <v-form >
+                        <v-container style="width:100%">
+                            <v-text-field v-model="rewardUserInfo.이름" label="이름" outlined disabled></v-text-field>
+                            <v-text-field v-model="rewardUserInfo.아이디" label="아이디" outlined disabled></v-text-field>
+                            <v-select
+                                :items="vacationList"
+                                label="휴가 유형"
+                                item-text="표시내용"
+                                item-value="유형"
+                                v-model="rewardUserInfo.유형"
+                                class="vSelect required"
+                                outlined
+                            ></v-select>
+                            <v-text-field v-model="rewardUserInfo.휴가일수" label="휴가일수" class="required" outlined></v-text-field>
+                            <v-text-field v-model="rewardUserInfo.등록일" label="등록일 (YYYYMMDD)" class="required" counter="8" :rules="dateRule" outlined></v-text-field>
+                        </v-container>
+                    </v-form>
+    
+                    <v-card-actions>
+                        <v-btn color="primary" text @click="close">닫기</v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" text @click="insertReward">등록</v-btn>
+                    </v-card-actions>
+                </v-card>
+
+                <!-- 포상/리프레시 내역 모달 -->
+                <v-data-table v-else-if="dialogType =='list'"
+                    :headers="headers"
+                    :items="items"            
+                    :loading="isLoading"
+                    :items-per-page="-1"
+                    hide-default-footer
+                    class="elevation-1"
+                    :class="{'mobile-data-table' : isMobile}"
+                >
+                    <!-- 해당 컬럼은 색추가 -->
+                    <template v-slot:item.휴가유형="{ item }">
+                        <v-chip
+                            :color="colors[item.휴가유형]"
+                            dark
+                        >
+                            {{ item.휴가유형 }}
+                        </v-chip>
+                    </template>
+                </v-data-table>
+            </div>
+        </v-dialog>
     </div>
 </template>
-  
+
 <script>
+
     export default {
-        props : ["isMobile"],
-        created() {
-            this.getRewardLists()
-        },
+        props : ["users", "positions", "isMobile"],
+        name : "manage",
         data() {
             return {
-                snack: false,
-                snackColor: '',
-                snackText: '',
-                max25chars: v => v.length <= 25 || 'Input too long!',
-                pagination: {},
                 headers: [
-                    {
-                        text: 'Dessert (100g serving)',
-                        align: 'start',
-                        sortable: false,
-                        value: 'name',
-                    },
-                    { text: 'Calories', value: 'calories' },
-                    { text: 'Fat (g)', value: 'fat' },
-                    { text: 'Carbs (g)', value: 'carbs' },
-                    { text: 'Protein (g)', value: 'protein' },
-                    { text: 'Iron (%)', value: 'iron' },
+                    { text: '휴가 유형', sortable: false, value: '휴가유형', width:"200", align:"center"},
+                    { text: '휴가일수', sortable: false, value: '휴가일수', width:"100", align:"center"},
+                    // { text: '사용일수', sortable: false, value: '사용일수', width:"250", align:"center"},          
+                    { text: '등록일', sortable: false, value: '등록일', width:"150", align:"center"},          
+                    { text: '만료일', sortable: false, value: '만료일', width:"150", align:"center"},          
                 ],
-                desserts: [
-                    {
-                        name: 'Frozen Yogurt',
-                        calories: 159,
-                        fat: 6.0,
-                        carbs: 24,
-                        protein: 4.0,
-                        iron: 1,
+                items : [],                
+                userInfo : {
+                    연도 : new Date().getFullYear()
+                },
+                insertUserInfo : {
+                    이름 : "",
+                    아이디 : "",
+                    직위코드 : "",
+                    입사일 : "",
+                },
+                rewardUserInfo : {
+                    이름 : "",
+                    표시내용 : "",
+                    아이디 : "",
+                    유형 : "",
+                    휴가일수 : "",
+                    등록일 : "",
+                },
+                items : [],
+                dialog: false,
+                dialogType : "",
+                dialogWidth : "400",
+                isLoading : false,
+                targetDate : new Date(),
+                dateRule : [v => v.length <= 8 || '등록일은 8자 (YYYYMMDD)로 입력하세요'],
+                vacationList : [
+                    { 
+                        표시내용 : "포상 휴가",
+                        유형 : "포상",
                     },
-                    {
-                        name: 'Ice cream sandwich',
-                        calories: 237,
-                        fat: 9.0,
-                        carbs: 37,
-                        protein: 4.3,
-                        iron: 1,
-                    },
-                    {
-                        name: 'Eclair',
-                        calories: 262,
-                        fat: 16.0,
-                        carbs: 23,
-                        protein: 6.0,
-                        iron: 7,
-                    },
-                    {
-                        name: 'Cupcake',
-                        calories: 305,
-                        fat: 3.7,
-                        carbs: 67,
-                        protein: 4.3,
-                        iron: 8,
-                    },
-                    {
-                        name: 'Gingerbread',
-                        calories: 356,
-                        fat: 16.0,
-                        carbs: 49,
-                        protein: 3.9,
-                        iron: 16,
-                    },
-                    {
-                        name: 'Jelly bean',
-                        calories: 375,
-                        fat: 0.0,
-                        carbs: 94,
-                        protein: 0.0,
-                        iron: 0,
-                    },
-                    {
-                        name: 'Lollipop',
-                        calories: 392,
-                        fat: 0.2,
-                        carbs: 98,
-                        protein: 0,
-                        iron: 2,
-                    },
-                    {
-                        name: 'Honeycomb',
-                        calories: 408,
-                        fat: 3.2,
-                        carbs: 87,
-                        protein: 6.5,
-                        iron: 45,
-                    },
-                    {
-                        name: 'Donut',
-                        calories: 452,
-                        fat: 25.0,
-                        carbs: 51,
-                        protein: 4.9,
-                        iron: 22,
-                    },
-                    {
-                        name: 'KitKat',
-                        calories: 518,
-                        fat: 26.0,
-                        carbs: 65,
-                        protein: 7,
-                        iron: 6,
+                    { 
+                        표시내용 : "리프레시 휴가",
+                        유형 : "리프레시",
                     },
                 ],
+                colors: {
+                    "포상" : "blue", 
+                    "리프레시" : "green",
+                }
             }
         },
-        methods: {            
-            getRewardLists() {
-                this.$get("/reward")
-                    .then((res) => {
-                        console.log(res)
+        methods : {
+            clickRows() {
+                setTimeout(()=>{
+                    this.dialog=false
+                },0.1)
+            },
+            showVacation(user) {
+                this.items = []
+                user.연도 = this.userInfo.연도
+                this.userInfo = user
+                this.dialogType = "update"
+                this.dialogWidth = "400"
+            },
+            showReward(user) {
+                this.dialogType = "reward"
+                this.dialogWidth = "400"
+                this.rewardUserInfo = {
+                    이름 : user.이름,
+                    아이디 : user.아이디,
+                    유형 : "포상",
+                    휴가일수 : "",
+                    등록일 : ""
+                }                
+            },
+            showList(id) {
+                this.items = []
+                this.isLoading = true
+                this.dialogType = "list"
+                this.dialogWidth = "700"
+                this.$get("/reward", {id : id})
+                    .then(res => {
+                        this.items = res.data
+                        this.isLoading = false
                     })
             },
-            save() {
-                this.snack = true
-                this.snackColor = 'success'
-                this.snackText = 'Data saved'
+            keydown(e, isFloat=false) {
+                if (e.key=="Enter") {
+                    this.update()
+                    return
+                }
+                if (!isFloat && e.key==".") {
+                    e.returnValue = false
+                    return
+                }
+                if(!/[\d]|Backspace|Delete|NumLock|ArrowLeft|ArrowRight|\./.test(e.key)) {                
+                    e.returnValue = false
+                }
             },
-            cancel() {
-                this.snack = true
-                this.snackColor = 'error'
-                this.snackText = 'Canceled'
+            changeYear(d) {
+                this.targetDate = new Date(this.targetDate.getFullYear() + d, 0, 1)
+                this.userInfo.연도 = this.targetDate.getFullYear()
+                this.$emit("getUsers", this.userInfo.연도)
             },
-            open() {
-                this.snack = true
-                this.snackColor = 'info'
-                this.snackText = 'Dialog opened'
+            showInsert() {
+                this.dialog = true
+                this.dialogType='insert'
+                this.insertUserInfo = {
+                    이름 : "",
+                    직위코드 : "",
+                    아이디 : "",
+                    입사일 : "",
+                }
+            },
+            updateUser() {
+                if (!this.userInfo.휴가수) {
+                    alert("휴가를 설정해주십시오.")
+                    return
+                }
+                if (!/^[\d]+(\.5)?$/g.test(this.userInfo.휴가수)) {
+                    alert("휴가는 정수, 실수(소수점은 .5)만 입력 가능합니다. (예 : 0.5, 4.5, 15)")
+                    return
+                }
+                console.log(this.userInfo)
+                this.$post("/leave/cnt/update", {                
+                    id : this.userInfo.아이디,
+                    year : this.userInfo.연도,                    
+                    cnt : this.userInfo.휴가수                
+                }).then((res) =>{
+                    if (res.status) {
+                        this.$emit("getUsers", this.userInfo.연도)
+                    }
+                    this.close()              
+                })            
+            },
+            insertReward() {
+                console.log(this.rewardUserInfo)
+                if (!this.rewardUserInfo.휴가일수) {
+                    alert("휴가일수를 입력해주십시오.")
+                    return
+                }
+                if (/[\D]+/g.test(this.rewardUserInfo.휴가일수)) {
+                    alert("휴가는 숫자만 입력 가능합니다.")
+                    return
+                }
+                if (this.rewardUserInfo.등록일 && this.rewardUserInfo.등록일.length != 8) {
+                    alert(`등록일은 8자로 입력해주십시오. \n (예 : 20020202})`)
+                    return
+                }
+                if (!this.dateValidation(this.rewardUserInfo.등록일)) {
+                    alert(`${this.rewardUserInfo.등록일}일은 유효하지 않은 날짜 입니다.`)
+                    return
+                }
+                this.$post("/leave/reward", {
+                    id : this.rewardUserInfo.아이디,
+                    type : this.rewardUserInfo.유형,
+                    cnt : this.rewardUserInfo.휴가일수,
+                    date : this.rewardUserInfo.등록일,
+                }).then(res => {
+                    this.close()
+                })
             },
             close() {
-                console.log('Dialog closed')
+                this.dialogType = ""
+                this.dialog = false
+                this.userInfo.휴가수 = this.userInfo.휴가수원본
+            },
+            dateValidation(date) {
+                const isDate = new Date(`${date.substring(0,4)}-${date.substring(4,6)}-${date.substring(6,8)}`)
+                return isNaN(isDate) ? false : true
             },
         },
     }

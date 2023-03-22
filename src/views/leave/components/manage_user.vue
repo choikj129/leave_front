@@ -71,7 +71,7 @@
                             <tbody>
                                 <v-hover v-for="user in users" :key="user.아이디">
                                     <template v-slot:default="{ hover }">
-                                        <tr v-bind="attrs" v-on="on" @click="targetInfo(user)">
+                                        <tr v-bind="attrs" v-on="on" @click="showUpdate(user)">
                                             <td class="grid-body">
                                                 {{ user.이름 }}
                                             </td>
@@ -201,7 +201,7 @@ export default {
         }
     },
     methods : {
-        targetInfo(user) {
+        showUpdate(user) {
             this.items = []
             user.연도 = this.userInfo.연도
             this.userInfo = user
@@ -257,7 +257,6 @@ export default {
                 아이디 : "",
                 입사일 : "",
             }
-
         },
         updateUser() {
             console.log(this.userInfo)
@@ -280,8 +279,8 @@ export default {
                 if (res.status) {
                     this.$emit("getUsers", this.userInfo.연도)   
                 }
+                this.dialog = false
             })
-            this.dialog = false
         },
         insertUser() {
             if (!this.insertUserInfo.이름) {
@@ -304,7 +303,6 @@ export default {
                 alert(`${this.insertUserInfo.입사일}일은 유효하지 않은 날짜 입니다.`)
                 return
             }
-            this.dialog = false
             this.$post("/users/insert", {
                 name : this.insertUserInfo.이름,
                 id : this.insertUserInfo.아이디,
@@ -312,6 +310,7 @@ export default {
                 date : this.insertUserInfo.입사일,
             }).then((res) => {
                 this.$emit("getUsers", this.userInfo.연도, true)
+                this.dialog = false
             })
         },
         deleteUser(user) {
@@ -331,7 +330,6 @@ export default {
             this.dialog = false
             this.userInfo.직위코드 = this.userInfo.직위코드원본
             this.userInfo.입사일 = this.userInfo.입사일원본
-            this.userInfo.휴가수 = this.userInfo.휴가수원본
         },
         dateValidation(date) {
             const isDate = new Date(`${date.substring(0,4)}-${date.substring(4,6)}-${date.substring(6,8)}`)
