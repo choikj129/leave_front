@@ -340,11 +340,11 @@ export default {
             
             const dateCnt = this.getDateCnt(startDate, endDate)
 
-            let holidayLength = store.getters.getHoliday.length
-            let holiday = store.getters.getHoliday
+            let holidayLength = this.$store.getters.getHoliday.length
+            let holiday = this.$store.getters.getHoliday
             let sd = new Date(this.startDate)
             for(let j=0; j<holidayLength; j++) {
-                if (sd.getDay() == parseInt(holiday[j].일)) {
+                if (sd.getDate() == parseInt(holiday[j].일) && sd.getMonth() + 1 == parseInt(holiday[j].월) && sd.getFullYear() == parseInt(holiday[j].년)) {
                     alert("공휴일은 휴가를 신청할 수 없습니다.")
                     resetEvent()
                     return
