@@ -96,7 +96,7 @@
         },
         methods : {
             getLists(user, year) {                
-                this.$get("/users/lists", {
+                this.$get("/leave/lists", {
                     id: user.아이디,
                     year : year,
                 }).then((res) => {

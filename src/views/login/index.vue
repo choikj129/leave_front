@@ -48,8 +48,8 @@ export default {
 				if (res.status) {
 					this.$store.commit("setUser", res.data)
 					this.$router.push({ path: "leave" })
-				} else {
-					alert(res.msg)
+				} else {					
+					res.msg ? alert(res.msg) : alert(res.message)
 				}
 			})
 	},
