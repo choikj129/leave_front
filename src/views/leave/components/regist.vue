@@ -76,7 +76,7 @@
                                         <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오후 반차')">
                                             <v-list-item-title>오후 반차</v-list-item-title>
                                         </v-list-item>
-                                        <v-list-item @click="setType('포상 휴가')">
+                                        <v-list-item v-if="selectedEvent.cnt <= rewardCnt" @click="setType('포상 휴가')">
                                             <v-list-item-title>포상 휴가</v-list-item-title>
                                         </v-list-item>
                                         <v-list-item @click="setType('기타 휴가')">
@@ -147,9 +147,14 @@ export default {
             week: ["일", "월", "화", "수", "목", "금", "토"],
             etcType : "기타",
             dateHash : {},
+            rewardLists : [],
+            rewardCnt : 0,
+            refreshLists : [],
+            refreshCnt : 0,
         }
     },
     created() {
+        this.getReward()
         if (this.isMobile) {
             this.calendarMinHeight = screen.height - 180 + "px"
         }
@@ -177,8 +182,6 @@ export default {
                             type = "기타 휴가"
                         }
                     }
-                    console.log(event)
-                    console.log(type)
                     event = {
                         name : event.내용,
                         start: new Date(event.시작일),
@@ -200,6 +203,23 @@ export default {
                     this.dateHashUpdate(startDate, event.cnt)
                 }
                 this.setTitle()
+            })
+        },
+        getReward() {
+            this.rewardCnt = 0
+            this.refreshCnt = 0
+            this.$get("/reward/user", { id : this.$store.getters.getUser.id })
+            .then(res => {
+                this.rewardLists = res.data.reward
+                this.refreshLists = res.data.refresh
+                
+                this.rewardLists.forEach(reward => {
+                    this.rewardCnt += reward.휴가일수 - reward.사용일수
+                })
+                this.refreshLists.forEach(refresh => {
+                    this.refreshCnt += refresh.휴가일수 - refresh.사용일수
+                })
+                console.log(this.rewardCnt, this.refreshCnt)
             })
         },
         getFormat(e) {
@@ -472,6 +492,7 @@ export default {
                 }).then(res => {
                     if (res.status) {
                         this.changeEvents = {취소 : [], 추가 : {}}
+                        this.getReward()
                         this.$emit("getCnts", false, this.$store.getters.getUser.id, () => this.setCalendar())
                     } else {
                         alert(res.msg)
