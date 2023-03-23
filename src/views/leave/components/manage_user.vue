@@ -35,7 +35,7 @@
                     </div>
 
                     <!-- 테이블 -->
-                    <v-simple-table style="width: 75%; margin:auto; margin-top: 20px; margin-bottom:50px;">
+                    <v-simple-table style="width: 85%; margin:auto; margin-top: 20px; margin-bottom:50px;">
                         <template>
                             <thead>
                                 <tr>
@@ -133,7 +133,7 @@
                                 class="vSelect required"
                                 outlined
                             ></v-select>
-                            <v-text-field @keydown="keydown" v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" :rules="dateRule" outlined></v-text-field>
+                            <v-text-field @keydown="keydown" v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" outlined></v-text-field>
                         </v-container>
                     </v-form>
     
@@ -162,7 +162,7 @@
                                 outlined
                             ></v-select>
                             <v-text-field v-model="insertUserInfo.아이디" label="아이디" class="required" outlined></v-text-field>
-                            <v-text-field v-model="insertUserInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" :rules="dateRule" outlined></v-text-field>
+                            <v-text-field v-model="insertUserInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" outlined></v-text-field>
                         </v-container>
                     </v-form>
     
@@ -197,7 +197,6 @@ export default {
             dialog: false,
             dialogType : "",
             targetDate : new Date(),
-            dateRule : [v => v.length <= 8 || '입사일은 8자 (YYYYMMDD)로 입력하세요'],
         }
     },
     methods : {
@@ -259,7 +258,6 @@ export default {
             }
         },
         updateUser() {
-            console.log(this.userInfo)
             if (this.userInfo.입사일 && this.userInfo.입사일.length != 8) {
                 alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
                 return
@@ -268,7 +266,7 @@ export default {
                 alert(`${this.userInfo.입사일}일은 유효하지 않은 날짜 입니다.`)
                 return
             }
-            this.$post("/users/update", {
+            this.$patch("/users", {
                 userInfo : {
                     id : this.userInfo.아이디,
                     year : this.userInfo.연도,
@@ -295,22 +293,29 @@ export default {
                 alert("아이디를 입력해주십시오.")
                 return
             }
-            if (this.insertUserInfo.입사일 && this.insertUserInfo.입사일.length != 8) {
-                alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
-                return
+            if (this.insertUserInfo.입사일) {
+                if (this.insertUserInfo.입사일.length != 8) {
+                    alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
+                    return
+                }
+                if (!this.dateValidation(this.insertUserInfo.입사일)) {
+                    alert(`${this.insertUserInfo.입사일}일은 유효하지 않은 날짜 입니다.`)
+                    return
+                }
+
             }
-            if (!this.dateValidation(this.insertUserInfo.입사일)) {
-                alert(`${this.insertUserInfo.입사일}일은 유효하지 않은 날짜 입니다.`)
-                return
-            }
-            this.$post("/users/insert", {
+            this.$put("/users", {
                 name : this.insertUserInfo.이름,
                 id : this.insertUserInfo.아이디,
                 position : this.insertUserInfo.직위코드,
                 date : this.insertUserInfo.입사일,
             }).then((res) => {
-                this.$emit("getUsers", this.userInfo.연도, true)
-                this.dialog = false
+                if (!res.status) {
+                    alert(res.msg)
+                } else {
+                    this.$emit("getUsers", this.userInfo.연도, true)
+                    this.dialog = false
+                }
             })
         },
         deleteUser(user) {
@@ -318,10 +323,11 @@ export default {
                 this.close()
             }, 1)
             if (confirm(`${user.이름} ${user.직위}님을 삭제하시겠습니까?`)) {
-                this.$get("/users/delete", {
+                this.$del("/users", {
                     id : user.아이디
                 }).then((res) => {
                     this.$emit("getUsers", this.userInfo.연도, true)
+                    this.close()
                 })
             }
         },

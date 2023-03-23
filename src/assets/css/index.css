@@ -8,6 +8,7 @@
 .f5_mobile {font-size: 4.5rem!important;}
 .block { display: block;}
 .posR {position: relative;}
+.bold {font-weight: bold!important;}
 .btn {font-size: 1.7rem!important; font-weight: bold;}
 .form-control, .btn {min-height: 38px; border-radius: 2px;}
 /* .v-list-item .v-list-item__subtitle,  */

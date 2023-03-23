@@ -28,6 +28,9 @@ const use = (axios) => {
 						console.log(response)
 					} else {
 						console.log(response.data)
+						if (/\](.*)/g.test(response.data.msg)) {
+							response.data.msg = RegExp.$1
+						}
 					}
 					if (response.data.msg == "no session") {
 						if (!window.location.href.endsWith("/login")) {

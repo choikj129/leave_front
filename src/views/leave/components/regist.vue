@@ -157,7 +157,7 @@ export default {
         this.setTitle()
     },
     methods: {
-        setCalendar() {
+        setCalendar() {            
             this.$get("/leave", {id : this.$store.getters.getUser.id, isAll : false}).then((res) => {
                 this.originalEvents = {}
                 this.events = []
@@ -465,7 +465,7 @@ export default {
                 return
             }
             if(confirm(message+"\n를 신청하시겠습니까?")){
-                this.$post("/leave", {
+                this.$patch("/leave", {
                     events : postEvents,
                     id : this.$store.getters.getUser.id,
                     name : this.$store.getters.getUser.name,

@@ -71,7 +71,7 @@ export default {
     methods : {
         updatePW() {
             if (confirm("비밀번호를 변경하시겠습니까? \n(변경 후 로그아웃됩니다.)")) {
-                this.$post("/login/update", {
+                this.$patch("/login", {
                     id : this.$store.getters.getUser.id,
                     pw : this.pw
                 }).then(res => {

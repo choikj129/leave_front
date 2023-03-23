@@ -334,8 +334,7 @@
                     alert("휴가는 정수, 실수(소수점은 .5)만 입력 가능합니다. (예 : 0.5, 4.5, 15)")
                     return
                 }
-                console.log(this.userInfo)
-                this.$post("/leave/cnt/update", {
+                this.$patch("/leave/cnt", {
                     id : this.userInfo.아이디,
                     year : this.userInfo.연도,
                     cnt : this.userInfo.휴가수
@@ -347,7 +346,6 @@
                 })
             },
             insertReward() {
-                console.log(this.rewardUserInfo)
                 if (!this.rewardUserInfo.휴가일수) {
                     alert("휴가일수를 입력해주십시오.")
                     return
@@ -364,23 +362,26 @@
                     alert(`${this.rewardUserInfo.등록일}일은 유효하지 않은 날짜 입니다.`)
                     return
                 }
-                this.$post("/leave/reward", {
+                this.$put("/reward", {
                     id : this.rewardUserInfo.아이디,
                     type : this.rewardUserInfo.유형,
                     cnt : this.rewardUserInfo.휴가일수,
                     date : this.rewardUserInfo.등록일,
                 }).then(res => {
+                    this.$emit("getUsers", this.userInfo.연도, true)
                     this.close()
                 })
             },
             deleteReward(item) {
                 if (confirm(`${item.이름} ${item.직위}의 ${item.휴가유형} 휴가 ${item.휴가일수}일을 삭제하시겠습니까?`)) {
-                    this.$post("/reward/delete", {
+                    this.$del("/reward", {
                         idx : item.IDX
                     }).then(res => {
                         if (!res.status) {
                             alert(res.msg)
                         }
+                        this.close()
+                        this.$emit("getUsers", this.userInfo.연도, true)
                     })
                 }
             },
