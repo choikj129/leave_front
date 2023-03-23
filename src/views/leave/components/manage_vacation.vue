@@ -27,7 +27,7 @@
                     </div>
 
                     <!-- 테이블 -->
-                    <v-simple-table style="width: 75%; margin:auto; margin-top: 20px; margin-bottom:50px;">
+                    <v-simple-table style="width: 85%; margin:auto; margin-top: 20px; margin-bottom:50px;">
                         <template>
                             <thead>
                                 <tr>
@@ -100,7 +100,7 @@
                                     </td>
                                     <td class="grid-body" style="padding : 0">
                                         <v-btn depressed dark color="blue lighten-1" v-on="on" @click="showVacation(user)">
-                                            휴가
+                                            연차
                                         </v-btn>
                                         <v-btn depressed dark color="blue lighten-1" v-on="on" @click="showReward(user)">
                                             추가휴가
@@ -114,9 +114,9 @@
             </template>
            
             <div>
-                <!-- 직원 정보 수정 모달 -->
+                <!-- 연차 수정 모달 -->
                 <v-card v-if="dialogType =='update'">
-                    <v-card-title class="text-h5 grey lighten-2">
+                    <v-card-title class="text-h5 grey lighten-2 bold">
                         {{ userInfo.이름 }} ({{ userInfo.아이디 }})
                     </v-card-title>
                     
@@ -143,7 +143,7 @@
 
                 <!-- 포상/리프레시 추가 모달 -->
                 <v-card v-else-if="dialogType =='reward'">
-                    <v-card-title class="text-h5 grey lighten-2">
+                    <v-card-title class="text-h5 grey lighten-2 bold">
                         추가 휴가 등록
                     </v-card-title>
                     <v-form >
@@ -170,27 +170,37 @@
                         <v-btn color="primary" text @click="insertReward">등록</v-btn>
                     </v-card-actions>
                 </v-card>
-
-                <!-- 포상/리프레시 내역 모달 -->
-                <v-data-table v-else-if="dialogType =='list'"
-                    :headers="headers"
-                    :items="items"
-                    :loading="isLoading"
-                    :items-per-page="-1"
-                    hide-default-footer
-                    class="elevation-1"
-                    :class="{'mobile-data-table' : isMobile}"
-                >
-                    <!-- 해당 컬럼은 색추가 -->
-                    <template v-slot:item.휴가유형="{ item }">
-                        <v-chip
-                            :color="colors[item.휴가유형]"
-                            dark
-                        >
-                            {{ item.휴가유형 }}
-                        </v-chip>
-                    </template>
-                </v-data-table>
+                <v-card v-else-if="dialogType =='list'">
+                    <v-card-title class="text-h5 grey lighten-2 bold">
+                        연차 외 휴가 내역
+                        <v-spacer></v-spacer>
+                    </v-card-title>
+                    <!-- 포상/리프레시 내역 모달 -->
+                    <v-data-table
+                        :headers="headers"
+                        :items="items"
+                        :loading="isLoading"
+                        :items-per-page="-1"
+                        hide-default-footer
+                        class="elevation-1"
+                        :class="{'mobile-data-table' : isMobile}"
+                    >
+                        <!-- 해당 컬럼은 색추가 -->
+                        <template v-slot:item.휴가유형="{ item }">
+                            <v-chip
+                                :color="colors[item.휴가유형]"
+                                dark
+                            >
+                                {{ item.휴가유형 }}
+                            </v-chip>
+                        </template>
+                        <template v-slot:item.삭제="{ item }">
+                            <v-btn depressed color="red lighten-1" @click="deleteReward(item)" :dark="item.사용일수 == 0" :disabled="item.사용일수 > 0">
+                                삭제
+                            </v-btn>
+                        </template>
+                    </v-data-table>
+                </v-card>
             </div>
         </v-dialog>
     </div>
@@ -209,6 +219,7 @@
                     // { text: '사용일수', sortable: false, value: '사용일수', width:"250", align:"center"},
                     { text: '등록일', sortable: false, value: '등록일', width:"150", align:"center"},
                     { text: '만료일', sortable: false, value: '만료일', width:"150", align:"center"},
+                    { text: '삭제', sortable: false, value: '삭제', width:"100", align:"center"},
                 ],
                 items : [],
                 userInfo : {
@@ -361,6 +372,17 @@
                 }).then(res => {
                     this.close()
                 })
+            },
+            deleteReward(item) {
+                if (confirm(`${item.이름} ${item.직위}의 ${item.휴가유형} 휴가 ${item.휴가일수}일을 삭제하시겠습니까?`)) {
+                    this.$post("/reward/delete", {
+                        idx : item.IDX
+                    }).then(res => {
+                        if (!res.status) {
+                            alert(res.msg)
+                        }
+                    })
+                }
             },
             close() {
                 this.dialogType = ""
