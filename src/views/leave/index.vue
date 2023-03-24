@@ -83,6 +83,9 @@
 		<update v-else-if="selectType == 'update'"
 			:is-mobile="isMobile"
 		/>
+		<apiUpdate v-else-if="selectType == 'api_update'"
+			:is-mobile="isMobile"
+		/>
 	</v-app>
 </template>
 
@@ -94,6 +97,7 @@ import regist from "./components/regist"
 import calendar from "./components/calendar"
 import history from "./components/history"
 import update from "./components/update"
+import apiUpdate from "./components/api_update"
 
 export default {
 	components: {
@@ -104,6 +108,7 @@ export default {
 		regist,
 		history,
 		update,
+		apiUpdate,
 	},
 	name : "leave",
 	data() {
@@ -119,6 +124,7 @@ export default {
 			],
 			linksBottom : [
 				{ icon: "", text: "", auth: true, type: "none_1"},
+				{ icon: "mdi-puzzle", text: "API키 변경", auth: true, type: "api_update"},
 				{ icon: "mdi-key-variant", text: "비밀번호 변경", auth: true, type: "update"},
 				{ icon: "mdi-download", text: "매뉴얼 다운로드", auth: true, type: "download"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
