@@ -95,7 +95,8 @@ export default {
             },
             calendarTitle: "",
             week: ["일", "월", "화", "수", "목", "금", "토"],
-            calendarMinHeight : "700px"
+            calendarMinHeight : "700px",
+            holiday : this.$store.getters.getHoliday,
         }
     },
     created() {
@@ -103,11 +104,10 @@ export default {
             this.calendarMinHeight = screen.height - 180 + "px"
         }
         this.setCalendar()
-        this.setTitle()
     },
     methods: {
         setCalendar() {
-            this.$get("/leave", {isAll : true}).then((res) => {
+            this.$get("/leave").then((res) => {
                 this.events = []
                 let events = res.data
                 for (let i=0; i<events.length; i++) {
@@ -164,34 +164,48 @@ export default {
             this.$refs.calendar.next()
         },
         changeMonth(event) {
-            this.selectMonth.setFullYear(event.start.year)
-            this.selectMonth.setMonth(event.start.month - 1)
+            this.selectMonth = new Date(event.start.date)
             this.setTitle()
             setTimeout(() => {
                 let children = document.getElementsByClassName("v-calendar-monthly")[0].children
                 let childrenDay = document.getElementsByClassName("v-calendar-weekly__day");
-                let holidayLength = this.$store.getters.getHoliday.length
-                let holiday = this.$store.getters.getHoliday
-
-                for (let i=1; i<children.length; i++) {
+                
+                for (let i=1; i < children.length; i++) {
                     let child = children[i]
-                    // console.log(child.firstChild.getElementsByTagName("span")[0])
                     child.firstChild.getElementsByTagName("span")[0].style.cssText = "color:red!important"
                     child.lastChild.getElementsByTagName("span")[0].style.cssText = "color:blue!important"
                 }
-                //공휴일 추가
+                //공휴일 추가                
+                let isPrev = true
+                let isNext = false
                 for(let i=0; i<childrenDay.length; i++) {
-                    let temp = childrenDay[i].innerText;
-                    for(let j=0; j<holidayLength; j++) {
-                        if(holiday[j].년 == event.start.year && parseInt(holiday[j].월)  == event.start.month  &&  parseInt(temp) == parseInt(holiday[j].일)){
-                            if(!(i < 7 && parseInt(temp) > 7) && !(i > 28 && parseInt(temp) < 7)){
-                                childrenDay[i].getElementsByTagName("span")[0].style.cssText = "color:red!important"
-                                childrenDay[i].getElementsByTagName("span")[0].innerHTML = temp + "<br>" + holiday[j].명칭 + "</br>"
-                            }
-                        }
+                    let childDay = childrenDay[i]
+                    
+                    let day = childDay.innerText;
+                    day = day.split("\n")[0]
+                    let month = event.start.month
+                    
+                    if (isPrev && day == 1) {
+                        isPrev = false
+                    } else if (!isPrev && day == 1) {
+                        isNext = true
+                    }
+                    
+                    if (isPrev) {
+                        month--
+                    } else if (isNext) {
+                        month++
+                    }
+                    
+                    day = day.length == 1 ? "0" + day : day
+                    month = month < 10 ? "0" + month : month
+                    let date = event.start.year + month + day
+                    if (this.holiday[date]) {         
+                        childDay.getElementsByTagName("span")[0].style.cssText = "color:red!important"
+                        childDay.getElementsByTagName("span")[0].innerHTML = parseInt(day) + "<br>" + this.holiday[date] + "</br>"
                     }
                 }
-            }, 50)
+            }, 5)
         },
         showEvent({nativeEvent, event}){
             const open = () => {

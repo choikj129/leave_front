@@ -13,7 +13,7 @@ const state = {
         isLogin : false,
         isMobile : false,
     },
-    holiday : []
+    holiday : {}
 }
 /* store 데이터 접근
     ex) store.getters["state 키값"]

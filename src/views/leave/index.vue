@@ -117,9 +117,9 @@ export default {
 			linksTop: [
 				{ icon: "mdi-account-wrench-outline", text: "직원 관리", auth: this.$store.getters.getUser.isManager, type: "manage_user"},
 				{ icon: "mdi-calendar-account", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage_vacation"},
+				{ icon: "mdi-view-list", text: "휴가 현황", auth: true, type: "lists"},
 				{ icon: "mdi-calendar-plus", text: "휴가 신청", auth:  !this.$store.getters.getUser.isManager, type: "regist"},
 				{ icon: "mdi-calendar-month", text: "전 직원 휴가 일정", auth:  true, type: "calendar"},
-				{ icon: "mdi-view-list", text: "휴가 현황", auth: true, type: "lists"},
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
 			],
 			linksBottom : [
@@ -220,9 +220,12 @@ export default {
 		this.getCnts(true)
 		this.$get("/holiday").then((res) => {
 			if (res.status) {
-			this.$store.commit("setHoliday", res.data)
-			} else {
-			alert(res.msg)
+				let holiday = {}
+				res.data.forEach(data =>  {
+					holiday[data.년 + data.월 + data.일] = data.명칭
+				})
+
+				this.$store.commit("setHoliday", holiday)
 			}
 		})
 		this.$get("/code", {name : "직위", reverse : true}).then(res => {
