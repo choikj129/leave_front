@@ -76,11 +76,8 @@
                                         <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오후 반차')">
                                             <v-list-item-title>오후 반차</v-list-item-title>
                                         </v-list-item>
-                                        <v-list-item v-if="selectedEvent.cnt <= rewardCnt" @click="setType('포상 휴가')">
+                                        <v-list-item @click="setType('포상 휴가')">
                                             <v-list-item-title>포상 휴가</v-list-item-title>
-                                        </v-list-item>
-                                        <v-list-item v-if="selectedEvent.cnt == 5 && selectedEvent.cnt <= refreshCnt" @click="setType('리프레시 휴가')">
-                                            <v-list-item-title>리프레시 휴가</v-list-item-title>
                                         </v-list-item>
                                         <v-list-item @click="setType('기타 휴가')">
                                             <v-list-item-title>기타 휴가</v-list-item-title>
@@ -130,7 +127,6 @@ export default {
             selectedEvent: {},
             selectedElement: null,
             selectedOpen: false,
-            selectedType : "휴가",
             selectDate : false,
             selectDateBtn : null,
             selectMonth : new Date(),
@@ -143,7 +139,6 @@ export default {
                 "오전 반차" : "cyan",
                 "오후 반차" : "cyan",
                 "포상 휴가" : "blue-grey",
-                "리프레시 휴가" : "blue-grey",
                 "기타 휴가" : "green",
                 "신규" : "orange",
                 "삭제" : "grey",
@@ -152,42 +147,51 @@ export default {
             week: ["일", "월", "화", "수", "목", "금", "토"],
             etcType : "기타",
             dateHash : {},
-            rewardLists : [],
-            rewardCnt : 0,
-            refreshLists : [],
-            refreshCnt : 0,
-            holiday : this.$store.getters.getHoliday,
         }
     },
     created() {
-        this.getReward()
         if (this.isMobile) {
             this.calendarMinHeight = screen.height - 180 + "px"
         }
         this.setCalendar()
+        this.setTitle()
     },
     methods: {
-        async setCalendar() {            
-            this.$get("/leave", {id : this.$store.getters.getUser.id}).then((res) => {
+        setCalendar() {            
+            this.$get("/leave", {id : this.$store.getters.getUser.id, isAll : false}).then((res) => {
                 this.originalEvents = {}
                 this.events = []
                 let events = res.data
                 for (let i=0; i<events.length; i++) {
-                    let event = events[i]                
+                    let event = events[i]
+
+                    /* 휴가 내용 재조립 */
+                    const re = /[\d-]+.\(.\)(.~.[\d-]+.\(.\))?.(.*)/
+                    let type = "휴가"
+                    let etcType = ""
+                    if (re.test(event.내용)) {
+                        type = RegExp.$2
+                            
+                        if (type.trim().endsWith("휴가") && !type.trim().endsWith("포상 휴가") && type.trim().length > 2) {
+                            etcType = type.substring(0, type.lastIndexOf("휴가") - 1)
+                            type = "기타 휴가"
+                        }
+                    }
+                    console.log(event)
+                    console.log(type)
                     event = {
                         name : event.내용,
                         start: new Date(event.시작일),
                         end: new Date(event.종료일),
                         startDate: event.시작일,
                         endDate: event.종료일,
-                        color: this.colors[event.휴가구분],
+                        color: this.colors[type],
                         index : Math.random().toString(36).substring(2),  /* 휴가 신청 목록 검색 용도 */
                         cnt : event.휴가일수,
-                        type : event.휴가구분,
-                        etcType : event.기타휴가내용,
+                        type : type,
+                        etcType : etcType,
                         disabled : true,
-                        IDX : event.IDX,
-                        rewardIdx : event.REWARD_IDX
+                        IDX : event.IDX
                     }
                     this.originalEvents[event.index] = event
                     this.events.push(event)
@@ -197,22 +201,6 @@ export default {
                 }
                 this.setTitle()
             })
-        },
-        getReward() {
-            this.rewardCnt = 0
-            this.refreshCnt = 0
-            this.$get("/reward/user", { id : this.$store.getters.getUser.id })
-                .then(res => {
-                    this.rewardLists = res.data.reward
-                    this.refreshLists = res.data.refresh
-                    
-                    this.rewardLists.forEach(reward => {
-                        this.rewardCnt += reward.휴가일수 - reward.사용일수
-                    })
-                    this.refreshLists.forEach(refresh => {
-                        this.refreshCnt += refresh.휴가일수 - refresh.사용일수
-                    })
-                })
         },
         getFormat(e) {
             /* 달력 일 포맷 */
@@ -229,27 +217,15 @@ export default {
         setToday() {
             this.focus = ""
         },
-        setType(type) {            
-            if (this.selectedEvent.type != type) {
-                if (this.selectedEvent.type.startsWith("포상")) {
-                    this.rewardCnt += Math.round(this.selectedEvent.cnt)
-                } else if (type.startsWith("포상")) {
-                    this.rewardCnt -= Math.round(this.selectedEvent.cnt)
-                } else if (this.selectedEvent.type.startsWith("리프레시")) {
-                    this.refreshCnt += Math.round(this.selectedEvent.cnt)
-                } else if (type.startsWith("리프레시")) {
-                    this.refreshCnt -= Math.round(this.selectedEvent.cnt)
-                }
-            }
+        setType(type) {
+            /* 이벤트 휴가 타입 설정 */
             this.selectedEvent.type = type
             this.selectedEvent.cnt = type.endsWith("반차") ? 0.5 : Math.round(this.selectedEvent.cnt)
-
-            /* 이벤트 휴가 타입 설정 */
             this.setEvent(type)
-            this.selectedType = type
         },
         setEvent(type) {
             this.selectedEvent.name = this.selectedEvent.name.replace(/([\d-]+.\(.\)(.~.[\d-]+.\(.\))?).*/g, `$1 ${type}`)
+
             /* events에 있으면 수정*/
             for (let i=0; i<this.events.length; i++) {
                 if (this.events[i].index == this.selectedEvent.index) {
@@ -269,48 +245,34 @@ export default {
             this.$refs.calendar.next()
         },
         changeMonth(event) {
-            this.selectMonth = new Date(event.start.date)
+            this.selectMonth.setFullYear(event.start.year)
+            this.selectMonth.setMonth(event.start.month - 1)
             this.setTitle()
             setTimeout(() => {
                 let children = document.getElementsByClassName("v-calendar-monthly")[0].children
                 let childrenDay = document.getElementsByClassName("v-calendar-weekly__day");
-                
-                for (let i=1; i < children.length; i++) {
+                let holidayLength = this.$store.getters.getHoliday.length
+                let holiday = this.$store.getters.getHoliday
+
+                for (let i=1; i<children.length; i++) {
                     let child = children[i]
+                    // console.log(child.firstChild.getElementsByTagName("span")[0])
                     child.firstChild.getElementsByTagName("span")[0].style.cssText = "color:red!important"
                     child.lastChild.getElementsByTagName("span")[0].style.cssText = "color:blue!important"
                 }
-                //공휴일 추가                
-                let isPrev = true
-                let isNext = false
+                //공휴일 추가
                 for(let i=0; i<childrenDay.length; i++) {
-                    let childDay = childrenDay[i]
-                    
-                    let day = childDay.innerText;
-                    day = day.split("\n")[0]
-                    let month = event.start.month
-                    
-                    if (isPrev && day == 1) {
-                        isPrev = false
-                    } else if (!isPrev && day == 1) {
-                        isNext = true
-                    }
-                    
-                    if (isPrev) {
-                        month--
-                    } else if (isNext) {
-                        month++
-                    }
-                    
-                    day = day.length == 1 ? "0" + day : day
-                    month = month < 10 ? "0" + month : month
-                    let date = event.start.year + month + day
-                    if (this.holiday[date]) {         
-                        childDay.getElementsByTagName("span")[0].style.cssText = "color:red!important"
-                        childDay.getElementsByTagName("span")[0].innerHTML = parseInt(day) + "<br>" + this.holiday[date] + "</br>"
+                    let temp = childrenDay[i].innerText;
+                    for(let j=0; j<holidayLength; j++) {
+                        if(holiday[j].년 == event.start.year && parseInt(holiday[j].월)  == event.start.month  &&  parseInt(temp) == parseInt(holiday[j].일)){
+                            if(!(i < 7 && parseInt(temp) > 7) && !(i > 28 && parseInt(temp) < 7)){
+                                childrenDay[i].getElementsByTagName("span")[0].style.cssText = "color:red!important"
+                                childrenDay[i].getElementsByTagName("span")[0].innerHTML = temp + "<br>" + holiday[j].명칭 + "</br>"
+                            }
+                        }
                     }
                 }
-            }, 5)
+            }, 50)
         },
         showEvent({nativeEvent, event}){
             const open = () => {
@@ -378,6 +340,16 @@ export default {
             
             const dateCnt = this.getDateCnt(startDate, endDate)
 
+            let holidayLength = this.$store.getters.getHoliday.length
+            let holiday = this.$store.getters.getHoliday
+            let sd = new Date(this.startDate)
+            for(let j=0; j<holidayLength; j++) {
+                if (sd.getDate() == parseInt(holiday[j].일) && sd.getMonth() + 1 == parseInt(holiday[j].월) && sd.getFullYear() == parseInt(holiday[j].년)) {
+                    alert("공휴일은 휴가를 신청할 수 없습니다.")
+                    resetEvent()
+                    return
+                }
+            }
             for (let i=0; i<dateCnt; i++) {
                 let sd = new Date(this.startDate)
                 sd.setDate(startDate.getDate() + i)
@@ -386,17 +358,13 @@ export default {
                     resetEvent()
                     return
                 }
-                if (this.holiday[this.dateToYMD(sd)]) {
-                    alert("공휴일은 휴가를 신청할 수 없습니다.")
-                    resetEvent()
-                    return
-                }
-                let date = this.dateToYMD(sd, "-")
+                let date = this.dateToYMD(sd)
                 if (this.dateHash[date]) {
                     alert(`${date}일은 이미 등록된 날짜입니다.`)
                     resetEvent()
                     return
                 }
+
             }
 
             const name = this.startDate == event.date
@@ -446,17 +414,11 @@ export default {
             this.selectedOpen = false
         },
         deleteEvent(){
-            if (confirm(`${this.selectedEvent.name}를 취소하시겠습니까?\n(취소 후 신청을 해야 적용됩니다.)`)) {                
+            if (confirm(`${this.selectedEvent.name}를 취소하시겠습니까?\n(취소 후 신청을 해야 적용됩니다.)`)) {
+                let targetEvent = null
                 this.events = this.events.filter(event => {
                     if (event.index == this.selectedEvent.index) {
-                        this.dateHashUpdate(new Date(this.selectedEvent.startDate), this.selectedEvent.cnt, false)
-
-                        if (event.type.startsWith("포상")) {
-                            this.rewardCnt += event.cnt
-                        } else if (event.type.startsWith("리프레시")) {
-                            this.refreshCnt += event.cnt                 
-                        }
-
+                        targetEvent = event
                         if (!this.originalEvents[this.selectedEvent.index]) {
                             delete this.changeEvents.추가[this.selectedEvent.index]
                             return false
@@ -470,17 +432,13 @@ export default {
                     return true
                 })
 
-                this.selectedOpen = false
+                // this.dateHashUpdate(new Date(targetEvent.startDate), targetEvent.cnt, false)
+                this.closeEvent()
             }
         },
         rollbackEvent() {
             this.events.forEach(event => {
                 if (this.selectedEvent.index == event.index) {
-                    if (event.type.startsWith("포상")) {
-                        this.rewardCnt -= event.cnt
-                    } else if (event.type.startsWith("리프레시")) {
-                        this.refreshCnt -= event.cnt
-                    }
                     event.color = this.colors[event.type]
                     event.name = event.name.slice(0,-3)
                     event.updateType = undefined
@@ -491,66 +449,30 @@ export default {
             })
         },
         regist() {
-            if (this.selectedOpen) this.closeEvent()
             let message = ""
             let postEvents = []
-            let rewardIndex = 0
-            let refreshIndex = 0
-            let rewardLists = this.$copy(this.rewardLists)
-            let refreshLists = this.$
-            let updateReward = {}
             Object.keys(this.changeEvents).forEach((key) =>{
                 Object.values(this.changeEvents[key]).forEach((value) => {
-                    value.updateReward = null
-                    if (key == "추가") {                        
-                        if (value.type.startsWith("포상")) {
-                            let cnt = value.cnt
-                            while (rewardLists[rewardIndex].휴가일수 < rewardLists[rewardIndex].사용일수 + cnt) {
-                                cnt -= rewardLists[rewardIndex].휴가일수 - rewardLists[rewardIndex].사용일수
-                                updateReward[rewardLists[rewardIndex].IDX] = rewardLists[rewardIndex].휴가일수 - rewardLists[rewardIndex].사용일수
-                                rewardLists[rewardIndex].사용일수 = rewardLists[rewardIndex].휴가일수
-                                rewardIndex++
-                            }
-                            rewardLists[rewardIndex].사용일수 += cnt
-                            updateReward[rewardLists[rewardIndex].IDX] = rewardLists[rewardIndex].휴가일수 - rewardLists[rewardIndex].사용일수                            
-                        } else if (value.type.startsWith("리프레시")) {
-                            let cnt = value.cnt
-                            while (refreshLists[refreshIndex].휴가일수 < refreshLists[refreshIndex].사용일수 + cnt) {
-                                cnt -= refreshLists[refreshIndex].휴가일수 - refreshLists[refreshIndex].사용일수
-                                updateReward[refreshLists[refreshIndex].IDX] = refreshLists[refreshIndex].휴가일수 - refreshLists[refreshIndex].사용일수
-                                refreshLists[refreshIndex].사용일수 = refreshLists[refreshIndex].휴가일수
-                                refreshIndex++
-                            }
-                            refreshLists[refreshIndex].사용일수 += cnt
-                            updateReward[refreshLists[refreshIndex].IDX] = refreshLists[refreshIndex].휴가일수 - refreshLists[refreshIndex].사용일수                            
-                        }
-                        
-
-                        value.updateReward = JSON.stringify(updateReward)
-                        updateReward = {}
+                    if (key != "취소") {
                         postEvents.push(value)
                     }
                     message += `${value.name}\n`
                 })
             })
             postEvents = postEvents.concat(this.changeEvents.취소)
-
             if (message == "") {
                 alert("신청할 휴가가 존재하지 않습니다.")
                 return
-            }                        
+            }
             if(confirm(message+"\n를 신청하시겠습니까?")){
                 this.$patch("/leave", {
                     events : postEvents,
                     id : this.$store.getters.getUser.id,
                     name : this.$store.getters.getUser.name,
-                    reward : rewardLists.concat(refreshLists),
                 }).then(res => {
                     if (res.status) {
                         this.changeEvents = {취소 : [], 추가 : {}}
-                        this.getReward()
-                        this.setCalendar()
-                        this.$emit("getCnts", false, this.$store.getters.getUser.id)
+                        this.$emit("getCnts", false, this.$store.getters.getUser.id, () => this.setCalendar())
                     } else {
                         alert(res.msg)
                     }
@@ -563,18 +485,18 @@ export default {
         getDateCnt(d1, d2) {
             return Math.abs((d2.getTime() - d1.getTime())/ (1000 * 60 * 60 * 24)) + 1
         },
-        dateToYMD(date, sep="") {
+        dateToYMD(date) {
             const y = date.getFullYear()
             const m = date.getMonth()+1 < 10 ? "0" + (date.getMonth()+1) : date.getMonth()+1
             const d = date.getDate() < 10 ? "0" + (date.getDate()) : date.getDate()
-            return `${y}${sep}${m}${sep}${d}`
+            return `${y}-${m}-${d}`
         },
         dateHashUpdate(date, cnt, isAppend=true) {
             for (let c=0; c<Math.ceil(cnt); c++) {
                 if (isAppend) {
-                    this.dateHash[this.dateToYMD(date, "-")] = true
+                    this.dateHash[this.dateToYMD(date)] = true
                 } else {
-                    delete this.dateHash[this.dateToYMD(date, "-")]
+                    delete this.dateHash[this.dateToYMD(date)]
                 }
                 date.setDate(date.getDate() + 1)
             }

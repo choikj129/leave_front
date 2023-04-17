@@ -59,6 +59,7 @@
         </v-data-table>
         <v-card class="mt-15"  color="#f4f9ff" v-if="targetUser.이름">
             <v-card-title :class="isMobile ? 'f3_mobile' : 'f3'">{{ isManager ? `${targetUser.이름} ${targetUser.직위} ` : null }}{{ year }}년 휴가 정보</v-card-title>
+            <v-card-title :class="isMobile ? 'f2_mobile' : 'f2'">{{ isManager ? `${targetUser.이름} ${targetUser.직위} ` : null }}{{ year }}년 휴가 정보</v-card-title>
             <v-card-text class="mt-3" :class="isMobile ? 'f2_mobile' : 'f2'">{{ cntTitle }}</v-card-text>
         </v-card>
     </div>
@@ -92,6 +93,8 @@
                 },
                 isManager : this.$store.getters.getUser.isManager,
                 cntTitle : "",
+                rewardLists : [],
+                refreshLists : [],            
             }
         },
         methods : {
@@ -99,6 +102,7 @@
                 this.$get("/leave/lists", {
                     id: user.아이디,
                     year : year,
+                    isManager : this.isManager
                 }).then((res) => {
                     this.$emit("getCnts", false, user.아이디, ()=>{
                         let count = 0
@@ -120,9 +124,17 @@
                         const 휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].휴가수 ? this.leaveCnts[this.year].휴가수 : "0"
                         const 사용휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].사용휴가수 ? this.leaveCnts[this.year].사용휴가수 : "0"
                         const 잔여휴가 = this.leaveCnts[this.year] && this.leaveCnts[this.year].잔여휴가수 ? this.leaveCnts[this.year].잔여휴가수 : "0"
-                        this.cntTitle = `${사용휴가}개 사용 | ${잔여휴가}개 사용 가능 (총 ${휴가}개 휴가 부여)`
+                        this.cntTitle = `${사용휴가}개 사용 | ${잔여휴가}개 사용 가능 (총 ${휴가}개 연차 부여)`
+                        
                     })
                 })
+            },
+            getReward() {
+                this.$get("/reward/user", { id : this.$store.getters.getUser.id, isNow : true })
+                    .then(res => {
+                        this.rewardLists = res.data.reward
+                        this.refreshLists = res.data.refresh                        
+                    })
             },
             changeUser() {
                 this.isLoading = true
@@ -134,6 +146,7 @@
             },
         },
         mounted() {
+            this.isLoading = true
             this.getLists(this.targetUser, new Date().getFullYear())
         },
     }

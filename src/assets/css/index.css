@@ -25,6 +25,8 @@
 .activeComponent { background-color: #f4f9ff; }
 .di { display: inline; }
 .selectNode { background-color: #e2efff!important; }
+.overflow_y_hidden {overflow-y: hidden!important;}
+.overflow_y_auth {overflow-y: auto!important;}
 .v-data-table>.v-data-table__wrapper>table>tbody>tr>td, .v-data-table>.v-data-table__wrapper>table>tfoot>tr>td, .v-data-table>.v-data-table__wrapper>table>thead>tr>td {
     font-size: 1.2rem;
     height: 35px;

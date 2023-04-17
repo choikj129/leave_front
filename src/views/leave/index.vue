@@ -1,7 +1,7 @@
 <template>
 	<v-app id="inspire">
 		<v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer" class="navBar ml-5" :class="{'mt-5' : isMobile}"></v-app-bar-nav-icon>
-		<v-navigation-drawer v-model="drawer" app style="overflow-y:auto">
+		<v-navigation-drawer v-model="drawer" app>
 			<v-card class="mx-auto" :class="{'mobile-index-top' : isMobile}" max-width="344" color="#e2efff">
 				<img src="../../assets/img/odinue_ci.svg" :class="{'mobile-index-img' : isMobile}">
 				<v-card-text style="font-size: 2rem; font-weight: bold; padding-top:0;">
@@ -30,26 +30,25 @@
 					</v-list-item-content>
 				</v-list-item>
 			</v-list>
-			<!-- <template v-slot:append> -->
-				<v-list>
-					<v-list-item v-for="link in linksBottom" :key="link.type"
-						v-if="link.auth"
-						@click="changeComponent(link.type)"
-						:class="{
-							activeComponent : link.type == selectType,
-						}"
-						:disabled="link.type.startsWith('none')"
-					>
-						<v-list-item-icon>
-							<v-icon>{{ link.icon }}</v-icon>
-						</v-list-item-icon>
-	
-						<v-list-item-content>
-							<v-list-item-title>{{ link.text }}</v-list-item-title>
-						</v-list-item-content>
-					</v-list-item>
-				</v-list>
-			<!-- </template> -->
+			<v-divider></v-divider>
+			<v-list>
+				<v-list-item v-for="link in linksBottom" :key="link.type"
+					v-if="link.auth"
+					@click="changeComponent(link.type)"
+					:class="{
+						activeComponent : link.type == selectType,
+					}"
+					:disabled="link.type.startsWith('none')"
+				>
+					<v-list-item-icon>
+						<v-icon>{{ link.icon }}</v-icon>
+					</v-list-item-icon>
+
+					<v-list-item-content>
+						<v-list-item-title>{{ link.text }}</v-list-item-title>
+					</v-list-item-content>
+				</v-list-item>
+			</v-list>
 		</v-navigation-drawer>
 		<manageUser v-if="selectType == 'manage_user'"
 			:is-mobile="isMobile"
@@ -123,8 +122,7 @@ export default {
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
 			],
 			linksBottom : [
-				{ icon: "", text: "", auth: true, type: "none_1"},
-				{ icon: "mdi-puzzle", text: "API키 변경", auth: true, type: "api_update"},
+				{ icon: "mdi-puzzle", text: "API키 변경", auth: this.$store.getters.getUser.isManager, type: "api_update"},
 				{ icon: "mdi-key-variant", text: "비밀번호 변경", auth: true, type: "update"},
 				{ icon: "mdi-download", text: "매뉴얼 다운로드", auth: true, type: "download"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
@@ -217,7 +215,6 @@ export default {
 	},
 	created() {
 		this.getUsers(new Date().getFullYear(), true)
-		this.getCnts(true)
 		this.$get("/holiday").then((res) => {
 			if (res.status) {
 				let holiday = {}
@@ -231,6 +228,11 @@ export default {
 		this.$get("/code", {name : "직위", reverse : true}).then(res => {
 			this.positions = res.data
 		})
+		this.getCnts(true)		
 	},
+	mounted() {
+		let drawer = document.getElementsByClassName("v-navigation-drawer__content")[0]
+		drawer.style.overflowY = this.isMobile ? "auto" : "hidden"
+	}
 }
 </script>

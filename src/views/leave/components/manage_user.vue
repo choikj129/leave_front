@@ -232,12 +232,16 @@ export default {
                     직위 : user.직위,
                     휴가수 : user.휴가수,
                     사용휴가수 : user.사용휴가수,
+                    추가휴가수 : user.추가휴가수,
+                    사용추가휴가수 : user.사용추가휴가수,
                     입사일 : user.입사일 ? user.입사일.replace(/([\d]{4})([\d]{2})([\d]{2})/g, "$1-$2-$3") : null,
                     이메일 : `${user.아이디}@odinue.net`,
                 })
             })
             /* 컬럼 가로 길이 설정 */
             const colOpt = [
+                {wch : 10},
+                {wch : 10},
                 {wch : 10},
                 {wch : 10},
                 {wch : 10},
@@ -258,13 +262,15 @@ export default {
             }
         },
         updateUser() {
-            if (this.userInfo.입사일 && this.userInfo.입사일.length != 8) {
-                alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
-                return
-            }
-            if (!this.dateValidation(this.userInfo.입사일)) {
-                alert(`${this.userInfo.입사일}일은 유효하지 않은 날짜 입니다.`)
-                return
+            if (this.userInfo.입사일) {
+                if (this.userInfo.입사일 && this.userInfo.입사일.length != 8) {
+                    alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
+                    return
+                }
+                if (!this.dateValidation(this.userInfo.입사일)) {
+                    alert(`${this.userInfo.입사일}일은 유효하지 않은 날짜 입니다.`)
+                    return
+                }
             }
             this.$patch("/users", {
                 userInfo : {
@@ -338,6 +344,7 @@ export default {
             this.userInfo.입사일 = this.userInfo.입사일원본
         },
         dateValidation(date) {
+            console.log(date)
             const isDate = new Date(`${date.substring(0,4)}-${date.substring(4,6)}-${date.substring(6,8)}`)
             return isNaN(isDate) ? false : true
         },

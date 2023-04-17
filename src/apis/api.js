@@ -70,6 +70,9 @@ const methods = {
             return e
         }
     },
+    deepCopy : (object) => {
+        return JSON.parse(JSON.stringify(object))
+    }
 }
 
 /* Global 함수로 사용할 수 있게 */
@@ -80,5 +83,6 @@ export default {
         Vue.prototype.$put = methods.put
         Vue.prototype.$patch = methods.patch
         Vue.prototype.$del = methods.delete
+        Vue.prototype.$copy = methods.deepCopy
     }
 }
