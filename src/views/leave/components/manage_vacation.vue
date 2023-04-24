@@ -291,11 +291,13 @@
                 this.isLoading = true
                 this.dialogType = "list"
                 this.dialogWidth = "700"
-                this.$get("/reward", {id : id})
-                    .then(res => {
-                        this.items = res.data
-                        this.isLoading = false
-                    })
+                this.$get("/reward", {
+                    id : id,
+                    year : this.userInfo.연도,
+                }).then(res => {
+                    this.items = res.data
+                    this.isLoading = false
+                })
             },
             keydown(e, isFloat=false) {
                 if (e.key=="Enter") {
