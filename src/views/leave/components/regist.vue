@@ -94,7 +94,7 @@
                                     v-if="selectedEvent.type=='기타 휴가' && !selectedEvent.disabled"
                                 ></v-text-field>
                                 <v-spacer></v-spacer>
-                                <v-btn icon @click="deleteEvent" v-if="selectedEvent.updateType != 'D'">
+                                <v-btn icon @click="deleteEvent" v-if="selectedEvent.updateType != 'D'" :disabled="getDateCnt(selectedEvent.end, today) > 5">
                                     <v-icon>mdi-delete</v-icon>
                                 </v-btn>
                                 <v-btn icon @click="rollbackEvent" v-else>
@@ -157,6 +157,7 @@ export default {
             refreshLists : [],
             refreshCnt : 0,
             holiday : this.$store.getters.getHoliday,
+            today : new Date(),
         }
     },
     created() {
@@ -201,18 +202,21 @@ export default {
         getReward() {
             this.rewardCnt = 0
             this.refreshCnt = 0
-            this.$get("/reward/user", { id : this.$store.getters.getUser.id })
-                .then(res => {
-                    this.rewardLists = res.data.reward
-                    this.refreshLists = res.data.refresh
-                    
-                    this.rewardLists.forEach(reward => {
-                        this.rewardCnt += reward.휴가일수 - reward.사용일수
-                    })
-                    this.refreshLists.forEach(refresh => {
-                        this.refreshCnt += refresh.휴가일수 - refresh.사용일수
-                    })
+            this.$get("/reward/user", { 
+                id : this.$store.getters.getUser.id,
+                year : this.today.getFullYear(),
+
+            }).then(res => {
+                this.rewardLists = res.data.reward
+                this.refreshLists = res.data.refresh
+                
+                this.rewardLists.forEach(reward => {
+                    this.rewardCnt += reward.휴가일수 - reward.사용일수
                 })
+                this.refreshLists.forEach(refresh => {
+                    this.refreshCnt += refresh.휴가일수 - refresh.사용일수
+                })
+            })            
         },
         getFormat(e) {
             /* 달력 일 포맷 */
@@ -376,7 +380,7 @@ export default {
             const startDate = new Date(this.startDate)
             const endDate = new Date(event.date)
             
-            const dateCnt = this.getDateCnt(startDate, endDate)
+            const dateCnt = this.getDateCnt(startDate, endDate) + 1
 
             for (let i=0; i<dateCnt; i++) {
                 let sd = new Date(this.startDate)
@@ -561,7 +565,8 @@ export default {
             return Math.floor((b - a + 1) * Math.random()) + a
         },
         getDateCnt(d1, d2) {
-            return Math.abs((d2.getTime() - d1.getTime())/ (1000 * 60 * 60 * 24)) + 1
+            if (!d1 || !d2) return 0
+            return Math.floor((d2.getTime() - d1.getTime())/ (1000 * 60 * 60 * 24))
         },
         dateToYMD(date, sep="") {
             const y = date.getFullYear()

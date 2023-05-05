@@ -236,3 +236,9 @@ export default {
 	}
 }
 </script>
+
+<style>
+    .v-application .secondary {
+        background-color: #cacaca!important;
+    }
+</style>
