@@ -150,6 +150,7 @@
                         <v-container style="width:100%">
                             <v-text-field v-model="rewardUserInfo.이름" label="이름" outlined disabled></v-text-field>
                             <v-text-field v-model="rewardUserInfo.아이디" label="아이디" outlined disabled></v-text-field>
+                            <v-text-field v-model="userInfo.연도" label="기준연도" outlined disabled></v-text-field>
                             <v-select
                                 :items="vacationList"
                                 label="휴가 유형"
@@ -369,6 +370,7 @@
                     type : this.rewardUserInfo.유형,
                     cnt : this.rewardUserInfo.휴가일수,
                     date : this.rewardUserInfo.등록일,
+                    year : this.userInfo.연도,
                 }).then(res => {
                     this.$emit("getUsers", this.userInfo.연도, true)
                     this.close()
