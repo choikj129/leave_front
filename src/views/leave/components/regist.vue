@@ -76,7 +76,7 @@
                                         <v-list-item v-if="selectedEvent.cnt < 2" @click="setType('오후 반차')">
                                             <v-list-item-title>오후 반차</v-list-item-title>
                                         </v-list-item>
-                                        <v-list-item v-if="selectedEvent.cnt <= rewardCnt" @click="setType('포상 휴가')">
+                                        <v-list-item v-if="selectedEvent.cnt <= rewardCnt && possibleReward" @click="setType('포상 휴가')">
                                             <v-list-item-title>포상 휴가</v-list-item-title>
                                         </v-list-item>
                                         <v-list-item v-if="selectedEvent.cnt == 5 && selectedEvent.cnt <= refreshCnt" @click="setType('리프레시 휴가')">
@@ -152,6 +152,7 @@ export default {
             week: ["일", "월", "화", "수", "목", "금", "토"],
             etcType : "기타",
             dateHash : {},
+            possibleReward : false,
             rewardLists : [],
             rewardCnt : 0,
             refreshLists : [],
@@ -424,6 +425,20 @@ export default {
             this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
             this.events.push(this.selectedEvent)
             
+            let possibleDate = 0;
+            this.rewardLists.forEach(reward => {
+                const expiredDay = new Date(`${reward.만료일.substring(0, 4)}-${reward.만료일.substring(4, 6)}-${reward.만료일.substring(6, 8)}`)                
+                if(this.getDateCnt(this.selectedEvent.end, expiredDay) >= 0) {
+                    possibleDate += reward.휴가일수 - reward.사용일수
+                }
+            })
+            
+            if (possibleDate >= this.selectedEvent.cnt) {
+                this.possibleReward = true
+            }else {
+                this.possibleReward = false
+            }
+
             this.dateHashUpdate(new Date(this.startDate), dateCnt)
             this.selectedElement = nativeEvent.target
             resetEvent()
