@@ -94,7 +94,7 @@
                                     v-if="selectedEvent.type=='기타 휴가' && !selectedEvent.disabled"
                                 ></v-text-field>
                                 <v-spacer></v-spacer>
-                                <v-btn icon @click="deleteEvent" v-if="selectedEvent.updateType != 'D'" :disabled="getDateCnt(selectedEvent.end, today) > 5">
+                                <v-btn icon @click="deleteEvent" v-if="selectedEvent.updateType != 'D'" >
                                     <v-icon>mdi-delete</v-icon>
                                 </v-btn>
                                 <v-btn icon @click="rollbackEvent" v-else>
@@ -120,10 +120,10 @@
 <script>
 
 export default {
-    props : ["isMobile"],
     name : "calendar",
     data() {
         return {
+            isMobile : this.$store.getters.getUser.isMobile,
             calendarMinHeight : "700px",
             focus: "",
             type : "휴가",
@@ -381,7 +381,7 @@ export default {
             const startDate = new Date(this.startDate)
             const endDate = new Date(event.date)
             
-            const dateCnt = this.getDateCnt(startDate, endDate) + 1
+            const dateCnt = this.$getDateCnt(startDate, endDate) + 1
 
             for (let i=0; i<dateCnt; i++) {
                 let sd = new Date(this.startDate)
@@ -391,12 +391,12 @@ export default {
                     resetEvent()
                     return
                 }
-                if (this.holiday[this.dateToYMD(sd)]) {
+                if (this.holiday[this.$dateToYMD(sd)]) {
                     alert("공휴일은 휴가를 신청할 수 없습니다.")
                     resetEvent()
                     return
                 }
-                let date = this.dateToYMD(sd, "-")
+                let date = this.$dateToYMD(sd, "-")
                 if (this.dateHash[date]) {
                     alert(`${date}일은 이미 등록된 날짜입니다.`)
                     resetEvent()
@@ -427,8 +427,9 @@ export default {
             
             let possibleDate = 0;
             this.rewardLists.forEach(reward => {
-                const expiredDay = new Date(`${reward.만료일.substring(0, 4)}-${reward.만료일.substring(4, 6)}-${reward.만료일.substring(6, 8)}`)                
-                if(this.getDateCnt(this.selectedEvent.end, expiredDay) >= 0) {
+                console.log(reward)
+                const expiredDay = new Date(`${reward.만료일.substring(0, 4)}-${reward.만료일.substring(4, 6)}-${reward.만료일.substring(6, 8)}`)
+                if(this.$getDateCnt(this.selectedEvent.end, expiredDay) >= 0) {
                     possibleDate += reward.휴가일수 - reward.사용일수
                 }
             })
@@ -578,23 +579,13 @@ export default {
         },
         rnd(a, b) {
             return Math.floor((b - a + 1) * Math.random()) + a
-        },
-        getDateCnt(d1, d2) {
-            if (!d1 || !d2) return 0
-            return Math.floor((d2.getTime() - d1.getTime())/ (1000 * 60 * 60 * 24))
-        },
-        dateToYMD(date, sep="") {
-            const y = date.getFullYear()
-            const m = date.getMonth()+1 < 10 ? "0" + (date.getMonth()+1) : date.getMonth()+1
-            const d = date.getDate() < 10 ? "0" + (date.getDate()) : date.getDate()
-            return `${y}${sep}${m}${sep}${d}`
-        },
+        },        
         dateHashUpdate(date, cnt, isAppend=true) {
             for (let c=0; c<Math.ceil(cnt); c++) {
                 if (isAppend) {
-                    this.dateHash[this.dateToYMD(date, "-")] = true
+                    this.dateHash[this.$dateToYMD(date, "-")] = true
                 } else {
-                    delete this.dateHash[this.dateToYMD(date, "-")]
+                    delete this.dateHash[this.$dateToYMD(date, "-")]
                 }
                 date.setDate(date.getDate() + 1)
             }

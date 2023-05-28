@@ -72,7 +72,17 @@ const methods = {
     },
     deepCopy : (object) => {
         return JSON.parse(JSON.stringify(object))
-    }
+    },
+    getDateCnt(d1, d2) {
+        if (!d1 || !d2) return 0
+        return Math.floor((d2.getTime() - d1.getTime())/ (1000 * 60 * 60 * 24))
+    },
+    dateToYMD(date, sep="") {
+        const y = date.getFullYear()
+        const m = date.getMonth()+1 < 10 ? "0" + (date.getMonth()+1) : date.getMonth()+1
+        const d = date.getDate() < 10 ? "0" + (date.getDate()) : date.getDate()
+        return `${y}${sep}${m}${sep}${d}`
+    },
 }
 
 /* Global 함수로 사용할 수 있게 */
@@ -84,5 +94,7 @@ export default {
         Vue.prototype.$patch = methods.patch
         Vue.prototype.$del = methods.delete
         Vue.prototype.$copy = methods.deepCopy
+        Vue.prototype.$getDateCnt = methods.getDateCnt
+        Vue.prototype.$dateToYMD = methods.dateToYMD
     }
 }
