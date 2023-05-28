@@ -51,40 +51,30 @@
 			</v-list>
 		</v-navigation-drawer>
 		<manageUser v-if="selectType == 'manage_user'"
-			:is-mobile="isMobile"
 			:users="users"
 			:positions="positions"
 			@getUsers="getUsers"
 		/>
 		<manageVacation v-else-if="selectType == 'manage_vacation'"
-			:is-mobile="isMobile"
 			:users="users"
 			:positions="positions"
 			@getUsers="getUsers"
 		/>
 		<lists v-else-if="selectType == 'lists'"
-			:is-mobile="isMobile"
 			:leave-cnts="leaveCnts"
 			:users="usersSort"
 			@getCnts="getCnts"
 		/>
 		<regist v-else-if="selectType == 'regist'"
-			:is-mobile="isMobile"
 			@getCnts="getCnts"
 		/>
 		<calendar v-else-if="selectType == 'calendar'"
-			:is-mobile="isMobile"
 			@getCnts="getCnts"
 		/>
-		<history v-else-if="selectType == 'history'"
-			:is-mobile="isMobile"
-		/>
-		<update v-else-if="selectType == 'update'"
-			:is-mobile="isMobile"
-		/>
-		<apiUpdate v-else-if="selectType == 'api_update'"
-			:is-mobile="isMobile"
-		/>
+		<history v-else-if="selectType == 'history'"/>
+		<update_password v-else-if="selectType == 'update_password'"/>
+		<update_holiday v-else-if="selectType == 'update_holiday'"/>
+		<apiUpdate v-else-if="selectType == 'api_update'"/>
 	</v-app>
 </template>
 
@@ -95,7 +85,8 @@ import lists from "./components/lists"
 import regist from "./components/regist"
 import calendar from "./components/calendar"
 import history from "./components/history"
-import update from "./components/update"
+import update_holiday from "./components/update_holiday.vue"
+import update_password from "./components/update_password"
 import apiUpdate from "./components/api_update"
 
 export default {
@@ -106,7 +97,8 @@ export default {
 		calendar,
 		regist,
 		history,
-		update,
+		update_holiday,
+		update_password,
 		apiUpdate,
 	},
 	name : "leave",
@@ -122,8 +114,9 @@ export default {
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
 			],
 			linksBottom : [
+				{ icon: "mdi-calendar-alert", text: "휴일 관리", auth: this.$store.getters.getUser.isManager, type: "update_holiday"},
 				{ icon: "mdi-puzzle", text: "API키 변경", auth: this.$store.getters.getUser.isManager, type: "api_update"},
-				{ icon: "mdi-key-variant", text: "비밀번호 변경", auth: true, type: "update"},
+				{ icon: "mdi-key-variant", text: "비밀번호 변경", auth: true, type: "update_password"},
 				{ icon: "mdi-download", text: "매뉴얼 다운로드", auth: true, type: "download"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
 				{ icon: "", text: "", auth: true, type: "none_2"},
@@ -150,16 +143,16 @@ export default {
 				return
 			}
 			this.selectType = type
-			if (this.$route.path != `/leave/${type}`) {
-				this.$router.push(`/leave/${type}`)
-			}
+			// if (this.$route.path != `/leave/${type}`) {
+			// 	this.$router.push(`/leave/${type}`)
+			// }
 		},
 		/* 휴가 신청시 데이터가 수정되어 부모 컴포넌트에서 처리 */
 		getCnts(isLoadPage = false, id = this.$store.getters.getUser.id, next = ()=>{}) {
 			this.leaveCnts = {}
 			this.$get("/leave/cnts", {
 				id: id
-			}).then((res) => {
+			}).then(async (res) => {
 				res.data.forEach((obj) => {
 					this.leaveCnts[obj.연도] = {
 						휴가수 : obj.휴가수,
@@ -215,7 +208,7 @@ export default {
 	},
 	created() {
 		this.getUsers(new Date().getFullYear(), true)
-		this.$get("/holiday").then((res) => {
+		this.$get("/holiday/detail").then((res) => {
 			if (res.status) {
 				let holiday = {}
 				res.data.forEach(data =>  {

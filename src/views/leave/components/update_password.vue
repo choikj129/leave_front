@@ -10,8 +10,8 @@
                 v-model="$store.getters.getUser.position"
                 label="직위"
                 disabled
-                ></v-text-field>
-                <v-text-field
+            ></v-text-field>
+            <v-text-field
                 v-model="pw"
                 label="비밀번호"
                 :rules="rules.pw"
@@ -19,8 +19,8 @@
                 type="password"
                 @keydown="isEnter"
                 required
-                ></v-text-field>
-                <v-text-field
+            ></v-text-field>
+            <v-text-field
                 v-model="pwCheck"
                 label="비밀번호 확인"
                 :rules="rules.pwCheck"
@@ -42,10 +42,10 @@
 
 <script>
 export default {
-    props : ["isMobile"],
     name: "update",
     data() {
         return {
+            isMobile : this.$store.getters.getUser.isMobile,
             pw: "",
             pwCheck: "",
             rules : {
