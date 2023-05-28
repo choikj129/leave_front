@@ -133,7 +133,7 @@
                                 class="vSelect required"
                                 outlined
                             ></v-select>
-                            <v-text-field @keydown="keydown" v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" outlined></v-text-field>
+                            <v-text-field v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" outlined></v-text-field>
                         </v-container>
                     </v-form>
     
@@ -180,12 +180,13 @@
 <script>
 import excel from "@/apis/excel"
 export default {
-    props : ["users", "positions", "isMobile"],
+    props : ["users", "positions"],
     name : "manage",
     data() {
 		return {
+            isMobile : this.$store.getters.getUser.isMobile,
             userInfo : {
-                연도 : new Date().getFullYear()
+                연도 : new Date().getFullYear(),
             },
             insertUserInfo : {
                 이름 : "",
@@ -205,19 +206,6 @@ export default {
             user.연도 = this.userInfo.연도
             this.userInfo = user
             this.dialogType = "update"
-        },
-        keydown(e, isFloat=false) {
-            if (e.key=="Enter") {
-                this.update()
-                return
-            }
-            if (!isFloat && e.key==".") {
-                e.returnValue = false
-                return
-            }
-            if(!/[\d]|Backspace|Delete|NumLock|ArrowLeft|ArrowRight|\./.test(e.key)) {
-                e.returnValue = false
-            }
         },
         changeYear(d) {
             this.targetDate = new Date(this.targetDate.getFullYear() + d, 0, 1)
@@ -344,7 +332,6 @@ export default {
             this.userInfo.입사일 = this.userInfo.입사일원본
         },
         dateValidation(date) {
-            console.log(date)
             const isDate = new Date(`${date.substring(0,4)}-${date.substring(4,6)}-${date.substring(6,8)}`)
             return isNaN(isDate) ? false : true
         },

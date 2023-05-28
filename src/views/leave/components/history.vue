@@ -17,10 +17,10 @@
 
 <script>
 export default {
-	props : ["isMobile"],
 	name : "history",
 	data() {
 		return {
+			isMobile : this.$store.getters.getUser.isMobile,
 			history : [],
 			headers: [
 				{ text: "이름", sortable: false, value: "이름", width:"250", align:"center"},

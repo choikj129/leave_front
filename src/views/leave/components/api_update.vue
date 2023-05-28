@@ -24,10 +24,10 @@
 
 <script>
 export default {
-    props : ["isMobile"],
     name: "api_update",
     data() {
         return {
+            isMobile : this.$store.getters.getUser.isMobile,
             key: "",
             rules : {
                 key : [
@@ -41,7 +41,6 @@ export default {
     },
 	created() {
 		this.$get("/api/code").then((res) => {
-			console.log("Res",res)
 			this.key = res.data[0].KEY
 		})
 	},

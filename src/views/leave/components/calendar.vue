@@ -72,12 +72,11 @@
 </template>
   
 <script>
-
 export default {
-    props : ["isMobile"],
     name : "calendar",
     data() {
         return {
+            isMobile : this.$store.getters.getUser.isMobile,
             focus: "",
             selectedEvent: {},
             selectedElement: null,
