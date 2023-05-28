@@ -6,10 +6,10 @@
             :width="dialogWidth"
             @click:outside="close"
         >
-        <!-- v-slot on : 모달 오픈 -->
-        <template v-slot:activator="{ on, attrs }">
-            <!-- 상단 버튼 및 정보 -->
-            <div style="width: 100%;">
+            <!-- v-slot on : 모달 오픈 -->
+            <template v-slot:activator="{ on, attrs }">
+                <!-- 상단 버튼 및 정보 -->
+                <div style="width: 100%;">
                     <div class="mt-3" :class="{'mr-16' : !isMobile}">
                         <v-btn outlined fab text small color="grey darken-2" @click="changeYear(-1)">
                             <v-icon>
@@ -112,7 +112,7 @@
                     </v-simple-table>
                 </div>
             </template>
-           
+            
             <div>
                 <!-- 연차 수정 모달 -->
                 <v-card v-if="dialogType =='update'">
@@ -125,7 +125,6 @@
                             <v-text-field v-model="userInfo.이름" label="이름" outlined disabled></v-text-field>
                             <v-text-field v-model="userInfo.아이디" label="아이디" outlined disabled></v-text-field>
                             <v-text-field
-                                @keydown="keydown($event, true)"
                                 v-model="userInfo.휴가수"
                                 label="휴가"
                                 class="required"
@@ -164,7 +163,7 @@
                             <v-text-field v-model="rewardUserInfo.등록일" label="등록일 (YYYYMMDD)" class="required" counter="8" :rules="dateRule" outlined></v-text-field>
                         </v-container>
                     </v-form>
-    
+
                     <v-card-actions>
                         <v-btn color="primary" text @click="close">닫기</v-btn>
                         <v-spacer></v-spacer>
@@ -172,35 +171,11 @@
                     </v-card-actions>
                 </v-card>
                 <v-card v-else-if="dialogType =='list'">
-                    <v-card-title class="text-h5 grey lighten-2 bold">
-                        연차 외 휴가 내역
-                        <v-spacer></v-spacer>
-                    </v-card-title>
-                    <!-- 포상/리프레시 내역 모달 -->
-                    <v-data-table
-                        :headers="headers"
-                        :items="items"
-                        :loading="isLoading"
-                        :items-per-page="-1"
-                        hide-default-footer
-                        class="elevation-1"
-                        :class="{'mobile-data-table' : isMobile}"
-                    >
-                        <!-- 해당 컬럼은 색추가 -->
-                        <template v-slot:item.휴가유형="{ item }">
-                            <v-chip
-                                :color="colors[item.휴가유형]"
-                                dark
-                            >
-                                {{ item.휴가유형 }}
-                            </v-chip>
-                        </template>
-                        <template v-slot:item.삭제="{ item }">
-                            <v-btn depressed color="red lighten-1" @click="deleteReward(item)" :dark="item.사용일수 == 0" :disabled="item.사용일수 > 0">
-                                삭제
-                            </v-btn>
-                        </template>
-                    </v-data-table>
+                    <reward_list
+                        :id="userInfo.아이디"
+                        :year="userInfo.연도"
+                        :isDelete="true"
+                    />
                 </v-card>
             </div>
         </v-dialog>
@@ -208,196 +183,165 @@
 </template>
 
 <script>
-
-    export default {
-        props : ["users", "positions", "isMobile"],
-        name : "manage",
-        data() {
-            return {
-                headers: [
-                    { text: '휴가 유형', sortable: false, value: '휴가유형', width:"200", align:"center"},
-                    { text: '휴가일수', sortable: false, value: '휴가일수', width:"100", align:"center"},
-                    // { text: '사용일수', sortable: false, value: '사용일수', width:"250", align:"center"},
-                    { text: '등록일', sortable: false, value: '등록일', width:"150", align:"center"},
-                    { text: '만료일', sortable: false, value: '만료일', width:"150", align:"center"},
-                    { text: '삭제', sortable: false, value: '삭제', width:"100", align:"center"},
-                ],
-                items : [],
-                userInfo : {
-                    연도 : new Date().getFullYear()
+import reward_list from "./include/reward_list.vue"
+export default {
+    components : {
+        reward_list,
+    },
+    props : ["users", "positions"],
+    name : "manage",
+    data() {
+        return {
+            isMobile : this.$store.getters.getUser.isMobile,
+            userInfo : {
+                연도 : new Date().getFullYear()
+            },
+            insertUserInfo : {
+                이름 : "",
+                아이디 : "",
+                직위코드 : "",
+                입사일 : "",
+            },
+            rewardUserInfo : {
+                이름 : "",
+                표시내용 : "",
+                아이디 : "",
+                유형 : "",
+                휴가일수 : "",
+                등록일 : "",
+            },
+            dialog: false,
+            dialogType : "",
+            dialogWidth : "400",
+            isLoading : false,
+            targetDate : new Date(),
+            dateRule : [v => v.length <= 8 || '등록일은 8자 (YYYYMMDD)로 입력하세요'],
+            vacationList : [
+                {
+                    표시내용 : "포상 휴가",
+                    유형 : "포상",
                 },
-                insertUserInfo : {
-                    이름 : "",
-                    아이디 : "",
-                    직위코드 : "",
-                    입사일 : "",
+                {
+                    표시내용 : "리프레시 휴가",
+                    유형 : "리프레시",
                 },
-                rewardUserInfo : {
-                    이름 : "",
-                    표시내용 : "",
-                    아이디 : "",
-                    유형 : "",
-                    휴가일수 : "",
-                    등록일 : "",
-                },
-                items : [],
-                dialog: false,
-                dialogType : "",
-                dialogWidth : "400",
-                isLoading : false,
-                targetDate : new Date(),
-                dateRule : [v => v.length <= 8 || '등록일은 8자 (YYYYMMDD)로 입력하세요'],
-                vacationList : [
-                    {
-                        표시내용 : "포상 휴가",
-                        유형 : "포상",
-                    },
-                    {
-                        표시내용 : "리프레시 휴가",
-                        유형 : "리프레시",
-                    },
-                ],
-                colors: {
-                    "포상" : "blue",
-                    "리프레시" : "green",
-                }
+            ],
+        }
+    },
+    methods : {
+        clickRows() {
+            setTimeout(()=>{
+                this.dialog=false
+            },0.1)
+        },
+        showVacation(user) {
+            this.items = []
+            user.연도 = this.userInfo.연도
+            this.userInfo = user
+            this.dialogType = "update"
+            this.dialogWidth = "400"
+        },
+        showReward(user) {
+            this.dialogType = "reward"
+            this.dialogWidth = "400"
+            this.rewardUserInfo = {
+                이름 : user.이름,
+                아이디 : user.아이디,
+                유형 : "포상",
+                휴가일수 : "",
+                등록일 : ""
             }
         },
-        methods : {
-            clickRows() {
-                setTimeout(()=>{
-                    this.dialog=false
-                },0.1)
-            },
-            showVacation(user) {
-                this.items = []
-                user.연도 = this.userInfo.연도
-                this.userInfo = user
-                this.dialogType = "update"
-                this.dialogWidth = "400"
-            },
-            showReward(user) {
-                this.dialogType = "reward"
-                this.dialogWidth = "400"
-                this.rewardUserInfo = {
-                    이름 : user.이름,
-                    아이디 : user.아이디,
-                    유형 : "포상",
-                    휴가일수 : "",
-                    등록일 : ""
+        showList(id) {
+            this.dialogType = "list"
+            this.dialogWidth = "800"
+            this.userInfo.아이디 = id
+        },
+        changeYear(d) {
+            this.targetDate = new Date(this.targetDate.getFullYear() + d, 0, 1)
+            this.userInfo.연도 = this.targetDate.getFullYear()
+            this.$emit("getUsers", this.userInfo.연도)
+        },
+        showInsert() {
+            this.dialog = true
+            this.dialogType='insert'
+            this.insertUserInfo = {
+                이름 : "",
+                직위코드 : "",
+                아이디 : "",
+                입사일 : "",
+            }
+        },
+        updateUser() {
+            if (!this.userInfo.휴가수) {
+                alert("휴가를 설정해주십시오.")
+                return
+            }
+            if (!/^[\d]+(\.5)?$/g.test(this.userInfo.휴가수)) {
+                alert("휴가는 정수, 실수(소수점은 .5)만 입력 가능합니다. (예 : 0.5, 4.5, 15)")
+                return
+            }
+            this.$patch("/leave/cnt", {
+                id : this.userInfo.아이디,
+                year : this.userInfo.연도,
+                cnt : this.userInfo.휴가수
+            }).then((res) =>{
+                if (res.status) {
+                    this.$emit("getUsers", this.userInfo.연도)
                 }
-            },
-            showList(id) {
-                this.items = []
-                this.isLoading = true
-                this.dialogType = "list"
-                this.dialogWidth = "700"
-                this.$get("/reward", {
-                    id : id,
-                    year : this.userInfo.연도,
+                this.close()
+            })
+        },
+        insertReward() {
+            if (!this.rewardUserInfo.휴가일수) {
+                alert("휴가일수를 입력해주십시오.")
+                return
+            }
+            if (/[\D]+/g.test(this.rewardUserInfo.휴가일수)) {
+                alert("휴가는 숫자만 입력 가능합니다.")
+                return
+            }
+            if (this.rewardUserInfo.등록일 && this.rewardUserInfo.등록일.length != 8) {
+                alert(`등록일은 8자로 입력해주십시오. \n (예 : 20020202})`)
+                return
+            }
+            if (!this.dateValidation(this.rewardUserInfo.등록일)) {
+                alert(`${this.rewardUserInfo.등록일}일은 유효하지 않은 날짜 입니다.`)
+                return
+            }
+            this.$put("/reward", {
+                id : this.rewardUserInfo.아이디,
+                type : this.rewardUserInfo.유형,
+                cnt : this.rewardUserInfo.휴가일수,
+                date : this.rewardUserInfo.등록일,
+                year : this.userInfo.연도,
+            }).then(res => {
+                this.$emit("getUsers", this.userInfo.연도, true)
+                this.close()
+            })
+        },
+        deleteReward(item) {
+            if (confirm(`${item.이름} ${item.직위}의 ${item.휴가유형} 휴가 ${item.휴가일수}일을 삭제하시겠습니까?`)) {
+                this.$del("/reward", {
+                    idx : item.IDX
                 }).then(res => {
-                    this.items = res.data
-                    this.isLoading = false
-                })
-            },
-            keydown(e, isFloat=false) {
-                if (e.key=="Enter") {
-                    this.update()
-                    return
-                }
-                if (!isFloat && e.key==".") {
-                    e.returnValue = false
-                    return
-                }
-                if(!/[\d]|Backspace|Delete|NumLock|ArrowLeft|ArrowRight|\./.test(e.key)) {
-                    e.returnValue = false
-                }
-            },
-            changeYear(d) {
-                this.targetDate = new Date(this.targetDate.getFullYear() + d, 0, 1)
-                this.userInfo.연도 = this.targetDate.getFullYear()
-                this.$emit("getUsers", this.userInfo.연도)
-            },
-            showInsert() {
-                this.dialog = true
-                this.dialogType='insert'
-                this.insertUserInfo = {
-                    이름 : "",
-                    직위코드 : "",
-                    아이디 : "",
-                    입사일 : "",
-                }
-            },
-            updateUser() {
-                if (!this.userInfo.휴가수) {
-                    alert("휴가를 설정해주십시오.")
-                    return
-                }
-                if (!/^[\d]+(\.5)?$/g.test(this.userInfo.휴가수)) {
-                    alert("휴가는 정수, 실수(소수점은 .5)만 입력 가능합니다. (예 : 0.5, 4.5, 15)")
-                    return
-                }
-                this.$patch("/leave/cnt", {
-                    id : this.userInfo.아이디,
-                    year : this.userInfo.연도,
-                    cnt : this.userInfo.휴가수
-                }).then((res) =>{
-                    if (res.status) {
-                        this.$emit("getUsers", this.userInfo.연도)
+                    if (!res.status) {
+                        alert(res.msg)
                     }
                     this.close()
-                })
-            },
-            insertReward() {
-                if (!this.rewardUserInfo.휴가일수) {
-                    alert("휴가일수를 입력해주십시오.")
-                    return
-                }
-                if (/[\D]+/g.test(this.rewardUserInfo.휴가일수)) {
-                    alert("휴가는 숫자만 입력 가능합니다.")
-                    return
-                }
-                if (this.rewardUserInfo.등록일 && this.rewardUserInfo.등록일.length != 8) {
-                    alert(`등록일은 8자로 입력해주십시오. \n (예 : 20020202})`)
-                    return
-                }
-                if (!this.dateValidation(this.rewardUserInfo.등록일)) {
-                    alert(`${this.rewardUserInfo.등록일}일은 유효하지 않은 날짜 입니다.`)
-                    return
-                }
-                this.$put("/reward", {
-                    id : this.rewardUserInfo.아이디,
-                    type : this.rewardUserInfo.유형,
-                    cnt : this.rewardUserInfo.휴가일수,
-                    date : this.rewardUserInfo.등록일,
-                    year : this.userInfo.연도,
-                }).then(res => {
                     this.$emit("getUsers", this.userInfo.연도, true)
-                    this.close()
                 })
-            },
-            deleteReward(item) {
-                if (confirm(`${item.이름} ${item.직위}의 ${item.휴가유형} 휴가 ${item.휴가일수}일을 삭제하시겠습니까?`)) {
-                    this.$del("/reward", {
-                        idx : item.IDX
-                    }).then(res => {
-                        if (!res.status) {
-                            alert(res.msg)
-                        }
-                        this.close()
-                        this.$emit("getUsers", this.userInfo.연도, true)
-                    })
-                }
-            },
-            close() {
-                this.dialogType = ""
-                this.dialog = false
-                this.userInfo.휴가수 = this.userInfo.휴가수원본
-            },
-            dateValidation(date) {
-                const isDate = new Date(`${date.substring(0,4)}-${date.substring(4,6)}-${date.substring(6,8)}`)
-                return isNaN(isDate) ? false : true
-            },
+            }
         },
-    }
+        close() {
+            this.dialogType = ""
+            this.dialog = false
+            this.userInfo.휴가수 = this.userInfo.휴가수원본
+        },
+        dateValidation(date) {
+            const isDate = new Date(`${date.substring(0,4)}-${date.substring(4,6)}-${date.substring(6,8)}`)
+            return isNaN(isDate) ? false : true
+        },
+    },
+}
 </script>
