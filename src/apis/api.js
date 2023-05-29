@@ -1,17 +1,6 @@
 import axios from "axios";
 
 const methods = {
-    post : async (url, params) => {
-        if (!url.startsWith("/")) {
-            url = "/" + url
-        }
-        try {
-            return await axios.post(url, params).then((res) => { return res })
-        } catch(e) {
-            console.error(e)
-            return e
-        }
-    },
     get : async (url, params={}) => {
         if (!url.startsWith("/")) {
             url = "/" + url
@@ -34,6 +23,17 @@ const methods = {
             return e
         }
     },
+    post : async (url, params) => {
+        if (!url.startsWith("/")) {
+            url = "/" + url
+        }
+        try {
+            return await axios.post(url, params).then((res) => { return res })
+        } catch(e) {
+            console.error(e)
+            return e
+        }
+    },    
     put : async (url, params) => {
         if (!url.startsWith("/")) {
             url = "/" + url
