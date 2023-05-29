@@ -79,7 +79,6 @@ export default {
                 { text: '삭제', sortable: false, value: '삭제', width:"100", align:"center"},
             ],
 			holidays : [],
-            year : new Date().getFullYear(),
 			insertHolidayInfo : {
 				명칭 : "",
 				시작일 : "",
@@ -91,11 +90,10 @@ export default {
 	},
 	methods : {
 		getHoliday() {
-			this.$get("/holiday", {year : this.year})
+			this.$get("/holiday")
 			.then((res) => {
 				this.isLoading = false
 				this.holidays = res.data
-				console.log(this.holidays)
 			})
 		},
 		insertHoliday() {
