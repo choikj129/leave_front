@@ -517,7 +517,7 @@ export default {
             let rewardIndex = 0
             let refreshIndex = 0
             let rewardLists = this.$copy(this.rewardLists)
-            let refreshLists = this.$
+            let refreshLists = this.$copy(this.refreshLists)
             let updateReward = {}
             Object.keys(this.changeEvents).forEach((key) =>{
                 Object.values(this.changeEvents[key]).forEach((value) => {
