@@ -144,11 +144,19 @@ export default {
 				holidays : holidays,
 			}).then(() => {
 				this.getHoliday()
+				this.$setHoliday()
 				this.close()
 			})
 				
 		},
-		deleteHoliday() {
+		deleteHoliday(data) {
+			this.$del("/holiday", {
+				"name" : data.명칭,
+				"year" : this.year
+			}).then(res => {
+				this.getHoliday()
+				this.$setHoliday()
+			})
 		},
 		showInsert() {
 			this.dialog = true
