@@ -45,7 +45,7 @@
                 
                 <v-card class="mt-15 mb-10"  color="#f4f9ff" v-show="targetUser.이름 && !isLoading">
                     <v-card-title style="display:inline" :class="isMobile ? 'f3_mobile' : 'f3'">{{ isManager ? `${targetUser.이름} ${targetUser.직위} ` : null }}{{ year }}년 휴가 정보</v-card-title>
-                    <v-btn depressed color="primary" @click="showReward" class="ml-3" v-on="on">
+                    <v-btn depressed color="primary" @click="showReward" class="ml-3" v-on="on" v-if="isDetailVisible">
                         추가휴가상세
                     </v-btn>
                     <div v-for="cntTitle in Object.values(cntTitles)" :key="cntTitle.title" v-if="cntTitle.visible">
@@ -121,6 +121,7 @@ export default {
                 "기타 휴가" : "green",
             },
             isManager : this.$store.getters.getUser.isManager,
+            isDetailVisible : false,
             reward : {
                 휴가일수 : 0,
                 사용일수 : 0,
@@ -182,7 +183,13 @@ export default {
 
                     this.cntTitles.reward.visible = this.reward.휴가일수 > 0 ? true : false
                     this.cntTitles.refresh.visible = this.refresh.휴가일수 > 0 ? true : false
-                    this.cntTitles.total.visible = this.reward.휴가일수 > 0 || this.refresh.휴가일수 > 0 ? true : false
+                    if (this.reward.휴가일수 > 0 || this.refresh.휴가일수 > 0) {
+                        this.cntTitles.total.visible = true
+                        this.isDetailVisible = true
+                    } else {
+                        this.cntTitles.total.visible = false
+                        this.isDetailVisible = false
+                    }
                     
                     this.getLists(id, year)
                 })
