@@ -33,7 +33,7 @@
 					>
 						<!-- 해당 컬럼은 색추가 -->
 						<template v-slot:item.삭제="{ item }">
-							<v-btn depressed color="red lighten-1" @click="deleteHoliday(item)" dark>
+							<v-btn v-if="item.수동여부 == 'Y'" depressed color="red lighten-1" @click="deleteHoliday(item)" dark>
 								삭제
 							</v-btn>
 						</template>
@@ -95,6 +95,7 @@ export default {
 			.then((res) => {
 				this.isLoading = false
 				this.holidays = res.data
+				console.log(this.holidays)
 			})
 		},
 		insertHoliday() {
@@ -125,7 +126,8 @@ export default {
 
             }
 			let start = new Date(`${this.insertHolidayInfo.시작일.substring(0, 4)}-${this.insertHolidayInfo.시작일.substring(4, 6)}-${this.insertHolidayInfo.시작일.substring(6, 8)}`)
-			let end = new Date(`${this.insertHolidayInfo.종료일.substring(0, 4)}-${this.insertHolidayInfo.종료일.substring(4, 6)}-${this.insertHolidayInfo.종료일.substring(6, 8)}`)
+			const end = new Date(`${this.insertHolidayInfo.종료일.substring(0, 4)}-${this.insertHolidayInfo.종료일.substring(4, 6)}-${this.insertHolidayInfo.종료일.substring(6, 8)}`)
+			const year = start.getFullYear()
 			const cnt = this.$getDateCnt(start, end) + 1
 			if (cnt > 5 && !confirm("휴일 수가 5일을 초과합니다. 등록하시겠습니까?")) return false
 
@@ -133,16 +135,18 @@ export default {
 			for (let i = 0; i < cnt; i++) {
 				holidays.push({
 					name : this.insertHolidayInfo.명칭,
-					holiday : this.$dateToYMD(start)
+					holiday : this.$dateToYMD(start),
+					year : year,
 				})
 				start.setDate(start.getDate() + 1)				
 			}			
 			
-			this.$put("/holiday", {holidays : holidays})
-				.then(() => {
-					this.getHoliday()
-					this.close()
-				})
+			this.$put("/holiday", {
+				holidays : holidays,
+			}).then(() => {
+				this.getHoliday()
+				this.close()
+			})
 				
 		},
 		deleteHoliday() {
