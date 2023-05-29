@@ -13,7 +13,8 @@ const state = {
         isLogin : false,
         isMobile : false,
     },
-    holiday : {}
+    holiday : {},
+    position : [],
 }
 /* store 데이터 접근
     ex) store.getters["state 키값"]
@@ -25,6 +26,9 @@ const getters = {
     getHoliday(state) {
         return state.holiday
     },
+    getPosition(state) {
+        return state.position
+    },
 }
 
 /* 데이터 수정할 수 있은 함수 */
@@ -34,6 +38,9 @@ const mutations = {
     },
     setHoliday(state, holiday) {
         return state.holiday = holiday
+    },
+    setPosition(state, position) {
+        return state.position = position
     },
     clearStore(state, user) {
         return state.user = {

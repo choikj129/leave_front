@@ -180,7 +180,7 @@
 <script>
 import excel from "@/apis/excel"
 export default {
-    props : ["users", "positions"],
+    props : ["users"],
     name : "manage",
     data() {
 		return {
@@ -198,6 +198,7 @@ export default {
             dialog: false,
             dialogType : "",
             targetDate : new Date(),
+            positions : this.$store.getters.getPosition
         }
     },
     methods : {

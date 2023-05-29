@@ -1,4 +1,5 @@
 import axios from "axios";
+import store from "../store";
 
 const methods = {
     get : async (url, params={}) => {
@@ -57,7 +58,6 @@ const methods = {
         }
     },
     delete : async (url, params) => {
-        console.log(url)
         if (!url.startsWith("/")) {
             url = "/" + url
         }
@@ -73,19 +73,36 @@ const methods = {
     deepCopy : (object) => {
         return JSON.parse(JSON.stringify(object))
     },
-    getDateCnt(d1, d2) {
+    getDateCnt : (d1, d2) => {
         if (!d1 || !d2) return 0
         return Math.floor((d2.getTime() - d1.getTime())/ (1000 * 60 * 60 * 24))
     },
-    dateToYMD(date, sep="") {
+    dateToYMD : (date, sep="") => {
         const y = date.getFullYear()
         const m = date.getMonth()+1 < 10 ? "0" + (date.getMonth()+1) : date.getMonth()+1
         const d = date.getDate() < 10 ? "0" + (date.getDate()) : date.getDate()
         return `${y}${sep}${m}${sep}${d}`
     },
+    setHoliday : async () => {
+        try {
+            let res = await axios.get("/holiday/detail").then((res) => { return res })
+            if (res.status) {
+                let holiday = {}
+                res.data.forEach(data =>  {
+                    holiday[data.ë‚ ì§œ] = data.ëª…ì¹­
+                })
+
+                store.commit("setHoliday", holiday)
+            }
+            return true
+        } catch(e) {
+            console.error(e)
+            return false
+        }
+    }
 }
 
-/* Global ÇÔ¼ö·Î »ç¿ëÇÒ ¼ö ÀÖ°Ô */
+/* Global í•¨ìˆ˜ë¡œ ì‚¬ìš©í•  ìˆ˜ ìžˆê²Œ */
 export default {
     install (Vue) {
         Vue.prototype.$get = methods.get
@@ -96,5 +113,6 @@ export default {
         Vue.prototype.$copy = methods.deepCopy
         Vue.prototype.$getDateCnt = methods.getDateCnt
         Vue.prototype.$dateToYMD = methods.dateToYMD
+        Vue.prototype.$setHoliday = methods.setHoliday
     }
 }

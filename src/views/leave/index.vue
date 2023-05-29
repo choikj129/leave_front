@@ -52,12 +52,10 @@
 		</v-navigation-drawer>
 		<manageUser v-if="selectType == 'manage_user'"
 			:users="users"
-			:positions="positions"
 			@getUsers="getUsers"
 		/>
 		<manageVacation v-else-if="selectType == 'manage_vacation'"
 			:users="users"
-			:positions="positions"
 			@getUsers="getUsers"
 		/>
 		<lists v-else-if="selectType == 'lists'"
@@ -204,23 +202,13 @@ export default {
 			document.body.appendChild(link)
 			link.click()
 			document.body.removeChild(link)
-		}
+		},
 	},
 	created() {
+		if (Object.keys(this.$store.getters.getHoliday).length) {
+			this.$setHoliday()
+		}
 		this.getUsers(new Date().getFullYear(), true)
-		this.$get("/holiday/detail").then((res) => {
-			if (res.status) {
-				let holiday = {}
-				res.data.forEach(data =>  {
-					holiday[data.년 + data.월 + data.일] = data.명칭
-				})
-
-				this.$store.commit("setHoliday", holiday)
-			}
-		})
-		this.$get("/code", {name : "직위", reverse : true}).then(res => {
-			this.positions = res.data
-		})
 		this.getCnts(true)		
 	},
 	mounted() {

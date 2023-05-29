@@ -188,7 +188,7 @@ export default {
     components : {
         reward_list,
     },
-    props : ["users", "positions"],
+    props : ["users"],
     name : "manage",
     data() {
         return {
@@ -226,6 +226,7 @@ export default {
                     유형 : "리프레시",
                 },
             ],
+            positions : this.$store.getters.getPosition
         }
     },
     methods : {

@@ -39,19 +39,22 @@ export default {
     }
   },
   methods : {
-    login() {
-		this.$post("/login", {
+    async login() {
+		const resLogin = await this.$post("/login", {
 			id: this.id,
 			pw: this.pw
 		})
-			.then((res) => {
-				if (res.status) {
-					this.$store.commit("setUser", res.data)
-					this.$router.push({ path: "leave" })
-				} else {
-					res.msg ? alert(res.msg) : alert(res.message)
-				}
-			})
+		if (resLogin.status) {
+			this.$store.commit("setUser", resLogin.data)
+			this.$router.push({ path: "leave" })
+		} else {
+			resLogin.msg ? alert(resLogin.msg) : alert(resLogin.message)
+		}
+
+		this.$setHoliday()
+		this.$get("/code", {name : "직위", reverse : true}).then(res => {
+			this.$store.commit("setPosition", res.data)
+		})
 	},
 	isEnter(e) {
 		if (e.key == "Enter") this.login()
