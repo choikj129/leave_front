@@ -196,8 +196,8 @@ export default {
                         month++
                     }
                     
-                    day = day.length == 1 ? "0" + day : day
-                    month = month < 10 ? "0" + month : month
+                    day = day.length == 1 ? "0" + day : day.toString()
+                    month = month < 10 ? "0" + month : month.toString()
                     let date = event.start.year + month + day
                     if (this.holiday[date]) {         
                         childDay.getElementsByTagName("span")[0].style.cssText = "color:red!important"
