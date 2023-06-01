@@ -88,6 +88,7 @@ export default {
                 "오전 반차" : "cyan",
                 "오후 반차" : "cyan",
                 "포상 휴가" : "blue-grey",
+                "리프레시 휴가" : "blue-grey",
                 "기타 휴가" : "green",
                 "신규" : "orange",
                 "삭제" : "grey",
@@ -111,30 +112,20 @@ export default {
                 let events = res.data
                 for (let i=0; i<events.length; i++) {
                     let event = events[i]
-
-                    /* 휴가 내용 재조립 */
-                    const re = /[\d-]+.\(.\)(.~.[\d-]+.\(.\))?.(.*)/
-                    let type = "휴가"
-                    if (re.test(event.내용)) {
-                        type = RegExp.$2
-                            
-                        if (type.trim().endsWith("휴가") && !type.trim().endsWith("포상 휴가") && type.trim().length > 2) {
-                            type = "기타 휴가"
-                        }
-                    }
-                    
                     event = {
                         name : event.내용,
                         start: new Date(event.시작일),
                         end: new Date(event.종료일),
                         startDate: event.시작일,
                         endDate: event.종료일,
-                        color: this.colors[type],
+                        color: this.colors[event.휴가구분],
                         index : Math.random().toString(36).substring(2),  /* 휴가 신청 목록 검색 용도 */
                         cnt : event.휴가일수,
-                        type : type,
+                        type : event.휴가구분,
+                        etcType : event.기타휴가내용,
                         disabled : true,
-                        IDX : event.IDX
+                        IDX : event.IDX,
+                        rewardIdx : event.REWARD_IDX
                     }
                     this.events.push(event)
                 }
