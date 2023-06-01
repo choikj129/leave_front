@@ -61,6 +61,9 @@
                                         추가휴가
                                     </th>
                                     <th class="text-center grid-header grid-right-line">
+                                        기타휴가
+                                    </th>
+                                    <th class="text-center grid-header grid-right-line">
                                         입사일 (년차)
                                     </th>
                                     <th class="text-center grid-header">
@@ -92,6 +95,9 @@
                                             </td>
                                             <td class="grid-body grid-right-line">
                                                 {{ user.추가휴가수 }}
+                                            </td>
+                                            <td class="grid-body grid-right-line">
+                                                {{ user.기타휴가수 }}
                                             </td>
                                             <td class="grid-body grid-right-line">
                                                 {{ user.입사일
@@ -223,6 +229,7 @@ export default {
                     사용휴가수 : user.사용휴가수,
                     추가휴가수 : user.추가휴가수,
                     사용추가휴가수 : user.사용추가휴가수,
+                    기타휴가수 : user.기타휴가수,
                     입사일 : user.입사일 ? user.입사일.replace(/([\d]{4})([\d]{2})([\d]{2})/g, "$1-$2-$3") : null,
                     이메일 : `${user.아이디}@odinue.net`,
                 })
@@ -234,6 +241,7 @@ export default {
                 {wch : 10},
                 {wch : 10},
                 {wch : 10},
+                {wch : 15},
                 {wch : 10},
                 {wch : 15},
                 {wch : 30},
