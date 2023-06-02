@@ -52,6 +52,7 @@
 		</v-navigation-drawer>
 		<manageUser v-if="selectType == 'manage_user'"
 			:users="users"
+			:supporter="supporter"
 			@getUsers="getUsers"
 		/>
 		<manageVacation v-else-if="selectType == 'manage_vacation'"
@@ -129,6 +130,7 @@ export default {
 			manageItems : [],
 			positions : [],
 			isMobile : this.$store.getters.getUser.isMobile,
+			supporter : "",
 		}
 	},
 	methods: {
@@ -179,7 +181,9 @@ export default {
 					user.휴가수원본 = user.휴가수
 					user.직위코드원본 = user.직위코드
 					user.입사일원본 = user.입사일
+					user.음력여부 = user.음력여부 == 'Y' ? true : false
 					if (isLoadPage) this.usersSort.push(user)
+					if (user.관리자코드 == 'K') this.supporter = user.이름_아이디
 				})
 				if (isLoadPage) {
 					this.usersSort = this.usersSort.sort((a, b) => {
