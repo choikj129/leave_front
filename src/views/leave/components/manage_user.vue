@@ -30,9 +30,6 @@
                             </v-btn>
                             <v-btn depressed color="primary" @click="showInsert" class="ml-3">
                                 직원추가
-                            </v-btn>                            
-                            <v-btn depressed color="primary" @click="showSuppporter" class="ml-3">
-                                경영지원실직원설정
                             </v-btn>
                         </span>
                     </div>
@@ -143,11 +140,6 @@
                                 outlined
                             ></v-select>
                             <v-text-field v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" outlined></v-text-field>
-                            <v-text-field v-model="userInfo.생년월일" label="생년월일 (YYYYMMDD)" counter="8" outlined></v-text-field>
-                            <v-checkbox
-                                v-model="userInfo.음력여부"
-                                label="음력여부"
-                            ></v-checkbox>
                         </v-container>
                     </v-form>
     
@@ -186,32 +178,6 @@
                         <v-btn color="primary" text @click="insertUser">등록</v-btn>
                     </v-card-actions>
                 </v-card>
-
-                <!-- 경영지원실 직원 설정 모달 -->
-                <v-card v-else-if="dialogType =='supporter'">
-                    <v-card-title class="text-h5 grey lighten-2">
-                        경영지원실 직원 설정
-                    </v-card-title>
-                    <v-form >
-                        <v-container style="width:100%">
-                            <v-select
-                                :items="users"
-                                label="이름"
-                                item-text="이름_아이디"
-                                item-value="이름_아이디"
-                                v-model="newSupporter"
-                                class="vSelect required"
-                                outlined
-                            ></v-select>
-                        </v-container>
-                    </v-form>
-    
-                    <v-card-actions>
-                        <v-btn color="primary" text @click="close">닫기</v-btn>
-                        <v-spacer></v-spacer>
-                        <v-btn color="primary" text @click="setSupporter">등록</v-btn>
-                    </v-card-actions>
-                </v-card>
             </div>
         </v-dialog>
     </div>
@@ -220,7 +186,7 @@
 <script>
 import excel from "@/apis/excel"
 export default {
-    props : ["users", "supporter"],
+    props : ["users"],
     name : "manage",
     data() {
 		return {
@@ -234,15 +200,11 @@ export default {
                 직위코드 : "",
                 입사일 : "",
             },
-            newSupporter : {
-                이름_아이디 : "최경주 주임 [gj.choi]",
-            },
             items : [],
             dialog: false,
             dialogType : "",
             targetDate : new Date(),
-            positions : this.$store.getters.getPosition,
-            newSupporter : "",
+            positions : this.$store.getters.getPosition
         }
     },
     methods : {
@@ -296,12 +258,7 @@ export default {
                 입사일 : "",
             }
         },
-        showSuppporter() {
-            this.dialog = true
-            this.dialogType='supporter'
-        },
         updateUser() {
-            console.log(this.userInfo)
             if (this.userInfo.입사일) {
                 if (this.userInfo.입사일 && this.userInfo.입사일.length != 8) {
                     alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
@@ -318,8 +275,6 @@ export default {
                     year : this.userInfo.연도,
                     position : this.userInfo.직위코드,
                     date : this.userInfo.입사일,
-                    birthday : this.userInfo.생년월일,
-                     : this.userInfo.생년월일,
                 }
             }).then((res) =>{
                 if (res.status) {
@@ -379,18 +334,6 @@ export default {
                 })
             }
         },
-        setSupporter() {
-            if (this.newSupporter != this.suppporter) {
-                if (/.*\[(.*)\]/.test(this.newSupporter)) {
-                    let id = RegExp.$1
-                    this.$patch("/users/supporter", {id : id})
-                        .then(res => {
-                            this.$emit("getUsers", this.userInfo.연도, true)
-                            this.close()
-                        })
-                }
-            }
-        },
         close() {
             this.dialogType = ""
             this.dialog = false
@@ -402,8 +345,5 @@ export default {
             return isNaN(isDate) ? false : true
         },
     },
-    created() {
-        this.newSupporter = this.supporter
-    }
 }
 </script>
