@@ -171,6 +171,8 @@
                             ></v-select>
                             <v-text-field v-model="insertUserInfo.아이디" label="아이디" class="required" outlined></v-text-field>
                             <v-text-field v-model="insertUserInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" outlined></v-text-field>
+                            <v-text-field v-model="insertUserInfo.생일" label="생일 (MMDD)" counter="4" outlined></v-text-field>
+                            <v-checkbox v-model="insertUserInfo.음력여부" label="음력여부"></v-checkbox>
                         </v-container>
                     </v-form>
     
@@ -196,12 +198,7 @@ export default {
             userInfo : {
                 연도 : new Date().getFullYear(),
             },
-            insertUserInfo : {
-                이름 : "",
-                아이디 : "",
-                직위코드 : "",
-                입사일 : "",
-            },
+            insertUserInfo : {},
             items : [],
             dialog: false,
             dialogType : "",
@@ -259,6 +256,8 @@ export default {
                 직위코드 : "",
                 아이디 : "",
                 입사일 : "",
+                생일 : "",
+                음력여부 : false,
             }
         },
         updateUser() {
@@ -314,11 +313,18 @@ export default {
                 }
 
             }
+            if (this.userInfo.생일 && this.userInfo.생일.length != 4) {
+                alert(`생일은 4자로 입력해주십시오. \n (예 : 0129})`)
+                return
+            }
+
             this.$put("/users", {
                 name : this.insertUserInfo.이름,
                 id : this.insertUserInfo.아이디,
                 position : this.insertUserInfo.직위코드,
                 date : this.insertUserInfo.입사일,
+                birthday : this.insertUserInfo.생일,
+                isLunar : this.insertUserInfo.음력여부,
             }).then((res) => {
                 if (!res.status) {
                     alert(res.msg)
