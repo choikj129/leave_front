@@ -88,7 +88,7 @@
                                                 {{ user.사용휴가수 }}
                                             </td>
                                             <td class="grid-body grid-right-line">
-                                                {{ !user.휴가수 ? "휴가 설정이 필요합니다." : user.휴가수 }}
+                                                {{ user.직위 != "사장" && !user.휴가수 ? "휴가 설정이 필요합니다." : user.휴가수 }}
                                             </td>
                                             <td class="grid-body">
                                                 {{ user.사용추가휴가수 }}
@@ -140,6 +140,8 @@
                                 outlined
                             ></v-select>
                             <v-text-field v-model="userInfo.입사일" label="입사일 (YYYYMMDD)" counter="8" outlined></v-text-field>
+                            <v-text-field v-model="userInfo.생일" label="생일 (MMDD)" counter="4" outlined></v-text-field>
+                            <v-checkbox v-model="userInfo.음력여부" label="음력여부"></v-checkbox>
                         </v-container>
                     </v-form>
     
@@ -209,6 +211,7 @@ export default {
     },
     methods : {
         showUpdate(user) {
+            console.log(user)
             this.items = []
             user.연도 = this.userInfo.연도
             this.userInfo = user
@@ -264,18 +267,22 @@ export default {
                     alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
                     return
                 }
-                if (!this.dateValidation(this.userInfo.입사일)) {
+                if (!this.$dateValidation(this.userInfo.입사일)) {
                     alert(`${this.userInfo.입사일}일은 유효하지 않은 날짜 입니다.`)
                     return
                 }
             }
+            if (this.userInfo.생일 && this.userInfo.생일.length != 4) {
+                alert(`생일은 4자로 입력해주십시오. \n (예 : 0129})`)
+                return
+            }
             this.$patch("/users", {
-                userInfo : {
-                    id : this.userInfo.아이디,
-                    year : this.userInfo.연도,
-                    position : this.userInfo.직위코드,
-                    date : this.userInfo.입사일,
-                }
+                id : this.userInfo.아이디,
+                year : this.userInfo.연도,
+                position : this.userInfo.직위코드,
+                date : this.userInfo.입사일,
+                birthday : this.userInfo.생일,
+                isLunar : this.userInfo.음력여부 ? 'Y' : 'N',
             }).then((res) =>{
                 if (res.status) {
                     this.$emit("getUsers", this.userInfo.연도)
@@ -301,7 +308,7 @@ export default {
                     alert(`입사일은 8자로 입력해주십시오. \n (예 : 20020202})`)
                     return
                 }
-                if (!this.dateValidation(this.insertUserInfo.입사일)) {
+                if (!this.$dateValidation(this.insertUserInfo.입사일)) {
                     alert(`${this.insertUserInfo.입사일}일은 유효하지 않은 날짜 입니다.`)
                     return
                 }
@@ -339,10 +346,6 @@ export default {
             this.dialog = false
             this.userInfo.직위코드 = this.userInfo.직위코드원본
             this.userInfo.입사일 = this.userInfo.입사일원본
-        },
-        dateValidation(date) {
-            const isDate = new Date(`${date.substring(0,4)}-${date.substring(4,6)}-${date.substring(6,8)}`)
-            return isNaN(isDate) ? false : true
         },
     },
 }

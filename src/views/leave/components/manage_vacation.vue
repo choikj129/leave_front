@@ -81,7 +81,7 @@
                                         {{ user.사용휴가수 }}
                                     </td>
                                     <td class="grid-body grid-right-line">
-                                        {{ !user.휴가수 ? "휴가 설정이 필요합니다." : user.휴가수 }}
+                                        {{ user.직위 != "사장" && !user.휴가수 ? "휴가 설정이 필요합니다." : user.휴가수 }}
                                     </td>
                                     <td class="grid-body">
                                         {{ user.사용포상휴가수 }}
@@ -306,7 +306,7 @@ export default {
                 alert(`등록일은 8자로 입력해주십시오. \n (예 : 20020202})`)
                 return
             }
-            if (!this.dateValidation(this.rewardUserInfo.등록일)) {
+            if (!this.$dateValidation(this.rewardUserInfo.등록일)) {
                 alert(`${this.rewardUserInfo.등록일}일은 유효하지 않은 날짜 입니다.`)
                 return
             }

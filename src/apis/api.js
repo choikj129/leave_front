@@ -99,7 +99,14 @@ const methods = {
             console.error(e)
             return false
         }
-    }
+    },
+    dateValidation(date) {
+        if (date.length != 8) throw new Error("date is YYYYMMDD")
+        else {
+            const isDate = new Date(`${date.substring(0,4)}-${date.substring(4,6)}-${date.substring(6,8)}`)
+            return isNaN(isDate) ? false : true
+        }
+    },
 }
 
 /* Global 함수로 사용할 수 있게 */
@@ -114,5 +121,6 @@ export default {
         Vue.prototype.$getDateCnt = methods.getDateCnt
         Vue.prototype.$dateToYMD = methods.dateToYMD
         Vue.prototype.$setHoliday = methods.setHoliday
+        Vue.prototype.$dateValidation = methods.dateValidation
     }
 }

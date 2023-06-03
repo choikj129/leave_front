@@ -107,7 +107,7 @@ export default {
                     alert(`시작일은 8자로 입력해주십시오. \n (예 : 20020202})`)
                     return
                 }
-                if (!this.dateValidation(this.insertHolidayInfo.시작일)) {
+                if (!this.$dateValidation(this.insertHolidayInfo.시작일)) {
                     alert(`${this.insertHolidayInfo.시작일}일은 유효하지 않은 날짜 입니다.`)
                     return
                 }
@@ -118,7 +118,7 @@ export default {
                     alert(`종료일은 8자로 입력해주십시오. \n (예 : 20020202})`)
                     return
                 }
-                if (!this.dateValidation(this.insertHolidayInfo.종료일)) {
+                if (!this.$dateValidation(this.insertHolidayInfo.종료일)) {
                     alert(`${this.insertHolidayInfo.종료일}일은 유효하지 않은 날짜 입니다.`)
                     return
                 }
