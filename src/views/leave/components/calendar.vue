@@ -90,8 +90,7 @@ export default {
                 "포상 휴가" : "blue-grey",
                 "리프레시 휴가" : "blue-grey",
                 "기타 휴가" : "green",
-                "신규" : "orange",
-                "삭제" : "grey",
+                "생일" : "pink lighten-2",
             },
             calendarTitle: "",
             week: ["일", "월", "화", "수", "목", "금", "토"],
@@ -99,16 +98,30 @@ export default {
             holiday : this.$store.getters.getHoliday,
         }
     },
-    created() {
+    async created() {
         if (this.isMobile) {
             this.calendarMinHeight = screen.height - 180 + "px"
         }
-        this.setCalendar()
+        await this.setCalendar()
+                
+        console.log(this.events)
     },
     methods: {
-        setCalendar() {
-            this.$get("/leave").then((res) => {
-                this.events = []
+        async setCalendar() {
+            this.events = []
+            let birthdays = await this.$get("/birthday")
+            birthdays.data.forEach(birthday => {
+                this.events.push({
+                    name : `${birthday.이름} ${birthday.생일}일 생일`,
+                    start: new Date(birthday.생일),
+                    end: new Date(birthday.생일),
+                    startDate: birthday.생일,
+                    endDate: birthday.생일,
+                    color: this.colors["생일"],                
+                    disabled : true,
+                })
+            })
+            await this.$get("/leave").then((res) => {
                 let events = res.data
                 for (let i=0; i<events.length; i++) {
                     let event = events[i]
@@ -119,7 +132,6 @@ export default {
                         startDate: event.시작일,
                         endDate: event.종료일,
                         color: this.colors[event.휴가구분],
-                        index : Math.random().toString(36).substring(2),  /* 휴가 신청 목록 검색 용도 */
                         cnt : event.휴가일수,
                         type : event.휴가구분,
                         etcType : event.기타휴가내용,

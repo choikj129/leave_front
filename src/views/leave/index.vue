@@ -108,7 +108,7 @@ export default {
 				{ icon: "mdi-calendar-account", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage_vacation"},
 				{ icon: "mdi-view-list", text: "휴가 현황", auth: true, type: "lists"},
 				{ icon: "mdi-calendar-plus", text: "휴가 신청", auth:  !this.$store.getters.getUser.isManager, type: "regist"},
-				{ icon: "mdi-calendar-month", text: "전 직원 휴가 일정", auth:  true, type: "calendar"},
+				{ icon: "mdi-calendar-month", text: "전 직원 휴가 및 생일", auth:  true, type: "calendar"},
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
 			],
 			linksBottom : [
@@ -179,6 +179,8 @@ export default {
 					user.휴가수원본 = user.휴가수
 					user.직위코드원본 = user.직위코드
 					user.입사일원본 = user.입사일
+					user.음력여부 = user.음력여부 == 'Y' ? true : false
+					
 					if (isLoadPage) this.usersSort.push(user)
 				})
 				if (isLoadPage) {
@@ -209,7 +211,7 @@ export default {
 			this.$setHoliday()
 		}
 		this.getUsers(new Date().getFullYear(), true)
-		this.getCnts(true)		
+		this.getCnts(true)
 	},
 	mounted() {
 		let drawer = document.getElementsByClassName("v-navigation-drawer__content")[0]
