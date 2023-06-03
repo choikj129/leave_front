@@ -102,9 +102,7 @@ export default {
         if (this.isMobile) {
             this.calendarMinHeight = screen.height - 180 + "px"
         }
-        await this.setCalendar()
-                
-        console.log(this.events)
+        await this.setCalendar()                
     },
     methods: {
         async setCalendar() {
@@ -112,7 +110,7 @@ export default {
             let birthdays = await this.$get("/birthday")
             birthdays.data.forEach(birthday => {
                 this.events.push({
-                    name : `${birthday.이름} ${birthday.생일}일 생일`,
+                    name : birthday.내용,
                     start: new Date(birthday.생일),
                     end: new Date(birthday.생일),
                     startDate: birthday.생일,
