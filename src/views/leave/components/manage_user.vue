@@ -88,21 +88,21 @@
                                                 {{ user.사용휴가수 }}
                                             </td>
                                             <td class="grid-body grid-right-line">
-                                                {{ user.직위 != "사장" && !user.휴가수 ? "휴가 설정이 필요합니다." : user.휴가수 }}
+                                                {{ user.휴가수 ? user.휴가수 : "" }}
                                             </td>
                                             <td class="grid-body">
-                                                {{ user.사용추가휴가수 }}
+                                                {{ user.추가휴가수 ? user.사용추가휴가수 : "" }}
                                             </td>
                                             <td class="grid-body grid-right-line">
-                                                {{ user.추가휴가수 }}
+                                                {{ user.추가휴가수 ? user.추가휴가수 : "" }}
                                             </td>
                                             <td class="grid-body grid-right-line">
-                                                {{ user.기타휴가수 }}
+                                                {{ user.기타휴가수 ? user.기타휴가수 : "" }}
                                             </td>
                                             <td class="grid-body grid-right-line">
                                                 {{ user.입사일
                                                     ? `${user.입사일.replace(/([\d]{4})([\d]{2})([\d]{2})/g, "$1년 $2월 $3일")} (${user.입사년차})`
-                                                    : null
+                                                    : ""
                                                 }}
                                             </td>
                                             <td class="grid-body" style="padding : 0">

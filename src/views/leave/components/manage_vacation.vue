@@ -49,13 +49,13 @@
                                     <th class="text-center grid-header">
                                         사용포상휴가
                                     </th>
-                                    <th class="text-center grid-header">
+                                    <th class="text-center grid-header grid-right-line">
                                         포상휴가
                                     </th>
                                     <th class="text-center grid-header">
                                         사용리프레시휴가
                                     </th>
-                                    <th class="text-center grid-header">
+                                    <th class="text-center grid-header grid-right-line">
                                         리프레시휴가
                                     </th>
                                     <th class="text-center grid-header grid-right-line">
@@ -81,22 +81,22 @@
                                         {{ user.사용휴가수 }}
                                     </td>
                                     <td class="grid-body grid-right-line">
-                                        {{ user.직위 != "사장" && !user.휴가수 ? "휴가 설정이 필요합니다." : user.휴가수 }}
+                                        {{ !user.휴가수 ? "" : user.휴가수 }}
                                     </td>
                                     <td class="grid-body">
-                                        {{ user.사용포상휴가수 }}
-                                    </td>
-                                    <td class="grid-body">
-                                        {{ user.포상휴가수 }}
-                                    </td>
-                                    <td class="grid-body">
-                                        {{ user.사용리프레시휴가수 }}
-                                    </td>
-                                    <td class="grid-body">
-                                        {{ user.리프레시휴가수 }}
+                                        {{ user.포상휴가수 ? user.사용포상휴가수 : "" }}
                                     </td>
                                     <td class="grid-body grid-right-line">
-                                        {{ user.기타휴가수 }}
+                                        {{ user.포상휴가수 ? user.포상휴가수 : "" }}
+                                    </td>
+                                    <td class="grid-body">
+                                        {{ user.리프레시휴가수 ? user.사용리프레시휴가수 : "" }}
+                                    </td>
+                                    <td class="grid-body grid-right-line">
+                                        {{ user.리프레시휴가수 ? user.리프레시휴가수 : "" }}
+                                    </td>
+                                    <td class="grid-body grid-right-line">
+                                        {{ user.기타휴가수 ? user.기타휴가수 : "" }}
                                     </td>
                                     <td class="grid-body" style="padding : 0">
                                         <v-btn depressed dark color="blue lighten-1" v-on="on" @click="showVacation(user)">
