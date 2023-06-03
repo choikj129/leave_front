@@ -47,7 +47,7 @@ export default {
     methods : {
         updateAPI() {
             if (confirm("API 키를 변경하시겠습니까?")) {
-                this.$post("/api/update", {
+                this.$patch("/api/update", {
                     key : this.key
                 }).then(res => {
                     if (res.status) {
