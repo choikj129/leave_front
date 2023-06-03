@@ -208,7 +208,6 @@ export default {
     },
     methods : {
         showUpdate(user) {
-            console.log(user)
             this.items = []
             user.연도 = this.userInfo.연도
             this.userInfo = user
