@@ -10,6 +10,7 @@ const colors = {
     "기타 휴가" : "teal lighten-1",
     "신규" : "orange",
     "삭제" : "grey",
+    "생일" : "pink lighten-2",
 }
 
 const methods = {
