@@ -138,16 +138,6 @@ export default {
             changeEvents : {추가 : {}, 취소 : []},
             originalEvents: {},
             events: [],
-            colors: {
-                "휴가" : "blue",
-                "오전 반차" : "cyan",
-                "오후 반차" : "cyan",
-                "포상 휴가" : "blue-grey",
-                "리프레시 휴가" : "blue-grey",
-                "기타 휴가" : "green",
-                "신규" : "orange",
-                "삭제" : "grey",
-            },
             calendarTitle: "",
             week: ["일", "월", "화", "수", "목", "금", "토"],
             etcType : "기타",
@@ -182,7 +172,7 @@ export default {
                         end: new Date(event.종료일),
                         startDate: event.시작일,
                         endDate: event.종료일,
-                        color: this.colors[event.휴가구분],
+                        color: this.$getColor(event.휴가구분),
                         index : Math.random().toString(36).substring(2),  /* 휴가 신청 목록 검색 용도 */
                         cnt : event.휴가일수,
                         type : event.휴가구분,
@@ -414,7 +404,7 @@ export default {
                 end: endDate,
                 startDate: this.startDate,
                 endDate: event.date,
-                color: this.colors.신규,
+                color: this.$getColor("신규"),
                 index : Math.random().toString(36).substring(2),
                 cnt : dateCnt,
                 type : "휴가",
@@ -482,7 +472,7 @@ export default {
                             return false
                         }else {
                             event.updateType = "D"
-                            event.color = this.colors.삭제
+                            event.color = this.$getColor("삭제")
                             event.name += " 취소"
                             this.changeEvents.취소.push(event)
                         }
@@ -501,7 +491,7 @@ export default {
                     } else if (event.type.startsWith("리프레시")) {
                         this.refreshCnt -= event.cnt
                     }
-                    event.color = this.colors[event.type]
+                    event.color = this.$getColor(event.type)
                     event.name = event.name.slice(0,-3)
                     event.updateType = undefined
                 }

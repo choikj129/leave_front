@@ -1,6 +1,17 @@
 import axios from "axios";
 import store from "../store";
 
+const colors = {
+    "휴가" : "blue",
+    "오전 반차" : "cyan",
+    "오후 반차" : "cyan",
+    "포상 휴가" : "green",
+    "리프레시 휴가" : "yellow darken-1",
+    "기타 휴가" : "teal lighten-1",
+    "신규" : "orange",
+    "삭제" : "grey",
+}
+
 const methods = {
     get : async (url, params={}) => {
         if (!url.startsWith("/")) {
@@ -107,6 +118,9 @@ const methods = {
             return isNaN(isDate) ? false : true
         }
     },
+    getColor(type) {
+        return colors[type]
+    },
 }
 
 /* Global 함수로 사용할 수 있게 */
@@ -122,5 +136,6 @@ export default {
         Vue.prototype.$dateToYMD = methods.dateToYMD
         Vue.prototype.$setHoliday = methods.setHoliday
         Vue.prototype.$dateValidation = methods.dateValidation
+        Vue.prototype.$getColor = methods.getColor
     }
 }

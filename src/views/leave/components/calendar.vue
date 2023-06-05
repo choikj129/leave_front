@@ -83,15 +83,6 @@ export default {
             selectedOpen: false,
             selectMonth : new Date(),
             events: [],
-            colors: {
-                "휴가" : "blue",
-                "오전 반차" : "cyan",
-                "오후 반차" : "cyan",
-                "포상 휴가" : "blue-grey",
-                "리프레시 휴가" : "blue-grey",
-                "기타 휴가" : "green",
-                "생일" : "pink lighten-2",
-            },
             calendarTitle: "",
             week: ["일", "월", "화", "수", "목", "금", "토"],
             calendarMinHeight : "700px",
@@ -115,7 +106,7 @@ export default {
                     end: new Date(birthday.생일),
                     startDate: birthday.생일,
                     endDate: birthday.생일,
-                    color: this.colors["생일"],                
+                    color: this.$getColor("생일"),                
                     disabled : true,
                 })
             })
@@ -129,7 +120,7 @@ export default {
                         end: new Date(event.종료일),
                         startDate: event.시작일,
                         endDate: event.종료일,
-                        color: this.colors[event.휴가구분],
+                        color: this.$getColor(event.휴가구분),
                         cnt : event.휴가일수,
                         type : event.휴가구분,
                         etcType : event.기타휴가내용,
