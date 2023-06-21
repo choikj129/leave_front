@@ -113,7 +113,7 @@ export default {
 			],
 			linksBottom : [
 				{ icon: "mdi-calendar-alert", text: "휴일 관리", auth: this.$store.getters.getUser.isManager, type: "update_holiday"},
-				{ icon: "mdi-puzzle", text: "API키 변경", auth: this.$store.getters.getUser.isManager, type: "api_update"},
+				// { icon: "mdi-puzzle", text: "API키 변경", auth: this.$store.getters.getUser.isManager, type: "api_update"},
 				{ icon: "mdi-key-variant", text: "비밀번호 변경", auth: true, type: "update_password"},
 				{ icon: "mdi-download", text: "매뉴얼 다운로드", auth: true, type: "download"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
