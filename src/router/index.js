@@ -17,11 +17,6 @@ const router = new Router({
 			path: '/leave*',
 			name: 'leave',
 			component: () => import('@/views/leave/index')
-		},
-		{
-			path: '/test',
-			name: 'test',
-			component: () => import('@/views/test')
 		}
 	]
 })
