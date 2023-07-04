@@ -14,10 +14,15 @@ const router = new Router({
 			component: () => import('@/views/login/index')
 		},
 		{
+			path: '/reset',
+			name: 'reset',
+			component: () => import('@/views/login/reset')
+		},
+		{
 			path: '/leave*',
 			name: 'leave',
 			component: () => import('@/views/leave/index')
-		}
+		},
 	]
 })
 
@@ -30,7 +35,7 @@ router.beforeEach(async (to, from, next) => {
 		} else {
 			router.push({ path: "/login" })
 		}
-	} else if (["/login", "/logout", "/test"].includes(path)) {
+	} else if (["/login", "/logout", "/test", "/reset"].includes(path)) {
 		if (path == "/logout") {
 			axios.get("/logout").then((res) => {
 				if (res.status) {
