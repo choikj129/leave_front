@@ -15,7 +15,10 @@
                 required
             ></v-text-field>
             <v-btn color="#42A5F5" @click="resetPW" block dark class="me-4">
-                비밀번호 초기화
+                초기화
+            </v-btn>
+            <v-btn color="#42A5F5" @click="undoPage" block dark class="me-4" style="margin-top : 20px">
+                취소
             </v-btn>
         </form>
     </div>
@@ -41,6 +44,9 @@ export default {
                     if (res.status) this.$router.push({path : "/login"})
                 })
             }
+        },
+        undoPage() {
+            this.$router.push({path : "/login"})
         },
         isEnter(e) {
             if(this.id && this.name && e.key == "Enter") {

@@ -15,10 +15,10 @@
 									<v-text-field label="ID" prepend-inner-icon="mdi-account" v-model="id" @keydown="isEnter"></v-text-field>
 									<v-text-field prepend-inner-icon="mdi-lock" type="password" label="Password" v-model="pw" @keydown="isEnter">
 									</v-text-field>
-									<v-btn color="blue lighten-1" block dark @click="login" class="mb-5 f2">
+									<v-btn color="blue lighten-1" block dark @click="login" class="mb-5">
 										로그인
 									</v-btn>
-									<v-btn color="blue lighten-1" block dark @click="redirectReset" class="mb-3 f2">
+									<v-btn color="blue lighten-1" block dark @click="redirectReset" class="mb-3">
 										비밀번호 초기화
 									</v-btn>
 								</form>
