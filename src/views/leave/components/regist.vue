@@ -114,13 +114,13 @@
                 </v-sheet>
             </v-col>
         </v-row>
-		<v-snackbar v-model="snackbar"
-				:timeout="timeout"
-				:width="500">
-			<div style="font-size:small">
-				끝나는 날을 선택해 주세요
-			</div>
-		<template v-slot:action="{ attrs }">
+        <v-snackbar v-model="snackbar"
+                :timeout="timeout"
+                :width="500">
+            <div style="font-size:small">
+                끝나는 날을 선택해 주세요
+            </div>
+        <template v-slot:action="{ attrs }">
           <v-btn
             color="blue"
             text
@@ -130,7 +130,7 @@
             Close
           </v-btn>
         </template>
-		</v-snackbar>
+        </v-snackbar>
     </div>
 </template>
   
@@ -166,8 +166,8 @@ export default {
             refreshCnt : 0,
             holiday : this.$store.getters.getHoliday,
             today : new Date(),
-			timeout:-1,
-			snackbar:false,
+            timeout:-1,
+            snackbar:false,
         }
     },
     created() {
@@ -349,11 +349,11 @@ export default {
         },
         selectEvent(event) {
             const nativeEvent = event.nativeEvent
-			console.log("selectEvent")
             const resetEvent = () => {
                 this.selectDate = false
                 this.startDate = null
                 this.selectedOpen = false
+                this.snackbar = false
                 if (this.selectDateBtn) {
                     this.selectDateBtn.classList.remove("selectNode")
                     this.selectDateBtn = null
@@ -377,7 +377,7 @@ export default {
                 this.selectDate = true
                 this.startDate = event.date
                 this.selectDateBtn = event.nativeEvent.srcElement.parentElement
-				this.snackbar = true // 다음 날짜 선택 메시지
+                this.snackbar = true // 다음 날짜 선택 메시지
 
                 if (event.nativeEvent.srcElement.parentElement.type == "button") {
                     this.selectDateBtn = this.selectDateBtn.parentElement
@@ -450,7 +450,7 @@ export default {
             }else {
                 this.possibleReward = false
             }
-			this.snackbar = false
+            this.snackbar = false
             this.dateHashUpdate(new Date(this.startDate), dateCnt)
             this.selectedElement = nativeEvent.target
             resetEvent()
