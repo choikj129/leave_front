@@ -24,7 +24,7 @@
                 </v-chip>
             </template>
             <template v-slot:item.삭제="{ item }" v-if="isDelete">
-                <v-btn depressed color="red lighten-1" @click="deleteReward(item)" :dark="item.사용일수 == 0" v-if="!(item.사용일수 > 0)">
+                <v-btn depressed color="red lighten-1" @click="deleteData(item)" :dark="item.사용일수 == 0" v-if="!(item.사용일수 > 0)">
                     삭제
                 </v-btn>
             </template>
@@ -66,18 +66,8 @@ export default {
                 this.isLoading = false
             })
         },
-        deleteReward(item) {
-            if (confirm(`${item.이름} ${item.직위}의 ${item.휴가유형} 휴가 ${item.휴가일수}일을 삭제하시겠습니까?`)) {
-                this.$del("/reward", {
-                    idx : item.IDX
-                }).then(res => {
-                    if (!res.status) {
-                        alert(res.msg)
-                    }
-                    this.close()
-                    this.$emit("getUsers", this.userInfo.연도, true)
-                })
-            }
+        deleteData(item) {
+            this.$emit("deleteData", item)
         },
     },
     created() {

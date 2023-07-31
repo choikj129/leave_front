@@ -438,7 +438,6 @@ export default {
             
             let possibleDate = 0;
             this.rewardLists.forEach(reward => {
-                console.log(reward)
                 const expiredDay = new Date(`${reward.만료일.substring(0, 4)}-${reward.만료일.substring(4, 6)}-${reward.만료일.substring(6, 8)}`)
                 if(this.$getDateCnt(this.selectedEvent.end, expiredDay) >= 0) {
                     possibleDate += reward.휴가일수 - reward.사용일수
@@ -538,22 +537,22 @@ export default {
                             let cnt = value.cnt
                             while (rewardLists[rewardIndex].휴가일수 < rewardLists[rewardIndex].사용일수 + cnt) {
                                 cnt -= rewardLists[rewardIndex].휴가일수 - rewardLists[rewardIndex].사용일수
-                                updateReward[rewardLists[rewardIndex].IDX] = rewardLists[rewardIndex].휴가일수 - rewardLists[rewardIndex].사용일수
+                                updateReward[rewardLists[rewardIndex].IDX] = value.cnt
                                 rewardLists[rewardIndex].사용일수 = rewardLists[rewardIndex].휴가일수
                                 rewardIndex++
                             }
                             rewardLists[rewardIndex].사용일수 += cnt
-                            updateReward[rewardLists[rewardIndex].IDX] = rewardLists[rewardIndex].휴가일수 - rewardLists[rewardIndex].사용일수                            
+                            updateReward[rewardLists[rewardIndex].IDX] = value.cnt                            
                         } else if (value.type.startsWith("리프레시")) {
                             let cnt = value.cnt
                             while (refreshLists[refreshIndex].휴가일수 < refreshLists[refreshIndex].사용일수 + cnt) {
                                 cnt -= refreshLists[refreshIndex].휴가일수 - refreshLists[refreshIndex].사용일수
-                                updateReward[refreshLists[refreshIndex].IDX] = refreshLists[refreshIndex].휴가일수 - refreshLists[refreshIndex].사용일수
+                                updateReward[refreshLists[refreshIndex].IDX] = value.cnt
                                 refreshLists[refreshIndex].사용일수 = refreshLists[refreshIndex].휴가일수
-                                refreshIndex++
-                            }
+                                refreshIndex++                                
+                            }                                                        
                             refreshLists[refreshIndex].사용일수 += cnt
-                            updateReward[refreshLists[refreshIndex].IDX] = refreshLists[refreshIndex].휴가일수 - refreshLists[refreshIndex].사용일수                            
+                            updateReward[refreshLists[refreshIndex].IDX] = value.cnt                        
                         }
                         
 

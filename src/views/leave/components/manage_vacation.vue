@@ -175,6 +175,7 @@
                         :id="userInfo.아이디"
                         :year="userInfo.연도"
                         :isDelete="true"
+                        @deleteData="deleteReward"
                     />
                 </v-card>
             </div>
