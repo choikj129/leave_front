@@ -79,7 +79,7 @@
                                         <v-list-item v-if="selectedEvent.cnt <= rewardCnt && possibleReward" @click="setType('포상 휴가')">
                                             <v-list-item-title>포상 휴가</v-list-item-title>
                                         </v-list-item>
-                                        <v-list-item v-if="selectedEvent.cnt == 5 && selectedEvent.cnt <= refreshCnt" @click="setType('리프레시 휴가')">
+                                        <v-list-item v-if="selectedEvent.cnt <= refreshCnt" @click="setType('리프레시 휴가')">
                                             <v-list-item-title>리프레시 휴가</v-list-item-title>
                                         </v-list-item>
                                         <v-list-item @click="setType('기타 휴가')">
