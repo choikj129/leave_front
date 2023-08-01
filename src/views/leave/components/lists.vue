@@ -67,7 +67,7 @@
                         <!-- 해당 컬럼은 색추가 -->
                         <template v-slot:item.휴가구분="{ item }">
                             <v-chip
-                                :color="getColor(item.휴가구분)"
+                                :color="$getColor(item.휴가구분)"
                                 dark
                             >
                                 {{ item.휴가구분 == "기타 휴가" ? item.기타휴가내용  : item.휴가구분 }}
@@ -202,9 +202,6 @@ export default {
             } else {
                 this.targetUser = {}
             }
-        },
-        getColor(type) {
-            return this.colors[type]
         },
         setTitles() {
             const 연차 = this.leaveCnts[this.year] && this.leaveCnts[this.year].휴가수 ? this.leaveCnts[this.year].휴가수 : "0"
