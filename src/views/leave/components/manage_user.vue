@@ -9,7 +9,7 @@
         <!-- v-slot on : 모달 오픈 -->
         <template v-slot:activator="{ on, attrs }">
             <!-- 상단 버튼 및 정보 -->
-            <div style="width: 100%;">
+            <div style="width: 100%">
                     <div class="mt-3" :class="{'mr-16' : !isMobile}">
                         <v-btn outlined fab text small color="grey darken-2" @click="changeYear(-1)">
                             <v-icon>
@@ -29,7 +29,10 @@
                                 엑셀다운로드
                             </v-btn>
                             <v-btn depressed color="primary" @click="showInsert" class="ml-3">
-                                직원추가
+                                단건직원추가
+                            </v-btn>
+                            <v-btn depressed color="info" @click="showExcelUpload" class="ml-3">
+                                엑셀직원추가
                             </v-btn>
                         </span>
                     </div>
@@ -182,6 +185,22 @@
                         <v-btn color="primary" text @click="insertUser">등록</v-btn>
                     </v-card-actions>
                 </v-card>
+
+                <!-- 엑셀 직원 추가 모달 -->
+                <v-card v-else-if="dialogType =='excelUpload'">
+                    <v-card-title class="text-h5 grey lighten-2">
+                        파일 업로드
+                        <v-spacer></v-spacer>
+                    <v-btn href="/static/sampleExcel.xlsx" download> 포맷 다운로드 </v-btn>
+                    </v-card-title>
+                    <input type="file" ref="excelUploader" @change="readExcelFile" style="width:100%"/>
+    
+                    <v-card-actions>
+                        <v-btn color="primary" text @click="close">닫기</v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" text @click="insertExcelUsers">등록</v-btn>
+                    </v-card-actions>
+                </v-card>
             </div>
         </v-dialog>
     </div>
@@ -203,7 +222,10 @@ export default {
             dialog: false,
             dialogType : "",
             targetDate : new Date(),
-            positions : this.$store.getters.getPosition
+            positions : this.$store.getters.getPosition,
+            positionHash : this.$store.getters.getPositionHash,
+            usersInfoJsonByExcel : [],
+            excelHeaderArray : ["아이디", "이름", "직위", "연도", "휴가수", "입사일", "이메일", "생일"],
         }
     },
     methods : {
@@ -258,6 +280,104 @@ export default {
                 생일 : "",
                 음력여부 : false,
             }
+        },
+        showExcelUpload() {
+            this.dialog = true
+            this.dialogType='excelUpload'
+        },
+        async readExcelFile(event) {
+            if (event.target.files.length > 0) {
+                this.usersInfoJsonByExcel = await excel.readExcelFile(event)
+                this.usersInfoJsonByExcel.map(e => {
+                e["직위코드"] = this.positionHash[e["직위"]]
+            })
+            } else {
+                // 파일을 빼면 비워준다.
+                this.usersInfoJsonByExcel = [];
+                this.$refs.excelUploader.value = ''
+            }
+        },
+        async insertExcelUsers() {
+            if (this.usersInfoJsonByExcel.length == 0) {
+                alert("파일을 업로드 해주세요.")
+                return
+            }
+            let validResult = this.insertExcelUsersValidation(this.usersInfoJsonByExcel)
+            if (validResult.length == 0) {
+                let res = await this.$post("/users/insertExcelUsers", this.usersInfoJsonByExcel)
+                this.usersInfoJsonByExcel = []
+                this.$emit("getUsers", this.userInfo.연도, true)
+                this.dialog = false
+                this.$refs.excelUploader.value = ''
+            } else {
+                alert(validResult.join("\n"))
+            }
+        },
+        validUser(insertUserInfo, idx) {
+            let errorMsg = "" + idx + "행 에러!! \n사유 : "
+            let isError = false;
+
+            this.excelHeaderArray.forEach(e => {
+                if (!insertUserInfo[e]) {
+                    errorMsg += e + ", "
+                    isError = true;
+                }
+            })
+
+            if (insertUserInfo.입사일) {
+                const stringJoinDay = String(insertUserInfo.입사일)
+                if (stringJoinDay.length != 8) {
+                    errorMsg += "입사일 길이 (8), "
+                    isError = true;
+                }
+                if (!this.$dateValidation(stringJoinDay)) {
+                    errorMsg += "입사일, "
+                    isError = true;
+                }
+            }
+            
+            if (insertUserInfo.생일) {
+                if (insertUserInfo.생일.length != 4) {
+                    errorMsg += "생일 ex: 0101, "
+                    isError = true;
+                }
+            }
+
+            // 엑셀상 휴가기준연도임. 이는 엑셀에서 데이터를 작성할 때 혼동을 피하기 위해서
+            // 휴가기준연도라고 컬럼을 만들었으나, 실제 DB에선 그냥 연도이기 때문에 
+            // excel.js 에서 휴가기준연도 -> 연도 로 key값을 바꿔줌.
+            if (insertUserInfo.연도) {
+                const leaveDefaultYear = String(insertUserInfo.연도)
+                if (leaveDefaultYear.length != 4) {
+                    errorMsg += "휴가기준연도자리수(4), "
+                    isError = true;
+                }
+            }
+
+            if (!isError) {
+                return ""
+            }
+
+            return errorMsg.slice(0, -2)
+        },
+        insertExcelUsersValidation(usersInfoJsonByExcel) {
+            let totalErrorMsgArray = []
+            //돌다가 에러 터지면 더 이상 안돔.
+            usersInfoJsonByExcel.every((e, idx) => {
+                // Excel의 시작 idx는 1이므로 +1, head를 제외 +1 총 +2
+                const errorMsg = this.validUser(e, idx + 2)
+                if (!e.음력여부 || e.음력여부 != "Y") {
+                    e.음력여부 = "N"
+                }
+
+                if (errorMsg) {
+                    totalErrorMsgArray.push(errorMsg)
+                    return false
+                }
+                return true
+
+            })
+            return totalErrorMsgArray
         },
         updateUser() {
             if (this.userInfo.입사일) {

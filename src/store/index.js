@@ -15,6 +15,7 @@ const state = {
     },
     holiday : {},
     position : [],
+    positionHash : {},
 }
 /* store 데이터 접근
     ex) store.getters["state 키값"]
@@ -29,6 +30,9 @@ const getters = {
     getPosition(state) {
         return state.position
     },
+    getPositionHash(state) {
+        return state.positionHash
+    }
 }
 
 /* 데이터 수정할 수 있은 함수 */
@@ -41,6 +45,9 @@ const mutations = {
     },
     setPosition(state, position) {
         return state.position = position
+    },
+    setPositionHash(state, positionHash) {
+        return state.positionHash = positionHash;
     },
     clearStore(state, user) {
         return state.user = {
