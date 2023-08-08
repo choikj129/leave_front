@@ -305,6 +305,11 @@ export default {
             let validResult = this.insertExcelUsersValidation(this.usersInfoJsonByExcel)
             if (validResult.length == 0) {
                 let res = await this.$post("/users/insertExcelUsers", this.usersInfoJsonByExcel)
+                if (!res.status) {
+                    alert("에러 발생\n에러메세지 : " + res.msg)
+                } else {
+                    alert("입력 성공\n추가인원 : " + res.data.insertUsers + "명")
+                }
                 this.usersInfoJsonByExcel = []
                 this.$emit("getUsers", this.userInfo.연도, true)
                 this.dialog = false
