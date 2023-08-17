@@ -287,6 +287,10 @@ export default {
             this.dialogType='excelUpload'
         },
         async readExcelFile(file) {
+            if (file.size > 52428800) {
+                alert("파일 크기가 50MB를 초과하였습니다.")
+                return
+            }
             if (file) {
                 const headers = ["아이디", "이름", "직위", "연도", "휴가수", "입사일", "이메일", "생일", "음력여부"]
                 this.usersInfoJsonByExcel = await excel.readExcelFile(file, headers)
