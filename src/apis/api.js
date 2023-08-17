@@ -122,6 +122,15 @@ const methods = {
     getColor(type) {
         return colors[type]
     },
+    fileDownload(fileName) {
+        const link = document.createElement("a")
+        link.href = `/api/download?fileName=${fileName}`
+        link.setAttribute("download", null)
+        link.setAttribute("id", "download")
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    }
 }
 
 /* Global 함수로 사용할 수 있게 */
@@ -138,5 +147,6 @@ export default {
         Vue.prototype.$setHoliday = methods.setHoliday
         Vue.prototype.$dateValidation = methods.dateValidation
         Vue.prototype.$getColor = methods.getColor
+        Vue.prototype.$fileDownload = methods.fileDownload
     }
 }

@@ -136,8 +136,9 @@ export default {
 			if (type == "logout"){
 				this.$router.push("/logout")
 				return
-			} else if (type == "download") {
-				this.download()
+			} else if (type == "download") {				
+				const manageType = this.$store.getters.getUser.isManager ? "관리자" : "사용자"				
+				this.$fileDownload(`어다인_휴가관리_${manageType}_매뉴얼.pdf`)
 				return
 			}
 			this.selectType = type
@@ -195,15 +196,6 @@ export default {
 					});
 				}
 			})
-		},
-		download() {
-			const link = document.createElement("a")
-			link.href = "/api/download"
-			link.setAttribute("download", null)
-			link.setAttribute("id", "download")
-			document.body.appendChild(link)
-			link.click()
-			document.body.removeChild(link)
 		},
 	},
 	created() {
