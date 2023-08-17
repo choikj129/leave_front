@@ -47,7 +47,7 @@ const mutations = {
         return state.position = position
     },
     setPositionHash(state, positionHash) {
-        return state.positionHash = positionHash;
+        return state.positionHash = positionHash
     },
     clearStore(state, user) {
         return state.user = {

@@ -159,7 +159,7 @@ export default {
             this.setTitle()
             setTimeout(() => {
                 let children = document.getElementsByClassName("v-calendar-monthly")[0].children
-                let childrenDay = document.getElementsByClassName("v-calendar-weekly__day");
+                let childrenDay = document.getElementsByClassName("v-calendar-weekly__day")
                 
                 for (let i=1; i < children.length; i++) {
                     let child = children[i]
@@ -172,7 +172,7 @@ export default {
                 for(let i=0; i<childrenDay.length; i++) {
                     let childDay = childrenDay[i]
                     
-                    let day = childDay.innerText;
+                    let day = childDay.innerText
                     day = day.split("\n")[0]
                     let month = event.start.month
                     

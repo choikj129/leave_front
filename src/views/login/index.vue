@@ -57,11 +57,11 @@ export default {
 		this.$setHoliday()
 		this.$get("/code", {name : "직위", reverse : true}).then(res => {
 			this.$store.commit("setPosition", res.data)
-			let positionHash = {};
+			let positionHash = {}
 			res.data.forEach(e => {
-				positionHash[e["표시내용"]] = e["코드명"];
+				positionHash[e["표시내용"]] = e["코드명"]
 			})
-			this.$store.commit("setPositionHash", positionHash);
+			this.$store.commit("setPositionHash", positionHash)
 		})
 	},
 	redirectReset() {

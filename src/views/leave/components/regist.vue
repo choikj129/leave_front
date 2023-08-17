@@ -287,7 +287,7 @@ export default {
             this.setTitle()
             setTimeout(() => {
                 let children = document.getElementsByClassName("v-calendar-monthly")[0].children
-                let childrenDay = document.getElementsByClassName("v-calendar-weekly__day");
+                let childrenDay = document.getElementsByClassName("v-calendar-weekly__day")
                 
                 for (let i=1; i < children.length; i++) {
                     let child = children[i]
@@ -300,7 +300,7 @@ export default {
                 for(let i=0; i<childrenDay.length; i++) {
                     let childDay = childrenDay[i]
                     
-                    let day = childDay.innerText;
+                    let day = childDay.innerText
                     day = day.split("\n")[0]
                     let month = event.start.month
                     
@@ -436,7 +436,7 @@ export default {
             this.changeEvents.추가[this.selectedEvent.index] = this.selectedEvent
             this.events.push(this.selectedEvent)
             
-            let possibleDate = 0;
+            let possibleDate = 0
             this.rewardLists.forEach(reward => {
                 const expiredDay = new Date(`${reward.만료일.substring(0, 4)}-${reward.만료일.substring(4, 6)}-${reward.만료일.substring(6, 8)}`)
                 if(this.$getDateCnt(this.selectedEvent.end, expiredDay) >= 0) {

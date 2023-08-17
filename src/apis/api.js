@@ -1,5 +1,5 @@
-import axios from "axios";
-import store from "../store";
+import axios from "axios"
+import store from "../store"
 
 const colors = {
     "휴가" : "blue",

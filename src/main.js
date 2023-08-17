@@ -8,12 +8,12 @@ import axios from "axios"
 import vuetify from "@/plugins/vuetify"
 import axiosInterceptor from "@/apis/axiosInterceptor"
 import components from "@/components/index"
-import "@/assets/css/index.css";
-import api from "@/apis/api";
+import "@/assets/css/index.css"
+import api from "@/apis/api"
 
 Vue.mixin(components)
 Vue.use(api)
-axiosInterceptor.use(axios);
+axiosInterceptor.use(axios)
 
 Vue.config.productionTip = false
 

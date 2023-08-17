@@ -293,7 +293,7 @@ export default {
             })
             } else {
                 // 파일을 빼면 비워준다.
-                this.usersInfoJsonByExcel = [];
+                this.usersInfoJsonByExcel = []
                 this.$refs.excelUploader.value = ''
             }
         },
@@ -320,12 +320,12 @@ export default {
         },
         validUser(insertUserInfo, idx) {
             let errorMsg = "" + idx + "행 에러!! \n사유 : "
-            let isError = false;
+            let isError = false
 
             this.excelHeaderArray.forEach(e => {
                 if (!insertUserInfo[e]) {
                     errorMsg += e + ", "
-                    isError = true;
+                    isError = true
                 }
             })
 
@@ -333,18 +333,18 @@ export default {
                 const stringJoinDay = String(insertUserInfo.입사일)
                 if (stringJoinDay.length != 8) {
                     errorMsg += "입사일 길이 (8), "
-                    isError = true;
+                    isError = true
                 }
                 if (!this.$dateValidation(stringJoinDay)) {
                     errorMsg += "입사일, "
-                    isError = true;
+                    isError = true
                 }
             }
             
             if (insertUserInfo.생일) {
                 if (insertUserInfo.생일.length != 4) {
                     errorMsg += "생일 ex: 0101, "
-                    isError = true;
+                    isError = true
                 }
             }
 
@@ -355,7 +355,7 @@ export default {
                 const leaveDefaultYear = String(insertUserInfo.연도)
                 if (leaveDefaultYear.length != 4) {
                     errorMsg += "휴가기준연도자리수(4), "
-                    isError = true;
+                    isError = true
                 }
             }
 

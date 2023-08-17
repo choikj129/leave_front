@@ -187,13 +187,13 @@ export default {
 				if (isLoadPage) {
 					this.usersSort = this.usersSort.sort((a, b) => {
 						if (a.이름 < b.이름) {
-							return -1;
+							return -1
 						}
 						if (a.이름 > b.이름) {
-							return 1;
+							return 1
 						}
-						return 0;
-					});
+						return 0
+					})
 				}
 			})
 		},
