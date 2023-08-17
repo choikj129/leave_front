@@ -50,25 +50,19 @@ export default {
         }
         return result
     },
-    readExcelFile(event) {
-        const file = event.target.files[0]
+    async readExcelFile(file, headers) {
         let reader = new FileReader()
         let tmpResult = {}
 
+        const cols = this.getColumnList(headers.length)
         let promise = new Promise((resolve, reject) => {
             reader.onload = (e) => {
                 let data = reader.result
                 let workbook = excel.read(data, {type: 'binary'})
                 workbook.SheetNames.forEach(sheetName => {
-                    workbook.Sheets[sheetName].A1.w = "아이디"
-                    workbook.Sheets[sheetName].B1.w = "이름"
-                    workbook.Sheets[sheetName].C1.w = "직위"
-                    workbook.Sheets[sheetName].D1.w = "연도"
-                    workbook.Sheets[sheetName].E1.w = "휴가수"
-                    workbook.Sheets[sheetName].F1.w = "입사일"
-                    workbook.Sheets[sheetName].G1.w = "이메일"
-                    workbook.Sheets[sheetName].H1.w = "생일"
-                    workbook.Sheets[sheetName].I1.w = "음력여부"
+                    for (let i = 0; i < headers.length; i++) {
+                        workbook.Sheets[sheetName][cols[i]+1].w = headers[i]
+                    }
                     const roa = excel.utils.sheet_to_json(workbook.Sheets[sheetName])
                     tmpResult = roa
                 })

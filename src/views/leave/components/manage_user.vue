@@ -191,9 +191,10 @@
                     <v-card-title class="text-h5 grey lighten-2">
                         파일 업로드
                         <v-spacer></v-spacer>
-                    <v-btn @click="$fileDownload('sampleExcel.xlsx')"> 포맷 다운로드 </v-btn>
+                        <v-btn @click="$fileDownload('sampleExcel.xlsx')"> 샘플 다운로드 </v-btn>
                     </v-card-title>
-                    <input type="file" ref="excelUploader" @change="readExcelFile" style="width:100%"/>
+                    <v-file-input ref="excelUploader" show-size label="File input" style="width:95%;" @change="readExcelFile"></v-file-input>
+                    <!-- <input type="file" ref="excelUploader" @change="readExcelFile" style="width:100%"/> -->
     
                     <v-card-actions>
                         <v-btn color="primary" text @click="close">닫기</v-btn>
@@ -285,12 +286,14 @@ export default {
             this.dialog = true
             this.dialogType='excelUpload'
         },
-        async readExcelFile(event) {
-            if (event.target.files.length > 0) {
-                this.usersInfoJsonByExcel = await excel.readExcelFile(event)
+        async readExcelFile(file) {
+            if (file) {
+                const headers = ["아이디", "이름", "직위", "연도", "휴가수", "입사일", "이메일", "생일", "음력여부"]
+                this.usersInfoJsonByExcel = await excel.readExcelFile(file, headers)
+                console.log(this.usersInfoJsonByExcel)
                 this.usersInfoJsonByExcel.map(e => {
-                e["직위코드"] = this.positionHash[e["직위"]]
-            })
+                    e["직위코드"] = this.positionHash[e["직위"]]
+                })
             } else {
                 // 파일을 빼면 비워준다.
                 this.usersInfoJsonByExcel = []
