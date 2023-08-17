@@ -191,7 +191,7 @@
                     <v-card-title class="text-h5 grey lighten-2">
                         파일 업로드
                         <v-spacer></v-spacer>
-                    <v-btn href="/static/sampleExcel.xlsx" download> 포맷 다운로드 </v-btn>
+                    <v-btn @click="$fileDownload('sampleExcel.xlsx')"> 포맷 다운로드 </v-btn>
                     </v-card-title>
                     <input type="file" ref="excelUploader" @change="readExcelFile" style="width:100%"/>
     
