@@ -59,13 +59,17 @@ export default {
             reader.onload = (e) => {
                 let data = reader.result
                 let workbook = excel.read(data, {type: 'binary'})
-                workbook.SheetNames.forEach(sheetName => {
-                    for (let i = 0; i < headers.length; i++) {
-                        workbook.Sheets[sheetName][cols[i]+1].w = headers[i]
-                    }
-                    const roa = excel.utils.sheet_to_json(workbook.Sheets[sheetName])
-                    tmpResult = roa
-                })
+                try {
+                    workbook.SheetNames.forEach(sheetName => {
+                        for (let i = 0; i < headers.length; i++) {
+                            workbook.Sheets[sheetName][cols[i]+1].w = headers[i]
+                        }
+                        const roa = excel.utils.sheet_to_json(workbook.Sheets[sheetName])
+                        tmpResult = roa
+                    })
+                } catch (e) {
+                    alert("엑셀 업로드 오류! 샘플 엑셀 파일을 참고하세요.")
+                }
                 resolve(tmpResult)
             }
             reader.readAsBinaryString(file)

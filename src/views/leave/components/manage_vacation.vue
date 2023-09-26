@@ -24,6 +24,11 @@
                                 mdi-chevron-right
                             </v-icon>
                         </v-btn>
+                        <span :class="{'manage-buttons' : !isMobile, 'block' : isMobile}">
+                            <v-btn depressed color="success" @click="showExcelUpload" class="ml-3">
+                                엑셀휴가추가
+                            </v-btn>
+                        </span>
                     </div>
 
                     <!-- 테이블 -->
@@ -178,6 +183,22 @@
                         @deleteData="deleteReward"
                     />
                 </v-card>
+                                <!-- 엑셀 직원 추가 모달 -->
+                <v-card v-else-if="dialogType =='excelUpload'">
+                    <v-card-title class="text-h5 grey lighten-2">
+                        파일 업로드
+                        <v-spacer></v-spacer>
+                        <v-btn @click="excelDown"> 샘플 다운로드 </v-btn>
+                    </v-card-title>
+                    <v-file-input v-model="excelUploader" :accept="fileAccept" show-size label="File input" style="width:95%;" @change="readExcelFile"></v-file-input>
+                    <!-- <input type="file" ref="excelUploader" @change="readExcelFile" style="width:100%"/> -->
+    
+                    <v-card-actions>
+                        <v-btn color="primary" text @click="close">닫기</v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" text @click="insertExcelUsers">등록</v-btn>
+                    </v-card-actions>
+                </v-card>
             </div>
         </v-dialog>
     </div>
@@ -185,6 +206,7 @@
 
 <script>
 import reward_list from "./include/reward_list.vue"
+import excel from "@/apis/excel"
 export default {
     components : {
         reward_list,
@@ -227,7 +249,11 @@ export default {
                     유형 : "리프레시",
                 },
             ],
-            positions : this.$store.getters.getPosition
+            positions : this.$store.getters.getPosition,
+            positionHash : this.$store.getters.getPositionHash,
+            usersInfoJsonByExcel : [],
+            excelUploader : null,
+            fileAccept : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
         }
     },
     methods : {
@@ -273,6 +299,10 @@ export default {
                 아이디 : "",
                 입사일 : "",
             }
+        },
+        showExcelUpload() {
+            this.dialog = true
+            this.dialogType='excelUpload'
         },
         updateUser() {
             if (!this.userInfo.휴가수) {
@@ -343,6 +373,130 @@ export default {
         dateValidation(date) {
             const isDate = new Date(`${date.substring(0,4)}-${date.substring(4,6)}-${date.substring(6,8)}`)
             return isNaN(isDate) ? false : true
+        },
+        excelDown() {
+            let excelUsers = []
+            const titleYear = Number(this.userInfo.연도) + 1;
+            this.users.forEach(user => {
+                excelUsers.push({
+                    아이디 : user.아이디,
+                    이름 : user.이름,
+                    직위 : user.직위,
+                    휴가수 : user.추가휴가수,
+                    기준연도 : titleYear,
+                })
+            })
+            /* 컬럼 가로 길이 설정 */
+            const colOpt = [
+                {wch : 30},
+                {wch : 10},
+                {wch : 10},
+                {wch : 10},
+                {wch : 10},
+            ]
+            excel.excelDownload(excelUsers, `${titleYear}년_직원_휴가_추가`, `${titleYear}년 휴가`, {"!cols" : colOpt})
+        },
+        async readExcelFile(file) {
+            if (!file) {
+                this.clearExcelUploader();
+                return
+            } 
+
+            if (file.size > 52428800) {
+                    alert("파일 크기가 50MB를 초과하였습니다.")
+                    this.clearExcelUploader();
+                    return
+            }
+            if (!this.isExcel(file.type)) {
+                alert("파일 형식이 Excel이 아닙니다. (.xls 혹은 .xlsx 파일이 필요합니다.)")
+                this.clearExcelUploader();
+                return
+            }
+
+            const headers = ["아이디", "이름", "직위", "휴가수", "기준연도"]
+            try {
+                this.usersInfoJsonByExcel = await excel.readExcelFile(file, headers)
+                this.mapPositionCodes()
+            } catch(e) {
+                this.clearExcelUploader();
+            }
+        },
+        isExcel(fileType) {
+            return fileType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || fileType === "application/vnd.ms-excel"
+        },
+        clearExcelUploader() {
+            this.usersInfoJsonByExcel = []
+            this.excelUploader = null
+        },
+        mapPositionCodes() {
+            this.usersInfoJsonByExcel.map(e => {
+                e["직위코드"] = this.positionHash[e["직위"]]
+            })
+        },
+        async insertExcelUsers() {
+            if (this.usersInfoJsonByExcel.length == 0) {
+                alert("파일을 업로드 해주세요.")
+                return
+            }
+            
+            let validResult = this.validExcelFile(this.usersInfoJsonByExcel)
+
+            if (validResult.length != 0) {
+                alert("엑셀 파일 오류! 샘플 엑셀 파일을 참고해주세요.")
+                this.clearExcelUploader()
+                return
+            }
+
+            let res = await this.$post("/leave/cntExcel", this.usersInfoJsonByExcel)
+            if (!res.status) {
+                alert("에러 발생\n에러메세지 : " + res.msg)
+            } else {
+                alert("입력 성공\n추가인원 : " + res.data.successCount + "명")
+            }
+            this.clearExcelUploader();
+            this.$emit("getUsers", this.userInfo.연도, true)
+            this.dialog = false
+        },
+        validExcelFile(userInfoArray) {
+            let errorMsgArray = []
+
+            userInfoArray.every((e, idx) => {
+                const errorMsg = this.validUser(e, idx + 2)
+                if (errorMsg) {
+                    errorMsgArray.push(errorMsg)
+                    return false
+                }
+                return true
+            })
+
+            return errorMsgArray
+
+        },
+        validUser(userInfo, idx) {
+            let errorMsg = "" + idx + "행 에러!! \n사유 : "
+            let isError = false
+
+            if (userInfo.기준연도) {
+                const baseYearString = String(userInfo.기준연도)
+                if (baseYearString.length != 4) {
+                    errorMsg += "기준연도 길이(4), "
+                    isError = true
+                }
+            }
+
+            if (userInfo.휴가수) {
+                if (userInfo.휴가수.isNaN) {
+                    errorMsg += "휴가수는 숫자여야 합니다."
+                    isError = true
+                }
+            }
+
+            if (!isError) {
+                return ''
+            }
+
+            return errorMsg.slice(0, -2)
+
         },
     },
 }

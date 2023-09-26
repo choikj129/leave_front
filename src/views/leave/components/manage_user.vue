@@ -193,7 +193,7 @@
                         <v-spacer></v-spacer>
                         <v-btn @click="$fileDownload('sampleExcel.xlsx')"> 샘플 다운로드 </v-btn>
                     </v-card-title>
-                    <v-file-input ref="excelUploader" show-size label="File input" style="width:95%;" @change="readExcelFile"></v-file-input>
+                    <v-file-input v-model="excelUploader" show-size label="File input" style="width:95%;" @change="readExcelFile"></v-file-input>
                     <!-- <input type="file" ref="excelUploader" @change="readExcelFile" style="width:100%"/> -->
     
                     <v-card-actions>
@@ -226,6 +226,7 @@ export default {
             positions : this.$store.getters.getPosition,
             positionHash : this.$store.getters.getPositionHash,
             usersInfoJsonByExcel : [],
+            excelUploader : null,
             excelHeaderArray : ["아이디", "이름", "직위", "연도", "휴가수", "입사일", "이메일", "생일"],
         }
     },
@@ -287,22 +288,36 @@ export default {
             this.dialogType='excelUpload'
         },
         async readExcelFile(file) {
+            if (!file) {
+                this.clearExcelUploader()
+                return
+            }
+
             if (file.size > 52428800) {
                 alert("파일 크기가 50MB를 초과하였습니다.")
                 return
             }
-            if (file) {
-                const headers = ["아이디", "이름", "직위", "연도", "휴가수", "입사일", "이메일", "생일", "음력여부"]
-                this.usersInfoJsonByExcel = await excel.readExcelFile(file, headers)
-                console.log(this.usersInfoJsonByExcel)
-                this.usersInfoJsonByExcel.map(e => {
-                    e["직위코드"] = this.positionHash[e["직위"]]
-                })
-            } else {
-                // 파일을 빼면 비워준다.
-                this.usersInfoJsonByExcel = []
-                this.$refs.excelUploader.value = ''
+
+            if (!this.isExcel(file.type)) {
+                alert("파일 형식이 Excel이 아닙니다. (.xls 혹은 .xlsx 파일이 필요합니다.)")
+                this.clearExcelUploader();
+                return
             }
+            const headers = ["아이디", "이름", "직위", "연도", "휴가수", "입사일", "이메일", "생일", "음력여부"]
+            this.usersInfoJsonByExcel = await excel.readExcelFile(file, headers)
+            this.mapPositionCodes()
+        },
+        isExcel(fileType) {
+            return fileType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || fileType === "application/vnd.ms-excel"
+        },
+        clearExcelUploader() {
+            this.usersInfoJsonByExcel = []
+            this.excelUploader = null
+        },
+        mapPositionCodes() {
+            this.usersInfoJsonByExcel.map(e => {
+                e["직위코드"] = this.positionHash[e["직위"]]
+            })
         },
         async insertExcelUsers() {
             if (this.usersInfoJsonByExcel.length == 0) {
@@ -310,20 +325,22 @@ export default {
                 return
             }
             let validResult = this.insertExcelUsersValidation(this.usersInfoJsonByExcel)
-            if (validResult.length == 0) {
-                let res = await this.$post("/users/insertExcelUsers", this.usersInfoJsonByExcel)
-                if (!res.status) {
-                    alert("에러 발생\n에러메세지 : " + res.msg)
-                } else {
-                    alert("입력 성공\n추가인원 : " + res.data.insertUsers + "명")
-                }
-                this.usersInfoJsonByExcel = []
-                this.$emit("getUsers", this.userInfo.연도, true)
-                this.dialog = false
-                this.$refs.excelUploader.value = ''
-            } else {
+            if (validResult.length != 0) {
                 alert(validResult.join("\n"))
+                this.clearExcelUploader()
+                return
+            } 
+            
+            let res = await this.$post("/users/insertExcelUsers", this.usersInfoJsonByExcel)
+            if (!res.status) {
+                alert("에러 발생\n에러메세지 : " + res.msg)
+            } else {
+                alert("입력 성공\n추가인원 : " + res.data.insertUsers + "명")
             }
+            this.usersInfoJsonByExcel = []
+            this.$emit("getUsers", this.userInfo.연도, true)
+            this.dialog = false
+            this.excelUploader = null
         },
         validUser(insertUserInfo, idx) {
             let errorMsg = "" + idx + "행 에러!! \n사유 : "
