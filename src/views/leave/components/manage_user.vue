@@ -17,7 +17,7 @@
                             </v-icon>
                         </v-btn>
                         <h3 class="di mt-3">
-                            {{userInfo.연도}} 년 휴가 관리
+                            {{userInfo.연도}} 년 직원 관리
                         </h3>
                         <v-btn outlined fab text small color="grey darken-2" @click="changeYear(1)">
                             <v-icon>

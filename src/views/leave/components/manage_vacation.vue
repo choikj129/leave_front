@@ -382,7 +382,7 @@ export default {
                     아이디 : user.아이디,
                     이름 : user.이름,
                     직위 : user.직위,
-                    휴가수 : user.추가휴가수,
+                    휴가수 : 0,
                     기준연도 : titleYear,
                 })
             })
