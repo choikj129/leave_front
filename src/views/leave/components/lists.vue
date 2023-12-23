@@ -148,7 +148,7 @@ export default {
             }).then((res) => {
                 this.$emit("getCnts", false, id, ()=>{
                     let count = 0
-                    let data = res.data.lists.reduce((acc, obj) => {
+                    let data = res.data.reduce((acc, obj) => {
                         count += obj.휴가일수
                         obj.누적휴가수 = count
                         acc.push(obj)
@@ -157,7 +157,7 @@ export default {
 
                     /* 초기 로딩시 연동 select box 값 설정 */
                     if (this.years.length == 0) {
-                        for (let i=res.data.date[0].휴가종료연도; i>res.data.date[0].휴가시작연도-1; i--) {
+                        for (let i=this.year + 1; i>this.year - 3; i--) {
                             this.years.push(i)
                         }
                     }
