@@ -187,6 +187,9 @@ export default {
                     } else if (isNext) {
                         month++
                     }
+
+                    month %= 12
+                    if (month == 0) month = 12
                     
                     day = day.length == 1 ? "0" + day : day.toString()
                     month = month < 10 ? "0" + month : month.toString()

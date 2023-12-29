@@ -303,7 +303,6 @@ export default {
                     let day = childDay.innerText
                     day = day.split("\n")[0]
                     let month = event.start.month
-                    
                     if (isPrev && day == 1) {
                         isPrev = false
                     } else if (!isPrev && day == 1) {
@@ -315,6 +314,9 @@ export default {
                     } else if (isNext) {
                         month++
                     }
+
+                    month %= 12
+                    if (month == 0) month = 12
                     
                     day = day.length == 1 ? "0" + day : day.toString()
                     month = month < 10 ? "0" + month : month.toString()
