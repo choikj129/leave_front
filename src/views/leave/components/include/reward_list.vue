@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-card-title class="text-h5 grey lighten-2 bold">
-            연차 외 휴가 내역
+            포상/리프레시 휴가 내역
             <v-spacer></v-spacer>
         </v-card-title>
         <!-- 포상/리프레시 내역 모달 -->

@@ -36,40 +36,40 @@ const methods = {
             return e
         }
     },
-    post : async (url, params) => {
+    post : async (url, params={}) => {
         if (!url.startsWith("/")) {
             url = "/" + url
         }
         try {
-            return await axios.post(url, params).then((res) => { return res })
+            return await axios.post(url, params={}).then((res) => { return res })
         } catch(e) {
             console.error(e)
             return e
         }
     },    
-    put : async (url, params) => {
+    put : async (url, params={}) => {
         if (!url.startsWith("/")) {
             url = "/" + url
         }
         try {
-            return await axios.put(url, params).then((res) => { return res })
+            return await axios.put(url, params={}).then((res) => { return res })
         } catch(e) {
             console.error(e)
             return e
         }
     },
-    patch : async (url, params) => {
+    patch : async (url, params={}) => {
         if (!url.startsWith("/")) {
             url = "/" + url
         }
         try {
-            return await axios.patch(url, params).then((res) => { return res })
+            return await axios.patch(url, params={}).then((res) => { return res })
         } catch(e) {
             console.error(e)
             return e
         }
     },
-    delete : async (url, params) => {
+    delete : async (url, params={}) => {
         if (!url.startsWith("/")) {
             url = "/" + url
         }
