@@ -28,6 +28,9 @@
                             <v-btn depressed color="success" @click="showExcelUpload" class="ml-3">
                                 엑셀휴가추가
                             </v-btn>
+                            <v-btn depressed color="primary" @click="carryLastYear" class="ml-3">
+                                작년휴가이월
+                            </v-btn>
                         </span>
                     </div>
 
@@ -49,7 +52,7 @@
                                         사용연차
                                     </th>
                                     <th class="text-center grid-header grid-right-line">
-                                        연차
+                                        연차 (이월)
                                     </th>
                                     <th class="text-center grid-header">
                                         사용포상휴가
@@ -86,7 +89,7 @@
                                         {{ user.사용휴가수 }}
                                     </td>
                                     <td class="grid-body grid-right-line">
-                                        {{ !user.휴가수 ? "" : user.휴가수 }}
+                                        {{ !user.휴가수 ? "" : user.휴가수 }} ({{ !user.이월휴가수 ? "0" : user.이월휴가수 }})
                                     </td>
                                     <td class="grid-body">
                                         {{ user.포상휴가수 ? user.사용포상휴가수 : "" }}
@@ -135,6 +138,7 @@
                                 class="required"
                                 outlined>
                             </v-text-field>
+                            <v-checkbox v-model="isIncludeCarry" label="이월 휴가 포함 여부"></v-checkbox>
                         </v-container>
                     </v-form>
                     
@@ -183,7 +187,7 @@
                         @deleteData="deleteReward"
                     />
                 </v-card>
-                                <!-- 엑셀 직원 추가 모달 -->
+                <!-- 엑셀 직원 추가 모달 -->
                 <v-card v-else-if="dialogType =='excelUpload'">
                     <v-card-title class="text-h5 grey lighten-2">
                         파일 업로드
@@ -253,7 +257,8 @@ export default {
             positionHash : this.$store.getters.getPositionHash,
             usersInfoJsonByExcel : [],
             excelUploader : null,
-            fileAccept : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+            fileAccept : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel",
+            isIncludeCarry : false
         }
     },
     methods : {
@@ -266,6 +271,7 @@ export default {
             this.items = []
             user.연도 = this.userInfo.연도
             this.userInfo = user
+            this.isIncludeCarry = !user.이월휴가수 || user.이월휴가수 == 0 ? false : true
             this.dialogType = "update"
             this.dialogWidth = "400"
         },
@@ -316,7 +322,8 @@ export default {
             this.$patch("/leave/cnt", {
                 id : this.userInfo.아이디,
                 year : this.userInfo.연도,
-                cnt : this.userInfo.휴가수
+                cnt : this.userInfo.휴가수,
+                isIncludeCarry : this.isIncludeCarry,
             }).then((res) =>{
                 if (res.status) {
                     this.$emit("getUsers", this.userInfo.연도)
@@ -497,6 +504,18 @@ export default {
 
             return errorMsg.slice(0, -2)
 
+        },
+        carryLastYear() {
+            if (!confirm("현재 연차에 작년 남은 휴가를 더합니다.\n작년 휴가를 이월하시겠습니까?\n(이미 이월된 휴가는 초기화 후 다시 이월됩니다.)")) return false
+            this.$patch("/leave/carry-over", {
+                year : this.userInfo.연도
+            }).then(res => {
+                if (!res.status) {
+                    alert(res.msg)
+                }
+                this.close()
+                this.$emit("getUsers", this.userInfo.연도, true)
+            })
         },
     },
 }
