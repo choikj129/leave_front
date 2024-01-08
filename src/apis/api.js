@@ -13,6 +13,13 @@ const colors = {
     "생일" : "pink lighten-2",
 }
 
+const errorCallback = (e) => {
+    if (e.message) {
+        alert(e.message)
+    }
+    console.error(e)
+}
+
 const methods = {
     get : async (url, params={}) => {
         if (!url.startsWith("/")) {
@@ -32,7 +39,7 @@ const methods = {
         try {            
             return await axios.get(url).then((res) => { return res })
         } catch(e) {
-            console.error(e)
+            errorCallback(e)
             return e
         }
     },
@@ -43,7 +50,7 @@ const methods = {
         try {
             return await axios.post(url, params={}).then((res) => { return res })
         } catch(e) {
-            console.error(e)
+            errorCallback(e)
             return e
         }
     },    
@@ -54,7 +61,7 @@ const methods = {
         try {
             return await axios.put(url, params={}).then((res) => { return res })
         } catch(e) {
-            console.error(e)
+            errorCallback(e)
             return e
         }
     },
@@ -65,7 +72,7 @@ const methods = {
         try {
             return await axios.patch(url, params={}).then((res) => { return res })
         } catch(e) {
-            console.error(e)
+            errorCallback(e)
             return e
         }
     },
@@ -78,7 +85,7 @@ const methods = {
                 data : params
             }).then((res) => { return res })
         } catch(e) {
-            console.error(e)
+            errorCallback(e)
             return e
         }
     },
@@ -108,7 +115,7 @@ const methods = {
             }
             return true
         } catch(e) {
-            console.error(e)
+            errorCallback(e)
             return false
         }
     },

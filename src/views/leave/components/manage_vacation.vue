@@ -509,15 +509,13 @@ export default {
         },
         showCarryOverAlert() {
             this.dialogType = "carryOver"
+            this.dialogWidth = "400"
         },
         carryLastYear(isAllCarry) {            
             this.$patch("/leave/carry-over", {
                 year : this.userInfo.연도,
                 isAllCarry : isAllCarry,
             }).then(res => {
-                if (!res.status) {
-                    alert(res.msg)
-                }
                 this.close()
                 this.$emit("getUsers", this.userInfo.연도, true)
             })
