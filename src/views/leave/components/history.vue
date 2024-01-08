@@ -31,7 +31,7 @@ export default {
 		}
 	},
 	created() {
-		this.$get("/users/history").then((res) => {
+		this.$get("/leave/history").then((res) => {
 			this.history = res.data
 		})
 	}
