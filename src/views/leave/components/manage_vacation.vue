@@ -25,10 +25,10 @@
                             </v-icon>
                         </v-btn>
                         <span :class="{'manage-buttons' : !isMobile, 'block' : isMobile}">
-                            <v-btn depressed color="success" @click="showExcelUpload" class="ml-3">
+                            <v-btn depressed color="success" v-on="on" @click="showExcelUpload" class="ml-3">
                                 엑셀휴가추가
                             </v-btn>
-                            <v-btn depressed color="primary" @click="carryLastYear" class="ml-3">
+                            <v-btn depressed color="primary" v-on="on" @click="showCarryOverAlert" class="ml-3">
                                 작년휴가이월
                             </v-btn>
                         </span>
@@ -203,6 +203,19 @@
                         <v-btn color="primary" text @click="insertExcelUsers">등록</v-btn>
                     </v-card-actions>
                 </v-card>
+                <!-- 엑셀 직원 추가 모달 -->
+                <v-card v-else-if="dialogType =='carryOver'">
+                    <v-card-text id="alertText">현재 연차에 작년 남은 휴가를 더합니다.<br/>
+                        작년 휴가를 이월하시겠습니까?<br/>
+                        (이미 이월된 휴가는 초기화 후 다시 이월됩니다.)
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn color="green-darken-1" @click="dialog = false">닫기</v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" @click="carryLastYear(false)">초과 휴가 차감</v-btn>
+                        <v-btn color="primary" @click="carryLastYear(true)">전체 휴가 이월</v-btn>
+                    </v-card-actions>
+                </v-card>
             </div>
         </v-dialog>
     </div>
@@ -296,18 +309,7 @@ export default {
             this.userInfo.연도 = this.targetDate.getFullYear()
             this.$emit("getUsers", this.userInfo.연도)
         },
-        showInsert() {
-            this.dialog = true
-            this.dialogType='insert'
-            this.insertUserInfo = {
-                이름 : "",
-                직위코드 : "",
-                아이디 : "",
-                입사일 : "",
-            }
-        },
         showExcelUpload() {
-            this.dialog = true
             this.dialogType='excelUpload'
         },
         updateUser() {
@@ -505,10 +507,13 @@ export default {
             return errorMsg.slice(0, -2)
 
         },
-        carryLastYear() {
-            if (!confirm("현재 연차에 작년 남은 휴가를 더합니다.\n작년 휴가를 이월하시겠습니까?\n(이미 이월된 휴가는 초기화 후 다시 이월됩니다.)")) return false
+        showCarryOverAlert() {
+            this.dialogType = "carryOver"
+        },
+        carryLastYear(isAllCarry) {            
             this.$patch("/leave/carry-over", {
-                year : this.userInfo.연도
+                year : this.userInfo.연도,
+                isAllCarry : isAllCarry,
             }).then(res => {
                 if (!res.status) {
                     alert(res.msg)
@@ -520,3 +525,10 @@ export default {
     },
 }
 </script>
+
+<style scoped>
+    #alertText {
+        color : black!important;
+        font-size : 15px!important;
+    }
+</style>
