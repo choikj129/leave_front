@@ -1,5 +1,3 @@
-import router from "../router"
-
 let requestInterceptor = null
 let responseInterceptor = null
 

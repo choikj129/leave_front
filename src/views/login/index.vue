@@ -48,21 +48,22 @@ export default {
 			pw: this.pw
 		})
 		if (resLogin.status) {
+			this.$setHoliday()
+			this.$get("/code", {name : "직위", reverse : true}).then(res => {
+				this.$store.commit("setPosition", res.data)
+				let positionHash = {}
+				res.data.forEach(e => {
+					positionHash[e["표시내용"]] = e["코드명"]
+				})
+				this.$store.commit("setPositionHash", positionHash)
+			})
+			
 			this.$store.commit("setUser", resLogin.data)
 			this.$router.push({ path: "leave" })
 		} else {
 			resLogin.msg ? alert(resLogin.msg) : alert(resLogin.message)
 		}
 
-		this.$setHoliday()
-		this.$get("/code", {name : "직위", reverse : true}).then(res => {
-			this.$store.commit("setPosition", res.data)
-			let positionHash = {}
-			res.data.forEach(e => {
-				positionHash[e["표시내용"]] = e["코드명"]
-			})
-			this.$store.commit("setPositionHash", positionHash)
-		})
 	},
 	redirectReset() {
 		this.$router.push({path : '/reset'})
