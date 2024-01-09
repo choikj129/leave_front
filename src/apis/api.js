@@ -48,7 +48,7 @@ const methods = {
             url = "/" + url
         }
         try {
-            return await axios.post(url, params={}).then((res) => { return res })
+            return await axios.post(url, params).then((res) => { return res })
         } catch(e) {
             errorCallback(e)
             return e
@@ -59,7 +59,7 @@ const methods = {
             url = "/" + url
         }
         try {
-            return await axios.put(url, params={}).then((res) => { return res })
+            return await axios.put(url, params).then((res) => { return res })
         } catch(e) {
             errorCallback(e)
             return e
@@ -70,7 +70,7 @@ const methods = {
             url = "/" + url
         }
         try {
-            return await axios.patch(url, params={}).then((res) => { return res })
+            return await axios.patch(url, params).then((res) => { return res })
         } catch(e) {
             errorCallback(e)
             return e
