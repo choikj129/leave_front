@@ -138,8 +138,7 @@
                                 class="required"
                                 outlined>
                             </v-text-field>
-                            <v-checkbox v-model="isIncludeCarry" label="이월 휴가 포함 여부"></v-checkbox>
-                        </v-container>
+                         </v-container>
                     </v-form>
                     
                     <v-card-actions>
@@ -271,7 +270,6 @@ export default {
             usersInfoJsonByExcel : [],
             excelUploader : null,
             fileAccept : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel",
-            isIncludeCarry : false
         }
     },
     methods : {
@@ -284,7 +282,6 @@ export default {
             this.items = []
             user.연도 = this.userInfo.연도
             this.userInfo = user
-            this.isIncludeCarry = !user.이월휴가수 || user.이월휴가수 == 0 ? false : true
             this.dialogType = "update"
             this.dialogWidth = "400"
         },
@@ -322,10 +319,9 @@ export default {
                 return
             }
             this.$patch("/leave/cnt", {
-                id : this.userInfo.아이디,
-                year : this.userInfo.연도,
-                cnt : this.userInfo.휴가수,
-                isIncludeCarry : this.isIncludeCarry,
+                아이디 : this.userInfo.아이디,
+                기준연도 : this.userInfo.연도,
+                휴가수 : this.userInfo.휴가수,
             }).then((res) =>{
                 if (res.status) {
                     this.$emit("getUsers", this.userInfo.연도)
