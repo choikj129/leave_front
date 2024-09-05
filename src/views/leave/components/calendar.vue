@@ -173,7 +173,9 @@ export default {
                     let childDay = childrenDay[i]
                     
                     let day = childDay.innerText
-                    day = day.split("\n")[0]
+                    let days = day.split("\n")
+                    day = days[0]
+                    if (day == "") day = days[1]
                     let month = event.start.month
                     
                     if (isPrev && day == 1) {
@@ -195,11 +197,11 @@ export default {
                     month = month < 10 ? "0" + month : month.toString()
                     let date = event.start.year + month + day
                     if (this.holiday[date]) {         
-                        childDay.getElementsByTagName("span")[0].style.cssText = "color:red!important"
-                        childDay.getElementsByTagName("span")[0].innerHTML = parseInt(day) + "<br>" + this.holiday[date] + "</br>"
+                        childDay.getElementsByTagName("span")[0].style.color = "red"
+                        childDay.getElementsByTagName("span")[0].innerHTML = parseInt(day) + "<br>" + this.holiday[date]
                     }
                 }
-            }, 5)
+            }, 100)
         },
         showEvent({nativeEvent, event}){
             const open = () => {
