@@ -196,9 +196,17 @@ export default {
                     day = day.length == 1 ? "0" + day : day.toString()
                     month = month < 10 ? "0" + month : month.toString()
                     let date = event.start.year + month + day
-                    if (this.holiday[date]) {         
-                        childDay.getElementsByTagName("span")[0].style.color = "red"
-                        childDay.getElementsByTagName("span")[0].innerHTML = parseInt(day) + "<br>" + this.holiday[date]
+                    if (this.holiday[date]) {  
+                        let holidayEl = childDay.getElementsByTagName("span")[0]       
+                        holidayEl.style.color = "red"
+                        let holidayName = this.holiday[date]
+                        if (holidayName.length > 5) {
+                            holidayEl.title = holidayName
+                            holidayName =  holidayName.startsWith("대체공휴일") 
+                                ? `${holidayName.slice(5).replace("(", "").replace(")", "")}<br>(대체공휴일)`
+                                : holidayName.slice(0, 5) + "..."
+                        }
+                        holidayEl.innerHTML = parseInt(day) + "<br>" + holidayName
                     }
                 }
             }, 100)

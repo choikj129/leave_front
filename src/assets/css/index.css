@@ -228,3 +228,7 @@ img {
 	position: absolute;
 	right: 12%;
 }
+
+.v-calendar-weekly__day-label {
+	height: 50px!important;
+}
