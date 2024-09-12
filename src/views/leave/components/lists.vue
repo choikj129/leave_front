@@ -150,7 +150,7 @@ export default {
                     let count = 0
                     let data = res.data.reduce((acc, obj) => {
                         count += obj.휴가일수
-                        obj.누적휴가수 = count
+                        obj.누적휴가수 = obj.휴가구분 == "기타 휴가" ? "-" : count
                         acc.push(obj)
                         return acc
                     }, [])
