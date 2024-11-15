@@ -204,9 +204,10 @@ export default {
             }
         },
         setTitles() {
-            const 연차 = this.leaveCnts[this.year] && this.leaveCnts[this.year].휴가수 ? this.leaveCnts[this.year].휴가수 : "0"
-            const 사용연차 = this.leaveCnts[this.year] && this.leaveCnts[this.year].사용휴가수 ? this.leaveCnts[this.year].사용휴가수 : "0"
-            const 잔여연차 = this.leaveCnts[this.year] && this.leaveCnts[this.year].잔여휴가수 ? this.leaveCnts[this.year].잔여휴가수 : "0"
+            console.log(this.leaveCnts)
+            const 연차 = this.leaveCnts[this.year] && this.leaveCnts[this.year].휴가수 ? this.leaveCnts[this.year].휴가수 : 0
+            const 사용연차 = this.leaveCnts[this.year] && this.leaveCnts[this.year].사용휴가수 ? this.leaveCnts[this.year].사용휴가수 : 0
+            const 잔여연차 = this.leaveCnts[this.year] && this.leaveCnts[this.year].잔여휴가수 ? this.leaveCnts[this.year].잔여휴가수 : 0
             this.cntTitles.leave.content = `${사용연차}개 사용 | ${잔여연차}개 사용 가능 (총 ${연차}개 연차 부여)`
 
             const 포상 = this.reward.휴가일수
