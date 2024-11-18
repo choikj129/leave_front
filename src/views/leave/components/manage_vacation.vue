@@ -26,7 +26,10 @@
                         </v-btn>
                         <span :class="{'manage-buttons' : !isMobile, 'block' : isMobile}">
                             <v-btn depressed color="success" v-on="on" @click="showExcelUpload" class="ml-3">
-                                엑셀휴가추가
+                                엑셀연차추가
+                            </v-btn>
+                            <v-btn depressed color="success" v-on="on" @click="dialogType = 'rewardExcelUpload'" class="ml-3">
+                                엑셀포상추가
                             </v-btn>
                             <v-btn depressed color="primary" v-on="on" @click="showCarryOverAlert" class="ml-3">
                                 작년휴가이월
@@ -169,6 +172,7 @@
                             ></v-select>
                             <v-text-field v-model="rewardUserInfo.휴가일수" label="휴가일수" class="required" outlined></v-text-field>
                             <v-text-field v-model="rewardUserInfo.등록일" label="등록일 (YYYYMMDD)" class="required" counter="8" :rules="dateRule" outlined></v-text-field>
+                            <v-text-field v-model="rewardUserInfo.만료일" label="만료일 (YYYYMMDD)" class="required" counter="8" :rules="dateRule" outlined></v-text-field>
                         </v-container>
                     </v-form>
 
@@ -186,14 +190,30 @@
                         @deleteData="deleteReward"
                     />
                 </v-card>
-                <!-- 엑셀 직원 추가 모달 -->
+                <!-- 엑셀 연차 추가 모달 -->
                 <v-card v-else-if="dialogType =='excelUpload'">
                     <v-card-title class="text-h5 grey lighten-2">
-                        파일 업로드
+                        연차 파일 업로드
                         <v-spacer></v-spacer>
                         <v-btn @click="excelDown"> 샘플 다운로드 </v-btn>
                     </v-card-title>
-                    <v-file-input v-model="excelUploader" :accept="fileAccept" show-size label="File input" style="width:95%;" @change="readExcelFile"></v-file-input>
+                    <v-file-input v-model="excelUploader" :accept="fileAccept" show-size label="File input" style="width:95%;" @change="(file) => readExcelFile(file, header)"></v-file-input>
+                    <!-- <input type="file" ref="excelUploader" @change="readExcelFile" style="width:100%"/> -->
+    
+                    <v-card-actions>
+                        <v-btn color="primary" text @click="close">닫기</v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" text @click="insertExcelUsers">등록</v-btn>
+                    </v-card-actions>
+                </v-card>
+                <!-- 엑셀 포상 추가 모달 -->
+                <v-card v-else-if="dialogType =='rewardExcelUpload'">
+                    <v-card-title class="text-h5 grey lighten-2">
+                        포상/리프레시 파일 업로드
+                        <v-spacer></v-spacer>
+                        <v-btn @click="rewardExcelDown"> 샘플 다운로드 </v-btn>
+                    </v-card-title>
+                    <v-file-input v-model="excelUploader" :accept="fileAccept" show-size label="File input" style="width:95%;" @change="(file) => readExcelFile(file, rewardHeader)"></v-file-input>
                     <!-- <input type="file" ref="excelUploader" @change="readExcelFile" style="width:100%"/> -->
     
                     <v-card-actions>
@@ -248,6 +268,7 @@ export default {
                 유형 : "",
                 휴가일수 : "",
                 등록일 : "",
+                만료일 : "",
             },
             dialog: false,
             dialogType : "",
@@ -270,7 +291,12 @@ export default {
             usersInfoJsonByExcel : [],
             excelUploader : null,
             fileAccept : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel",
+            rewardHeader : ["아이디", "이름", "포상휴가수", "포상휴가등록일", "포상휴가만료일", "리프레시휴가수", "리프레시휴가등록일", "리프레시휴가만료일", "기준연도"],
+            header : ["아이디", "이름", "직위", "휴가수", "기준연도"],
         }
+    },
+    created() {
+        console.log(this.users)
     },
     methods : {
         clickRows() {
@@ -293,7 +319,8 @@ export default {
                 아이디 : user.아이디,
                 유형 : "포상",
                 휴가일수 : "",
-                등록일 : ""
+                등록일 : "",
+                만료일 : "",
             }
         },
         showList(id) {
@@ -346,13 +373,26 @@ export default {
                 alert(`${this.rewardUserInfo.등록일}일은 유효하지 않은 날짜 입니다.`)
                 return
             }
+            if (this.rewardUserInfo.만료일 && this.rewardUserInfo.만료일.length != 8) {
+                alert(`등록일은 8자로 입력해주십시오. \n (예 : 20020202})`)
+                return
+            }
+            if (!this.$dateValidation(this.rewardUserInfo.만료일)) {
+                alert(`${this.rewardUserInfo.만료일}일은 유효하지 않은 날짜 입니다.`)
+                return
+            }
             this.$put("/reward", {
                 id : this.rewardUserInfo.아이디,
                 type : this.rewardUserInfo.유형,
                 cnt : this.rewardUserInfo.휴가일수,
                 date : this.rewardUserInfo.등록일,
+                expireDate : this.rewardUserInfo.만료일,
                 year : this.userInfo.연도,
             }).then(res => {
+                if (!res.status) {
+                    alert("등록에 실패하였습니다.")
+                    return false
+                }
                 this.$emit("getUsers", this.userInfo.연도, true)
                 this.close()
             })
@@ -401,7 +441,38 @@ export default {
             ]
             excel.excelDownload(excelUsers, `${titleYear}년_직원_휴가_추가`, `${titleYear}년 휴가`, {"!cols" : colOpt})
         },
-        async readExcelFile(file) {
+        rewardExcelDown() {
+            let excelUsers = []
+            const titleYear = this.userInfo.연도;
+            const regDate = this.$dateToYMD(new Date())
+            this.users.forEach(user => {
+                excelUsers.push({
+                    아이디 : user.아이디,
+                    이름 : user.이름,
+                    포상휴가수 : 0,
+                    포상휴가등록일 : regDate,
+                    포상휴가만료일 : "",
+                    리프레시휴가수 : 0,
+                    리프레시휴가등록일 : regDate,
+                    리프레시휴가만료일 : "",
+                    기준연도 : titleYear,
+                })
+            })
+            /* 컬럼 가로 길이 설정 */
+            const colOpt = [
+                {wch : 30},
+                {wch : 10},
+                {wch : 15},
+                {wch : 15},
+                {wch : 15},
+                {wch : 15},
+                {wch : 20},
+                {wch : 20},
+                {wch : 10},
+            ]
+            excel.excelDownload(excelUsers, `${titleYear}년_직원_포상_리프레시_휴가_추가`, `${titleYear}년 휴가`, {"!cols" : colOpt})
+        },
+        async readExcelFile(file, headers) {
             if (!file) {
                 this.clearExcelUploader();
                 return
@@ -418,7 +489,6 @@ export default {
                 return
             }
 
-            const headers = ["아이디", "이름", "직위", "휴가수", "기준연도"]
             try {
                 this.usersInfoJsonByExcel = await excel.readExcelFile(file, headers)
                 this.mapPositionCodes()
@@ -447,12 +517,16 @@ export default {
             let validResult = this.validExcelFile(this.usersInfoJsonByExcel)
 
             if (validResult.length != 0) {
+                console.log(validResult)
                 alert("엑셀 파일 오류! 샘플 엑셀 파일을 참고해주세요.")
                 this.clearExcelUploader()
                 return
             }
 
-            let res = await this.$post("/leave/cntExcel", this.usersInfoJsonByExcel)
+            let res = await this.$post("/leave/cntExcel", {
+                users : this.usersInfoJsonByExcel,
+                isReward : this.dialogType == "rewardExcelUpload",
+            })
             if (!res.status) {
                 alert("에러 발생\n에러메세지 : " + res.msg)
             } else {
@@ -494,6 +568,30 @@ export default {
                     errorMsg += "휴가수는 숫자여야 합니다."
                     isError = true
                 }
+            }
+            
+            if (userInfo.포상휴가수) {
+                if (userInfo.포상휴가수.isNaN) {
+                    errorMsg += "포상휴가수는 숫자여야 합니다."
+                    isError = true
+                }
+            }
+            
+            if (userInfo.포상휴가수 > 0 && (!userInfo.포상휴가등록일 || !userInfo.포상휴가만료일)) {
+                errorMsg += "포상휴가등록일과 포상휴가만료일을 입력해주세요."
+                isError = true
+            }            
+            
+            if (userInfo.리프레시휴가수) {
+                if (userInfo.리프레시휴가수.isNaN) {
+                    errorMsg += "리프레시휴가수는 숫자여야 합니다."
+                    isError = true
+                }
+            }
+
+            if (userInfo.리프레시휴가수 > 0 && (!userInfo.리프레시휴가등록일 || !userInfo.리프레시휴가만료일)) {
+                errorMsg += "리프레시휴가등록일과 리프레시휴가만료일을 입력해주세요."
+                isError = true
             }
 
             if (!isError) {
