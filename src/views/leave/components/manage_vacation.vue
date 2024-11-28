@@ -296,7 +296,7 @@ export default {
         }
     },
     created() {
-        console.log(this.users)
+        this.$emit("getUsers", this.userInfo.연도)
     },
     methods : {
         clickRows() {

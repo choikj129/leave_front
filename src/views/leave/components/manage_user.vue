@@ -230,6 +230,9 @@ export default {
             excelHeaderArray : ["아이디", "이름", "직위", "연도", "휴가수", "입사일", "이메일", "생일"],
         }
     },
+    created() {
+        this.$emit("getUsers", this.userInfo.연도)
+    },
     methods : {
         showUpdate(user) {
             this.items = []
