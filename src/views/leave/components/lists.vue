@@ -148,13 +148,13 @@ export default {
             }).then((res) => {
                 this.$emit("getCnts", false, id, ()=>{
                     let count = 0
-                    console.log(res.data)
                     let data = res.data.reduce((acc, obj) => {
                         obj.누적휴가수 = "-"
                         if (!["기타 휴가", "리프레시 휴가", "포상 휴가"].includes(obj.휴가구분)) {
                             count += obj.휴가일수
                             obj.누적휴가수 = count
-                        }
+                        } else if (obj.휴가구분 == "기타 휴가" && !obj.기타휴가내용.endsWith("휴가")) obj.기타휴가내용 += " 휴가"
+                        
                         acc.push(obj)
                         return acc
                     }, [])
