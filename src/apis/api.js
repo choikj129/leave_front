@@ -4,7 +4,7 @@ import store from "../store"
 const colors = {
     "휴가" : "blue",
     "오전 반차" : "cyan",
-    "오후 반차" : "cyan",
+    "오후 반차" : "cyan darken-2",
     "포상 휴가" : "green",
     "리프레시 휴가" : "yellow darken-1",
     "기타 휴가" : "teal lighten-1",
