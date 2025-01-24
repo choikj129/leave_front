@@ -99,6 +99,7 @@ export default {
     data() {
         return {
             isMobile : this.$store.getters.getUser.isMobile,    
+            isManager : this.$store.getters.getUser.isManager,
             dialog : false,
             headers: [
                 { text: '휴가일', sortable: false, value: '휴가일', width:"400", align:"center"},
@@ -120,7 +121,6 @@ export default {
                 "포상 휴가" : "blue-grey",
                 "기타 휴가" : "green",
             },
-            isManager : this.$store.getters.getUser.isManager,
             isDetailVisible : false,
             reward : {
                 휴가일수 : 0,

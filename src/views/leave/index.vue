@@ -64,6 +64,7 @@
 			@getCnts="getCnts"
 		/>
 		<regist v-else-if="selectType == 'regist'"
+			:users="usersSort"
 			@getCnts="getCnts"
 		/>
 		<calendar v-else-if="selectType == 'calendar'"
@@ -107,7 +108,7 @@ export default {
 				{ icon: "mdi-account-wrench-outline", text: "직원 관리", auth: this.$store.getters.getUser.isManager, type: "manage_user"},
 				{ icon: "mdi-calendar-account", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage_vacation"},
 				{ icon: "mdi-view-list", text: "휴가 현황", auth: true, type: "lists"},
-				{ icon: "mdi-calendar-plus", text: "휴가 신청", auth:  !this.$store.getters.getUser.isManager, type: "regist"},
+				{ icon: "mdi-calendar-plus", text: "휴가 신청", auth:  true, type: "regist"},
 				{ icon: "mdi-calendar-month", text: "전 직원 휴가 및 생일", auth:  true, type: "calendar"},
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
 			],

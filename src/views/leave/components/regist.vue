@@ -22,6 +22,17 @@
                             {{ calendarTitle }}
                         </v-toolbar-title>
                         <v-spacer></v-spacer>
+                        <v-autocomplete v-if="isManager"
+                            :items="users"
+                            item-text="이름_아이디"
+                            item-value="아이디"
+                            @change="changeUser"
+                            v-model="targetUser"
+                            :auto-select-first="true"
+                            return-object
+                            label="이름 [아이디]"
+                        ></v-autocomplete>
+                        <v-spacer></v-spacer>
                         <v-btn depressed color="primary" @click="regist">
                             신청
                         </v-btn>
@@ -56,7 +67,8 @@
                         :close-on-content-click="false"
                         :close-on-click="false"
                         :activator="selectedElement"
-                        offset-x>
+                        offset-x
+                    >
                         <v-card color="grey lighten-4" min-width="350px"  flat>
                             <v-toolbar :color="selectedEvent.color" dark>
                                 <v-menu bottom right>
@@ -138,10 +150,22 @@
 
 export default {
     name : "calendar",
+    props : ["users"],
     data() {
         return {
             isMobile : this.$store.getters.getUser.isMobile,
+            isManager : this.$store.getters.getUser.isManager,            
+            todayYMD : this.$dateToYMD(new Date()),
             calendarMinHeight : "700px",
+            week: ["일", "월", "화", "수", "목", "금", "토"],
+            timeout:-1,
+            today : new Date(),
+            holiday : this.$store.getters.getHoliday,
+            targetUser : {
+                아이디 : this.$store.getters.getUser.id,
+                이름 : this.$store.getters.getUser.name,
+            },
+            events: [],
             focus: "",
             type : "휴가",
             selectedEvent: {},
@@ -154,9 +178,8 @@ export default {
             startDate : null,
             changeEvents : {추가 : {}, 취소 : []},
             originalEvents: {},
-            events: [],
             calendarTitle: "",
-            week: ["일", "월", "화", "수", "목", "금", "토"],
+            snackbar : false,
             etcType : "기타",
             dateHash : {},
             possibleReward : false,
@@ -164,10 +187,6 @@ export default {
             rewardCnt : 0,
             refreshLists : [],
             refreshCnt : 0,
-            holiday : this.$store.getters.getHoliday,
-            today : new Date(),
-            timeout:-1,
-            snackbar:false,
         }
     },
     created() {
@@ -175,12 +194,14 @@ export default {
         if (this.isMobile) {
             this.calendarMinHeight = screen.height - 180 + "px"
         }
+        if (this.isManager) this.targetUser = this.users[0]
+        
         this.setCalendar()
     },
     methods: {
         async setCalendar() {            
             // 서버에서 휴가 데이터를 가져와서 캘린더에 표시할 이벤트를 설정합니다.
-            this.$get("/leave", {id : this.$store.getters.getUser.id}).then((res) => {
+            this.$get("/leave", {id : this.targetUser.아이디}).then((res) => {
                 this.originalEvents = {}
                 this.events = []
                 let events = res.data
@@ -215,7 +236,7 @@ export default {
             this.rewardCnt = 0
             this.refreshCnt = 0
             this.$get("/reward/user", { 
-                id : this.$store.getters.getUser.id,
+                id : this.targetUser.아이디,
                 year : this.today.getFullYear(),
             }).then(res => {
                 this.rewardLists = res.data.reward
@@ -499,6 +520,20 @@ export default {
             if (confirm(`${this.selectedEvent.name}를 취소하시겠습니까?\n(취소 후 신청을 해야 적용됩니다.)`)) {                
                 this.events = this.events.filter(event => {
                     if (event.index == this.selectedEvent.index) {
+                        // 이미 등록된 지나간 휴가는 직원 삭제 불가
+                        if (
+                            this.originalEvents[this.selectedEvent.index] 
+                            && this.todayYMD > event.startDate
+                            && !this.isManager
+                        ) {
+                            if (event.type.startsWith("포상")) {
+                                this.rewardCnt -= event.cnt
+                            } else if (event.type.startsWith("리프레시")) {
+                                this.refreshCnt -= event.cnt                 
+                            }
+                            alert("지난 날짜는 취소가 불가능합니다. 관리자에게 요청하세요.")
+                            return true
+                        }
                         this.dateHashUpdate(new Date(this.selectedEvent.startDate), this.selectedEvent.cnt, false)
 
                         if (event.type.startsWith("포상")) {
@@ -506,11 +541,14 @@ export default {
                         } else if (event.type.startsWith("리프레시")) {
                             this.refreshCnt += event.cnt                 
                         }
-
+                        
                         if (!this.originalEvents[this.selectedEvent.index]) {
+                            // 신규 등록 취소
                             delete this.changeEvents.추가[this.selectedEvent.index]
                             return false
-                        } else {
+                        } else {                            
+                            console.log(event)
+                            // 휴가 취소
                             event.updateType = "D"
                             event.color = this.$getColor("삭제")
                             event.name += " 취소"
@@ -592,15 +630,16 @@ export default {
             if(confirm(message+"\n를 신청하시겠습니까?")){
                 this.$patch("/leave", {
                     events : postEvents,
-                    id : this.$store.getters.getUser.id,
-                    name : this.$store.getters.getUser.name,
+                    id : this.targetUser.아이디,
+                    name : this.targetUser.이름,
                     reward : rewardLists.concat(refreshLists),
+                    isManager : this.isManager,
                 }).then(res => {
                     if (res.status) {
                         this.changeEvents = {취소 : [], 추가 : {}}
                         this.getReward()
                         this.setCalendar()
-                        this.$emit("getCnts", false, this.$store.getters.getUser.id)
+                        this.$emit("getCnts", false, this.targetUser.아이디)
                     } else {
                         alert(res.msg)
                     }
@@ -617,6 +656,31 @@ export default {
                 }
                 date.setDate(date.getDate() + 1)
             }
+        },
+        changeUser() {
+            this.focus = ""
+            this.type = "휴가"
+            this.selectedEvent = {}
+            this.selectedElement = null
+            this.selectedOpen = false
+            this.selectedType = "휴가"
+            this.selectDate = false
+            this.selectDateBtn = null
+            this.selectMonth = new Date()
+            this.startDate = null
+            this.changeEvents = {추가 : {}, 취소 : []}
+            this.originalEvents = {}
+            this.calendarTitle = ""
+            this.snackbar = false
+            this.etcType = "기타"
+            this.dateHash = {}
+            this.possibleReward = false
+            this.rewardLists = []
+            this.rewardCnt = 0
+            this.refreshLists = []
+            this.refreshCnt = 0
+
+            this.setCalendar()
         },
     },
 }
