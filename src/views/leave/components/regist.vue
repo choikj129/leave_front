@@ -179,6 +179,7 @@ export default {
     },
     methods: {
         async setCalendar() {            
+            // 서버에서 휴가 데이터를 가져와서 캘린더에 표시할 이벤트를 설정합니다.
             this.$get("/leave", {id : this.$store.getters.getUser.id}).then((res) => {
                 this.originalEvents = {}
                 this.events = []
@@ -204,25 +205,27 @@ export default {
                     this.events.push(event)
                     
                     let startDate = new Date(event.startDate)
-                    this.dateHashUpdate(startDate, event.cnt)
+                    this.dateHashUpdate(startDate, event.cnt) // 날짜 해시 업데이트
                 }
-                this.setTitle()
+                this.setTitle() // 캘린더 제목 설정
             })
         },
         getReward() {
+            // 사용자에게 할당된 보상 및 리프레시 휴가 정보를 가져옵니다.
             this.rewardCnt = 0
             this.refreshCnt = 0
             this.$get("/reward/user", { 
                 id : this.$store.getters.getUser.id,
                 year : this.today.getFullYear(),
-
             }).then(res => {
                 this.rewardLists = res.data.reward
                 this.refreshLists = res.data.refresh
                 
+                // 포상 휴가 수 계산
                 this.rewardLists.forEach(reward => {
                     this.rewardCnt += reward.휴가일수 - reward.사용일수
                 })
+                // 리프레시 휴가 수 계산
                 this.refreshLists.forEach(refresh => {
                     this.refreshCnt += refresh.휴가일수 - refresh.사용일수
                 })
@@ -243,7 +246,8 @@ export default {
         setToday() {
             this.focus = ""
         },
-        setType(type) {            
+        setType(type) {
+            // 입력한 휴가 유형과 현재 선택한 유형이 다를 경우 포상, 리프레시 휴가 계산
             if (this.selectedEvent.type != type) {
                 if (this.selectedEvent.type.startsWith("포상")) {
                     this.rewardCnt += Math.round(this.selectedEvent.cnt)
@@ -264,7 +268,7 @@ export default {
         },
         setEvent(type) {
             this.selectedEvent.name = this.selectedEvent.name.replace(/([\d-]+.\(.\)(.~.[\d-]+.\(.\))?).*/g, `$1 ${type}`)
-            /* events에 있으면 수정*/
+            /* events에 있으면 수정 */
             for (let i=0; i<this.events.length; i++) {
                 if (this.events[i].index == this.selectedEvent.index) {
                     this.events[i] = this.selectedEvent
@@ -285,6 +289,7 @@ export default {
         changeMonth(event) {
             this.selectMonth = new Date(event.start.date)
             this.setTitle()
+            // 싱크 이슈로 5ms 기다림
             setTimeout(() => {
                 let children = document.getElementsByClassName("v-calendar-monthly")[0].children
                 let childrenDay = document.getElementsByClassName("v-calendar-weekly__day")
@@ -294,7 +299,7 @@ export default {
                     child.firstChild.getElementsByTagName("span")[0].style.cssText = "color:red!important"
                     child.lastChild.getElementsByTagName("span")[0].style.cssText = "color:blue!important"
                 }
-                //공휴일 추가                
+                // 공휴일 추가                
                 let isPrev = true
                 let isNext = false
                 for(let i=0; i<childrenDay.length; i++) {
@@ -338,7 +343,8 @@ export default {
                 }
             }, 5)
         },
-        showEvent({nativeEvent, event}){
+        showEvent({nativeEvent, event}) {
+            // 이벤트를 클릭했을 때 해당 이벤트의 세부 정보를 보여줍니다.
             const open = () => {
                 this.selectedEvent = event
                 this.selectedElement = nativeEvent.target
@@ -360,6 +366,7 @@ export default {
             nativeEvent.stopPropagation()
         },
         selectEvent(event) {
+            // 날짜를 선택했을 때 호출되어 시작 및 종료 날짜를 설정합니다.
             const nativeEvent = event.nativeEvent
             const resetEvent = () => {
                 this.selectDate = false
@@ -383,7 +390,7 @@ export default {
                 return
             }
 
-            /* 처음 클릭한 날짜를 시작 or 종료 날짜로 */
+            /* 처음 클릭한 날짜를 시작 or 종료 날짜로 */            
             if (!this.selectDate){
                 this.selectDateBtn = event.nativeEvent.srcElement.parentNode
                 this.selectDate = true
@@ -458,7 +465,7 @@ export default {
             
             if (possibleDate >= this.selectedEvent.cnt) {
                 this.possibleReward = true
-            }else {
+            } else {
                 this.possibleReward = false
             }
             this.snackbar = false
@@ -477,6 +484,7 @@ export default {
             }
         },
         closeEvent() {
+            // 이벤트 팝업을 닫고, 기타 휴가의 경우 추가 정보를 설정합니다.
             if (this.selectedEvent.type=='기타 휴가') {
                 if (!this.etcType) {
                     this.etcType = "기타"
@@ -484,7 +492,7 @@ export default {
                 this.selectedEvent.etcType = this.etcType
                 const cancel = this.selectedEvent.updateType == "D" ? " 취소" : ""
                 this.setEvent(this.etcType.endsWith("휴가") ? this.etcType : `${this.etcType} 휴가${cancel}`)
-            }
+            } else this.selectedEvent.etcType = ""
             this.selectedOpen = false
         },
         deleteEvent(){
@@ -502,7 +510,7 @@ export default {
                         if (!this.originalEvents[this.selectedEvent.index]) {
                             delete this.changeEvents.추가[this.selectedEvent.index]
                             return false
-                        }else {
+                        } else {
                             event.updateType = "D"
                             event.color = this.$getColor("삭제")
                             event.name += " 취소"
@@ -533,6 +541,7 @@ export default {
             })
         },
         regist() {
+            // 선택된 이벤트를 서버에 등록합니다.
             if (this.selectedOpen) this.closeEvent()
             let message = ""
             let postEvents = []
@@ -541,7 +550,7 @@ export default {
             let rewardLists = this.$copy(this.rewardLists)
             let refreshLists = this.$copy(this.refreshLists)
             let updateReward = {}
-            Object.keys(this.changeEvents).forEach((key) =>{
+            Object.keys(this.changeEvents).forEach((key) => {
                 Object.values(this.changeEvents[key]).forEach((value) => {
                     value.updateReward = null
                     if (key == "추가") {                        
@@ -562,11 +571,10 @@ export default {
                                 updateReward[refreshLists[refreshIndex].IDX] = value.cnt
                                 refreshLists[refreshIndex].사용일수 = refreshLists[refreshIndex].휴가일수
                                 refreshIndex++                                
-                            }                                                        
+                            }                                                         
                             refreshLists[refreshIndex].사용일수 += cnt
                             updateReward[refreshLists[refreshIndex].IDX] = value.cnt                        
                         }
-                        
 
                         value.updateReward = JSON.stringify(updateReward)
                         updateReward = {}
@@ -580,7 +588,7 @@ export default {
             if (message == "") {
                 alert("신청할 휴가가 존재하지 않습니다.")
                 return
-            }                        
+            }             
             if(confirm(message+"\n를 신청하시겠습니까?")){
                 this.$patch("/leave", {
                     events : postEvents,
@@ -599,10 +607,8 @@ export default {
                 })
             }
         },
-        rnd(a, b) {
-            return Math.floor((b - a + 1) * Math.random()) + a
-        },        
         dateHashUpdate(date, cnt, isAppend=true) {
+            // 날짜 해시를 업데이트하여 특정 날짜를 추가하거나 삭제합니다.
             for (let c=0; c<Math.ceil(cnt); c++) {
                 if (isAppend) {
                     this.dateHash[this.$dateToYMD(date, "-")] = true

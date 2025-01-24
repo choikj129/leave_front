@@ -186,8 +186,8 @@
                     <reward_list
                         :id="userInfo.아이디"
                         :year="userInfo.연도"
-                        :isDelete="true"
-                        @deleteData="deleteReward"
+                        :isUpdate="true"
+                        @updateDataCallback="updateInfo"
                     />
                 </v-card>
                 <!-- 엑셀 연차 추가 모달 -->
@@ -272,10 +272,10 @@ export default {
             },
             dialog: false,
             dialogType : "",
-            dialogWidth : "400",
+            dialogWidth : "800",
             isLoading : false,
             targetDate : new Date(),
-            dateRule : [v => v.length <= 8 || '등록일은 8자 (YYYYMMDD)로 입력하세요'],
+            dateRule : [v => v.length <= 8 || '일자는 8자 (YYYYMMDD)로 입력하세요'],
             vacationList : [
                 {
                     표시내용 : "포상 휴가",
@@ -325,13 +325,17 @@ export default {
         },
         showList(id) {
             this.dialogType = "list"
-            this.dialogWidth = "800"
+            this.dialogWidth = "1200"
             this.userInfo.아이디 = id
+        },
+        updateInfo() {
+            this.close()
+            this.$emit("getUsers", this.userInfo.연도)
         },
         changeYear(d) {
             this.targetDate = new Date(this.targetDate.getFullYear() + d, 0, 1)
             this.userInfo.연도 = this.targetDate.getFullYear()
-            this.$emit("getUsers", this.userInfo.연도)
+            this.updateInfo()
         },
         showExcelUpload() {
             this.dialogType='excelUpload'
@@ -351,7 +355,7 @@ export default {
                 휴가수 : this.userInfo.휴가수,
             }).then((res) =>{
                 if (res.status) {
-                    this.$emit("getUsers", this.userInfo.연도)
+                    this.updateInfo()
                 }
                 this.close()
             })
@@ -374,7 +378,7 @@ export default {
                 return
             }
             if (this.rewardUserInfo.만료일 && this.rewardUserInfo.만료일.length != 8) {
-                alert(`등록일은 8자로 입력해주십시오. \n (예 : 20020202})`)
+                alert(`만료일은 8자로 입력해주십시오. \n (예 : 20020202})`)
                 return
             }
             if (!this.$dateValidation(this.rewardUserInfo.만료일)) {
@@ -396,19 +400,6 @@ export default {
                 this.$emit("getUsers", this.userInfo.연도, true)
                 this.close()
             })
-        },
-        deleteReward(item) {
-            if (confirm(`${item.이름} ${item.직위}의 ${item.휴가유형} 휴가 ${item.휴가일수}일을 삭제하시겠습니까?`)) {
-                this.$del("/reward", {
-                    idx : item.IDX
-                }).then(res => {
-                    if (!res.status) {
-                        alert(res.msg)
-                    }
-                    this.close()
-                    this.$emit("getUsers", this.userInfo.연도, true)
-                })
-            }
         },
         close() {
             this.dialogType = ""

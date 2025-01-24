@@ -81,7 +81,7 @@
                     v-if="dialog"
                     :id="targetUser.아이디"
                     :year="year"
-                    :isDelete="false"
+                    :isUpdate="false"
                 />
             </v-card>
         </v-dialog>
