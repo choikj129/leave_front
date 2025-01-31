@@ -155,7 +155,7 @@ export default {
         return {
             isMobile : this.$store.getters.getUser.isMobile,
             isManager : this.$store.getters.getUser.isManager,            
-            todayYMD : this.$dateToYMD(new Date()),
+            todayYMD : this.$dateToYMD(new Date(), "-"),
             calendarMinHeight : "700px",
             week: ["일", "월", "화", "수", "목", "금", "토"],
             timeout:-1,
@@ -526,11 +526,6 @@ export default {
                             && this.todayYMD > event.startDate
                             && !this.isManager
                         ) {
-                            if (event.type.startsWith("포상")) {
-                                this.rewardCnt -= event.cnt
-                            } else if (event.type.startsWith("리프레시")) {
-                                this.refreshCnt -= event.cnt                 
-                            }
                             alert("지난 날짜는 취소가 불가능합니다. 관리자에게 요청하세요.")
                             return true
                         }
