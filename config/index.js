@@ -11,11 +11,15 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      "/api" : {
-        target : "http://localhost:3000",
-        changeOrigin : true,
-        pathRewrite : {
-          "^/api" : ""
+      "/api-docs": {
+        target: "http://localhost:3000", // 프록시하지 않음
+        changeOrigin: true,
+      },
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        pathRewrite: {
+          "^/api": "" // 나머지 /api/*는 제거
         }
       }
     },

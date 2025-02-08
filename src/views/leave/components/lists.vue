@@ -208,7 +208,6 @@ export default {
             }
         },
         setTitles() {
-            console.log(this.leaveCnts)
             const 연차 = this.leaveCnts[this.year] && this.leaveCnts[this.year].휴가수 ? this.leaveCnts[this.year].휴가수 : 0
             const 사용연차 = this.leaveCnts[this.year] && this.leaveCnts[this.year].사용휴가수 ? this.leaveCnts[this.year].사용휴가수 : 0
             const 잔여연차 = this.leaveCnts[this.year] && this.leaveCnts[this.year].잔여휴가수 ? this.leaveCnts[this.year].잔여휴가수 : 0

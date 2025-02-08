@@ -113,6 +113,7 @@ export default {
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
 			],
 			linksBottom : [
+				{ icon: "mdi-text-box", text: "API Docs", auth: true, type: "api_docs"},
 				{ icon: "mdi-calendar-alert", text: "휴일 관리", auth: this.$store.getters.getUser.isManager, type: "update_holiday"},
 				// { icon: "mdi-puzzle", text: "API키 변경", auth: this.$store.getters.getUser.isManager, type: "api_update"},
 				{ icon: "mdi-key-variant", text: "비밀번호 변경", auth: true, type: "update_password"},
@@ -141,6 +142,9 @@ export default {
 				const manageType = this.$store.getters.getUser.isManager ? "관리자" : "사용자"				
 				this.$fileDownload(`어다인_휴가관리_${manageType}_매뉴얼.pdf`)
 				return
+			} else if (type == "api_docs") {
+				window.open("/api-docs")
+				return				
 			}
 			this.selectType = type
 			// if (this.$route.path != `/leave/${type}`) {
