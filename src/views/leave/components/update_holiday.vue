@@ -133,16 +133,14 @@ export default {
 			let holidays = []
 			for (let i = 0; i < cnt; i++) {
 				holidays.push({
-					name : this.insertHolidayInfo.명칭,
-					holiday : this.$dateToYMD(start),
-					year : year,
+					dateName : this.insertHolidayInfo.명칭,
+					locdate : this.$dateToYMD(start),
+					manualYN : "Y",					
 				})
 				start.setDate(start.getDate() + 1)				
 			}			
 			
-			this.$put("/holiday", {
-				holidays : holidays,
-			}).then(() => {
+			this.$put("/holiday", holidays).then(() => {
 				this.getHoliday()
 				this.$setHoliday()
 				this.close()

@@ -125,7 +125,7 @@ export default {
             }
 
             if (confirm(`수정하시겠습니까?`)) {
-                this.$post("/reward", {
+                this.$patch("/reward", {
                     idx : this.selectedReward.IDX,
                     cnt : this.selectedReward.휴가일수,
                     expireDate : this.selectedReward.만료일,

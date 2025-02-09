@@ -628,7 +628,6 @@ export default {
                     id : this.targetUser.아이디,
                     name : this.targetUser.이름,
                     reward : rewardLists.concat(refreshLists),
-                    isManager : this.isManager,
                 }).then(res => {
                     if (res.status) {
                         this.changeEvents = {취소 : [], 추가 : {}}

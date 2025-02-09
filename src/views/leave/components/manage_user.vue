@@ -333,8 +333,9 @@ export default {
                 this.clearExcelUploader()
                 return
             } 
+            console.log(this.usersInfoJsonByExcel)
             
-            let res = await this.$post("/users/insertExcelUsers", this.usersInfoJsonByExcel)
+            let res = await this.$put("/users/insertExcelUsers", this.usersInfoJsonByExcel)
             if (!res.status) {
                 alert("에러 발생\n에러메세지 : " + res.msg)
             } else {
@@ -394,7 +395,7 @@ export default {
         },
         insertExcelUsersValidation(usersInfoJsonByExcel) {
             let totalErrorMsgArray = []
-            //돌다가 에러 터지면 더 이상 안돔.
+            //돌다가 에러 터지면 더 이상 안돎.
             usersInfoJsonByExcel.every((e, idx) => {
                 // Excel의 시작 idx는 1이므로 +1, head를 제외 +1 총 +2
                 const errorMsg = this.validUser(e, idx + 2)
@@ -405,6 +406,18 @@ export default {
                 if (errorMsg) {
                     totalErrorMsgArray.push(errorMsg)
                     return false
+                }
+
+                // backend sql 공통화를 위함.
+                usersInfoJsonByExcel[idx] = {
+                    ...e,
+                    id : e.아이디,
+                    name : e.이름,
+                    position : this.positionHash[e.직위],
+                    joinDate : e.입사일,
+                    birthday : e.생일,
+                    isLunar : e.음력여부,
+                    기준연도 : e.연도,
                 }
                 return true
 
@@ -430,7 +443,7 @@ export default {
                 id : this.userInfo.아이디,
                 year : this.userInfo.연도,
                 position : this.userInfo.직위코드,
-                date : this.userInfo.입사일,
+                joinDate : this.userInfo.입사일,
                 birthday : this.userInfo.생일,
                 isLunar : this.userInfo.음력여부 ? 'Y' : 'N',
             }).then((res) =>{
