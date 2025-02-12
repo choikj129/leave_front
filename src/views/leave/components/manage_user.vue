@@ -486,7 +486,7 @@ export default {
                 name : this.insertUserInfo.이름,
                 id : this.insertUserInfo.아이디,
                 position : this.insertUserInfo.직위코드,
-                date : this.insertUserInfo.입사일,
+                joinDate : this.insertUserInfo.입사일,
                 birthday : this.insertUserInfo.생일,
                 isLunar : this.insertUserInfo.음력여부,
             }).then((res) => {
