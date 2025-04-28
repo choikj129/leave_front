@@ -241,14 +241,16 @@ export default {
             }).then(res => {
                 this.rewardLists = res.data.reward
                 this.refreshLists = res.data.refresh
+
+                let today = this.$dateToYMD(new Date(), "")
                 
                 // 포상 휴가 수 계산
                 this.rewardLists.forEach(reward => {
-                    this.rewardCnt += reward.휴가일수 - reward.사용일수
+                    if (today <= reward.만료일) this.rewardCnt += reward.휴가일수 - reward.사용일수
                 })
                 // 리프레시 휴가 수 계산
                 this.refreshLists.forEach(refresh => {
-                    this.refreshCnt += refresh.휴가일수 - refresh.사용일수
+                    if (today <= refresh.만료일) this.refreshCnt += refresh.휴가일수 - refresh.사용일수
                 })
             })            
         },

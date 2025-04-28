@@ -136,6 +136,7 @@ export default {
                 reward : {title : "포상 휴가 정보", content : "", visible : false},
                 refresh : {title : "리프레시 휴가 정보", content : "", visible : false},
             },
+            today : this.$dateToYMD(new Date(), "")
         }
     },
     methods : {
@@ -171,22 +172,44 @@ export default {
                 })
             })
         },
+        setRewardCnts(res, type) {
+            console.log("!!!!!!!")
+            console.log(res.data[type])   
+            res.data[type].forEach(el => {
+                this[type].사용일수 += el.사용일수
+                this[type].휴가일수 += el.휴가일수
+                if (this.today <= el.만료일) this[type].잔여휴가일수 += el.휴가일수 - el.사용일수
+            })
+        },
         getReward(id, year) {
             this.reward = {
                 휴가일수 : 0,
                 사용일수 : 0,
+                잔여휴가일수 : 0,
             }
             this.refresh = {
                 휴가일수 : 0,
                 사용일수 : 0,
+                잔여휴가일수 : 0,
             }
             this.$get("/reward/cnts", { id : id, year : year})
                 .then(res => {
-                    this.reward = res.data.reward[0]
-                    this.refresh = res.data.refresh[0]
+                    
+                    this.setRewardCnts(res, "reward")
+                    this.setRewardCnts(res, "refresh")
 
-                    this.cntTitles.reward.visible = this.reward.휴가일수 > 0 ? true : false
-                    this.cntTitles.refresh.visible = this.refresh.휴가일수 > 0 ? true : false
+                    // res.data.reward.forEach(reward => {
+                    //     this.reward.사용일수 += reward.사용일수
+                    //     if (reward.만료일 <= today) this.reward.휴가일수 += reward.휴가일수
+                    // })
+                    // res.data.refresh.forEach(refresh => {
+                    //     this.refresh.사용일수 += refresh.사용일수
+                    //     if (refresh.만료일 <= today) this.refresh.휴가일수 += refresh.휴가일수
+                    // })
+                    
+                    this.cntTitles.reward.visible = res.data.reward.length > 0
+                    this.cntTitles.refresh.visible = res.data.refresh.length > 0
+
                     if (this.reward.휴가일수 > 0 || this.refresh.휴가일수 > 0) {
                         this.cntTitles.total.visible = true
                         this.isDetailVisible = true
@@ -215,12 +238,12 @@ export default {
 
             const 포상 = this.reward.휴가일수
             const 사용포상 = this.reward.사용일수
-            const 잔여포상 = 포상 - 사용포상
+            const 잔여포상 = this.reward.잔여휴가일수
             this.cntTitles.reward.content = `${사용포상}개 사용 | ${잔여포상}개 사용 가능 (총 ${포상}개 포상 부여)`
 
             const 리프레시 = this.refresh.휴가일수
             const 사용리프레시 = this.refresh.사용일수
-            const 잔여리프레시 = 리프레시 - 사용리프레시
+            const 잔여리프레시 = this.refresh.잔여휴가일수
             this.cntTitles.refresh.content = `${사용리프레시}개 사용 | ${잔여리프레시}개 사용 가능 (총 ${리프레시}개 리프레시 부여)`
 
             const 총휴가 = 연차 + 포상 + 리프레시
