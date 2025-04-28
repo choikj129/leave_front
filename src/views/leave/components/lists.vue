@@ -173,8 +173,6 @@ export default {
             })
         },
         setRewardCnts(res, type) {
-            console.log("!!!!!!!")
-            console.log(res.data[type])   
             res.data[type].forEach(el => {
                 this[type].사용일수 += el.사용일수
                 this[type].휴가일수 += el.휴가일수
@@ -197,15 +195,6 @@ export default {
                     
                     this.setRewardCnts(res, "reward")
                     this.setRewardCnts(res, "refresh")
-
-                    // res.data.reward.forEach(reward => {
-                    //     this.reward.사용일수 += reward.사용일수
-                    //     if (reward.만료일 <= today) this.reward.휴가일수 += reward.휴가일수
-                    // })
-                    // res.data.refresh.forEach(refresh => {
-                    //     this.refresh.사용일수 += refresh.사용일수
-                    //     if (refresh.만료일 <= today) this.refresh.휴가일수 += refresh.휴가일수
-                    // })
                     
                     this.cntTitles.reward.visible = res.data.reward.length > 0
                     this.cntTitles.refresh.visible = res.data.refresh.length > 0
