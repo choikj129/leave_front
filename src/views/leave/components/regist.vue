@@ -190,12 +190,12 @@ export default {
         }
     },
     created() {
-        this.getReward()
         if (this.isMobile) {
             this.calendarMinHeight = screen.height - 180 + "px"
         }
         if (this.isManager) this.targetUser = this.users[0]
-        
+
+        this.getReward()
         this.setCalendar()
     },
     methods: {
@@ -676,6 +676,7 @@ export default {
             this.refreshLists = []
             this.refreshCnt = 0
 
+            this.getReward()
             this.setCalendar()
         },
     },
