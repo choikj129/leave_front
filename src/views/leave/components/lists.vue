@@ -6,6 +6,38 @@
             @click:outside="close"
         >
             <template v-slot:activator="{ on, attrs }">
+                <v-card class="mt-15 mb-10"  color="#f4f9ff" v-show="targetUser.이름 && !isLoading">
+                    <v-card-title style="display:inline" :class="isMobile ? 'f3_mobile' : 'f3'">{{ isManager ? `${targetUser.이름} ${targetUser.직위} ` : null }}{{ year }}년 휴가 정보</v-card-title>
+                    <v-btn depressed color="primary" @click="showReward" class="ml-3" v-on="on" v-if="isDetailVisible">
+                        추가휴가상세
+                    </v-btn>
+                    <div v-for="cntTitle in Object.values(cntTitles)" :key="cntTitle.title" v-if="cntTitle.visible">
+                        <v-card-title class="bold" :class="isMobile ? 'f2_mobile' : 'f2'">{{ cntTitle.title }}</v-card-title>
+                        <v-card-text class="mt-3" :class="isMobile ? 'f2_mobile' : 'f2'">{{ cntTitle.content }}</v-card-text>
+                    </div>
+                </v-card>
+                <v-card>
+                    <!-- 테이블 -->
+                    <v-data-table
+                        :headers="headers"
+                        :items="items"
+                        :loading="isLoading"
+                        :items-per-page="-1"
+                        hide-default-footer
+                        class="elevation-1 mb-10"
+                        :class="{'mobile-data-table' : isMobile}"
+                    >
+                        <!-- 해당 컬럼은 색추가 -->
+                        <template v-slot:item.휴가구분="{ item }">
+                            <v-chip
+                                :color="$getColor(item.휴가구분)"
+                                dark
+                            >
+                                {{ item.휴가구분 == "기타 휴가" ? item.기타휴가내용  : item.휴가구분 }}
+                            </v-chip>
+                        </template>
+                    </v-data-table>
+                </v-card>
                 <!-- 상단 select boxes -->
                 <v-container fluid class="mt-10"
                     style="display: flex!important; flex-direction: column!important; align-items: center;">
@@ -41,40 +73,8 @@
                             ></v-autocomplete>
                         </v-col>
                     </v-row>
-                </v-container>
+                </v-container>                
                 
-                <v-card class="mt-15 mb-10"  color="#f4f9ff" v-show="targetUser.이름 && !isLoading">
-                    <v-card-title style="display:inline" :class="isMobile ? 'f3_mobile' : 'f3'">{{ isManager ? `${targetUser.이름} ${targetUser.직위} ` : null }}{{ year }}년 휴가 정보</v-card-title>
-                    <v-btn depressed color="primary" @click="showReward" class="ml-3" v-on="on" v-if="isDetailVisible">
-                        추가휴가상세
-                    </v-btn>
-                    <div v-for="cntTitle in Object.values(cntTitles)" :key="cntTitle.title" v-if="cntTitle.visible">
-                        <v-card-title class="bold" :class="isMobile ? 'f2_mobile' : 'f2'">{{ cntTitle.title }}</v-card-title>
-                        <v-card-text class="mt-3" :class="isMobile ? 'f2_mobile' : 'f2'">{{ cntTitle.content }}</v-card-text>
-                    </div>
-                </v-card>
-                <v-card>
-                    <!-- 테이블 -->
-                    <v-data-table
-                        :headers="headers"
-                        :items="items"
-                        :loading="isLoading"
-                        :items-per-page="-1"
-                        hide-default-footer
-                        class="elevation-1 mb-10"
-                        :class="{'mobile-data-table' : isMobile}"
-                    >
-                        <!-- 해당 컬럼은 색추가 -->
-                        <template v-slot:item.휴가구분="{ item }">
-                            <v-chip
-                                :color="$getColor(item.휴가구분)"
-                                dark
-                            >
-                                {{ item.휴가구분 == "기타 휴가" ? item.기타휴가내용  : item.휴가구분 }}
-                            </v-chip>
-                        </template>
-                    </v-data-table>
-                </v-card>
             </template>
             <v-card>
                 <reward_list
@@ -166,7 +166,7 @@ export default {
                             this.years.push(i)
                         }
                     }
-                    this.items = data
+                    this.items = data.reverse()
                     this.isLoading = false
                     this.setTitles()
                 })
