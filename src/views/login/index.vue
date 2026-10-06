@@ -59,6 +59,9 @@ export default {
 			})
 			
 			this.$store.commit("setUser", resLogin.data)
+			if (resLogin.data.isSnapshot) {
+				alert(`DB 접속 불가로 조회만 가능합니다.\n(${resLogin.data.snapshotAt} 기준 데이터)`)
+			}
 			this.$router.push({ path: "leave" })
 		} else {
 			resLogin.msg ? alert(resLogin.msg) : alert(resLogin.message)

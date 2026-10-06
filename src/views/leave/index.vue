@@ -12,9 +12,12 @@
 					{{ user.id }}@odinue.net
 				</v-card-subtitle>
 			</v-card>
+			<v-alert v-if="isSnapshot" type="warning" dense class="ma-2">
+				DB 접속 불가로 조회만 가능합니다.<br>({{ snapshotAt }} 기준)
+			</v-alert>
 			<v-list style="padding-top:0">
 				<v-list-item v-for="link in linksTop" :key="link.type"
-					v-if="link.auth"
+					v-if="link.auth && !(link.writable && isSnapshot)"
 					@click="changeComponent(link.type)"
 					:class="{
 						activeComponent : link.type == selectType,
@@ -33,7 +36,7 @@
 			<v-divider></v-divider>
 			<v-list>
 				<v-list-item v-for="link in linksBottom" :key="link.type"
-					v-if="link.auth"
+					v-if="link.auth && !(link.writable && isSnapshot)"
 					@click="changeComponent(link.type)"
 					:class="{
 						activeComponent : link.type == selectType,
@@ -108,7 +111,7 @@ export default {
 				{ icon: "mdi-account-wrench-outline", text: "직원 관리", auth: this.$store.getters.getUser.isManager, type: "manage_user"},
 				{ icon: "mdi-calendar-account", text: "휴가 관리", auth: this.$store.getters.getUser.isManager, type: "manage_vacation"},
 				{ icon: "mdi-view-list", text: "휴가 현황", auth: true, type: "lists"},
-				{ icon: "mdi-calendar-plus", text: "휴가 신청", auth:  true, type: "regist"},
+				{ icon: "mdi-calendar-plus", text: "휴가 신청", auth:  true, type: "regist", writable: true},
 				{ icon: "mdi-calendar-month", text: "전 직원 휴가 및 생일", auth:  true, type: "calendar"},
 				{ icon: "mdi-text-long", text: "휴가 기록", auth: this.$store.getters.getUser.isManager, type: "history"},
 			],
@@ -116,7 +119,7 @@ export default {
 				{ icon: "mdi-text-box", text: "API Docs", auth: !this.$store.getters.getUser.isManager, type: "api_docs"},
 				{ icon: "mdi-calendar-alert", text: "휴일 관리", auth: this.$store.getters.getUser.isManager, type: "update_holiday"},
 				// { icon: "mdi-puzzle", text: "API키 변경", auth: this.$store.getters.getUser.isManager, type: "api_update"},
-				{ icon: "mdi-key-variant", text: "비밀번호 변경", auth: true, type: "update_password"},
+				{ icon: "mdi-key-variant", text: "비밀번호 변경", auth: true, type: "update_password", writable: true},
 				{ icon: "mdi-download", text: "매뉴얼 다운로드", auth: true, type: "download"},
 				{ icon: "mdi-logout", text: "로그아웃", auth: true, type: "logout"},
 				{ icon: "", text: "", auth: true, type: "none_2"},
@@ -132,6 +135,22 @@ export default {
 			positions : [],
 			isMobile : this.$store.getters.getUser.isMobile,
 		}
+	},
+	computed: {
+		/* DB 장애로 조회 전용 모드 (스냅샷 응답) */
+		isSnapshot() {
+			return this.$store.getters.getUser.isSnapshot
+		},
+		snapshotAt() {
+			return this.$store.getters.getUser.snapshotAt
+		},
+	},
+	watch: {
+		/* 조회 전용 모드 전환 시 등록/수정 화면에 있으면 휴가 현황으로 이동 */
+		isSnapshot(value) {
+			const link = this.linksTop.concat(this.linksBottom).find(link => link.type == this.selectType)
+			if (value && link && link.writable) this.changeComponent("lists")
+		},
 	},
 	methods: {
 		changeComponent(type) {
